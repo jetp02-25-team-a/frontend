@@ -20,8 +20,8 @@ export default function Navbar() {
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/m4"
-              className={`px-[15px] ${pathname === '/m4' ? 'text-white' : ''}`}
+              href="/place"
+              className={`px-[15px] ${pathname === '/place' ? 'text-white' : ''}`}
             >
               美食景點
             </Link>
