@@ -50,8 +50,8 @@ export default function Navbar() {
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/m6"
-              className={`px-[15px] ${pathname === '/m6' ? 'text-white' : ''}`}
+              href="/shops"
+              className={`px-[15px] ${pathname === '/shops' ? 'text-white' : ''}`}
             >
               商城
             </Link>
