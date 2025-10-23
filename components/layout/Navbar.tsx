@@ -13,8 +13,8 @@ export default function Navbar() {
         <div className="flex gap-8 items-center">
           <div className="flex gap-[10px] items-center">
             <Link
-              href="/m2"
-              className={`px-[15px] ${pathname === '/m2' ? 'text-white' : ''}`}
+              href="/trip"
+              className={`px-[15px] ${pathname === '/trip' ? 'text-white' : ''}`}
             >
               行程規劃
             </Link>
