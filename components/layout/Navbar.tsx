@@ -41,9 +41,9 @@ export default function Navbar() {
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/grabgroup"
+              href="/grabgroup/team-up"
               className={`px-[15px] ${
-                pathname === '/grabgroup' ? 'text-white' : ''
+                pathname === '/grabgroup/team-up' ? 'text-white' : ''
               }`}
             >
               尋找旅伴
