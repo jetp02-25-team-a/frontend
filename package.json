@@ -11,7 +11,13 @@
   "dependencies": {
     "next": "15.5.3",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/free-regular-svg-icons": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.0",
+    "@react-google-maps/api": "^2.20.7",
+    "framer-motion": "^12.23.24"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
