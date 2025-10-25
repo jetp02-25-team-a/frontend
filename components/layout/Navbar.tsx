@@ -9,7 +9,10 @@ export default function Navbar() {
   return (
     <>
       <nav className="relative yellow-orange w-full h-[88px] flex justify-between items-center px-[80px] p-[13px]">
-        <img src="/logo.png" alt="logo" className="object-contain h-full" />
+        <Link href="/">
+          <img src="/logo.png" alt="logo" className="object-contain h-full" />
+        </Link>
+
         <div className="flex gap-8 items-center">
           <div className="flex gap-[10px] items-center">
             <Link
@@ -43,7 +46,7 @@ export default function Navbar() {
             <Link
               href="/grabgroup/team-up"
               className={`px-[15px] ${
-                pathname === '/grabgroup/team-up' ? 'text-white' : ''
+                pathname.startsWith('/grabgroup') ? 'text-white' : ''
               }`}
             >
               尋找旅伴
