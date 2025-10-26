@@ -43,7 +43,7 @@ export default function NodeCard({
             : `下午${reduceTimeWrap(end_time, '12:00')}`}
         </p>
       </div>
-      <div className="bg-white w-lg h-[97px] flex gap-2.5 p-2.5 ">
+      <div className="bg-white w-lg h-[97px] flex gap-2.5 p-2.5 hover:shadow-[0_0_15px_5px_rgba(250,250,250,0.7)]">
         <Image width={77} height={77} src={image} alt=""></Image>
         <div className="w-full">
           <p className="text-red-500">{getTimeCost(duration_minute)}</p>
@@ -52,8 +52,14 @@ export default function NodeCard({
         </div>
 
         <div className="flex flex-col justify-between">
-          <FontAwesomeIcon icon={faEllipsis} className="text-gray-400" />
-          <FontAwesomeIcon icon={faTrashCan} className="text-gray-400" />
+          <FontAwesomeIcon
+            icon={faEllipsis}
+            className="text-gray-400 cursor-pointer"
+          />
+          <FontAwesomeIcon
+            icon={faTrashCan}
+            className="text-gray-400 cursor-pointer"
+          />
         </div>
       </div>
     </div>

@@ -2,12 +2,15 @@
 import {
   faChevronLeft,
   faChevronRight,
+  faHouse,
+  faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DayCard from './_components/DayCard';
 import { useEffect, useRef, useState } from 'react';
 import NodeCard from './_components/NodeCard';
 import { addTimeWrap } from '../utils';
+import AddItineraryButton from './_components/AddItineraryButton';
 
 const data = [
   {
@@ -77,8 +80,8 @@ interface MyNode {
   title: string;
   duration_minute: string;
   address: string;
-  start_time?: string;
-  end_time?: string;
+  start_time: string;
+  end_time: string;
 }
 
 interface DayWithNodes {
@@ -188,6 +191,11 @@ export default function GroupItineraryDetalPage() {
                       </>
                     );
                   })}
+                  {/* add btn  */}
+                  <div className="flex gap-[30px]">
+                    <AddItineraryButton icon={faPlus} btn_name="加入行程" />
+                    <AddItineraryButton icon={faHouse} btn_name="加入住宿" />
+                  </div>
                 </>
               );
             })}
