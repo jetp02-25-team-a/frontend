@@ -1,3 +1,4 @@
+import { faL } from '@fortawesome/free-solid-svg-icons';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -16,6 +17,7 @@ const nextConfig: NextConfig = {
     // 從遠端連結圖片用的設定
     remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
   },
+  devIndicators: false,
 };
 
 export default nextConfig;

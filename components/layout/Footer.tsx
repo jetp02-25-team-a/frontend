@@ -1,4 +1,6 @@
+'use client';
 import LinkButton from '@/components/ui/link_button';
+import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFacebookF,
@@ -7,6 +9,8 @@ import {
   faYoutube,
 } from '@fortawesome/free-brands-svg-icons';
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname.includes('/grabgroup/panel')) return;
   return (
     <>
       <div className="yellow-orange h-[354px] px-[340px] pt-[70px] pb-[30px] text-white w-full flex flex-col items-center rounded-t-2xl gap-[30px]">
