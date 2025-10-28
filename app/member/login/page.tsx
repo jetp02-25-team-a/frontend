@@ -25,15 +25,13 @@ export default function Page() {
         body: JSON.stringify(data),
       });
       const jsonRes = await response.json();
-      console.log(jsonRes);
-      console.log(jsonRes.data.token);
+
       // 檢查響應是否成功，並嘗試從 JSON 中提取 token
       if (response.ok && jsonRes.data.token) {
         //使用 localStorage.setItem 儲存 JWT
         localStorage.setItem('userToken', jsonRes.data.token);
-        console.log('JWT已經儲存到LocalStorage'); // 接著可以進行頁面跳轉或其他成功登入後的動作
+        console.log('JWT已經儲存到LocalStorage');
       } else {
-        // 處理登入失敗，例如顯示錯誤訊息
         console.error('登入失敗');
       }
     } catch (e) {
