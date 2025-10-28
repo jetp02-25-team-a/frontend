@@ -31,8 +31,8 @@ export default function Navbar() {
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/accommodation"
-              className={`px-[15px] ${pathname === '/accommodation' ? 'text-white' : ''}`}
+              href="/accommodations"
+              className={`px-[15px] ${pathname === '/accommodations' ? 'text-white' : ''}`}
             >
               住宿交通
             </Link>
