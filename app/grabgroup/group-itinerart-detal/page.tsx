@@ -6,11 +6,12 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import DayCard from './_components/DayCard';
+import DayCard from './_components/day-card';
 import { useEffect, useRef, useState } from 'react';
-import NodeCard from './_components/NodeCard';
+import NodeCard from './_components/node-card';
 import { addTimeWrap } from '../utils';
-import AddItineraryButton from './_components/AddItineraryButton';
+import AddItineraryButton from './_components/addItinerary-button';
+import Iframe from './_components/iframe';
 
 const data = [
   {
@@ -124,6 +125,12 @@ export default function GroupItineraryDetalPage() {
 
     setDays(newData);
   }, []);
+  // 控制iframe顯示
+  const [isIframeVisible, setIsIframeVisible] = useState(false);
+  // 這個函式會傳給子組件
+  const handleIframeVisible = (show: boolean) => {
+    setIsIframeVisible(show);
+  };
 
   return (
     <>
@@ -166,10 +173,10 @@ export default function GroupItineraryDetalPage() {
             </button>
           </div>
           {/* 顯示node區域 */}
-          <div className="flex flex-col items-center gap-3.5">
+          <div>
             {days.map((day, index) => {
               return (
-                <>
+                <div className="flex flex-col items-center gap-3.5" key={index}>
                   <div className="w-full">
                     <h3 className="text-start text-[24px]">{`第${index + 1}天`}</h3>
                     <p className="text-start text-base">{day.date}</p>
@@ -177,9 +184,8 @@ export default function GroupItineraryDetalPage() {
 
                   {day.nodes?.map((node, index) => {
                     return (
-                      <>
+                      <div key={index} className="w-full">
                         <NodeCard
-                          key={index}
                           image={node.image}
                           duration_minute={node.duration_minute}
                           title={node.title}
@@ -187,22 +193,30 @@ export default function GroupItineraryDetalPage() {
                           start_time={node.start_time?.slice(0, 5)}
                           end_time={node.end_time?.slice(0, 5)}
                         />
-                        <div className="bg-gray-600 w-1 h-[43px]"></div>
-                      </>
+                        <div className="bg-gray-600 w-1 h-[43px] m-auto"></div>
+                      </div>
                     );
                   })}
                   {/* add btn  */}
                   <div className="flex gap-[30px]">
-                    <AddItineraryButton icon={faPlus} btn_name="加入行程" />
+                    <AddItineraryButton
+                      icon={faPlus}
+                      btn_name="加入行程"
+                      onClick={() => setIsIframeVisible(true)}
+                    />
                     <AddItineraryButton icon={faHouse} btn_name="加入住宿" />
                   </div>
-                </>
+                </div>
               );
             })}
           </div>
         </div>
         {/* map_zone */}
-        <div className="bg-amber-700">bbb</div>
+        <div className="bg-amber-700 relative">
+          {isIframeVisible && (
+            <Iframe visible={isIframeVisible} onSend={handleIframeVisible} />
+          )}
+        </div>
       </div>
     </>
   );

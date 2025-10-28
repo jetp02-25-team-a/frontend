@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 export default function Navbar() {
   const pathname = usePathname();
+  if (pathname.includes('/grabgroup/panel')) return;
   return (
     <>
       <nav className="relative yellow-orange w-full h-[88px] flex justify-between items-center px-[80px] p-[13px]">

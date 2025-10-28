@@ -1,6 +1,6 @@
 'use client';
-import Button from '../_components/Button';
-import DatePicker from './_components/DatePicker';
+import Button from '../_components/button';
+import DatePicker from './_components/date-picker';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 

@@ -1,4 +1,4 @@
-import TourCard from "../_components/TourCard";
+import TourCard from '../_components/tour-card';
 export default function TaipeiCityPage() {
   return (
     <>

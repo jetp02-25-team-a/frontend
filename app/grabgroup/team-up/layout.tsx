@@ -1,7 +1,7 @@
-"use client";
-import InputField from "./_components/InputField";
-import TourCard from "./_components/TourCard";
-import AreaButton from "./_components/AreaButton";
+'use client';
+import InputField from './_components/input-field';
+import TourCard from './_components/tour-card';
+import AreaButton from './_components/area-button';
 
 export default function TeamUpLayout({
   children,
