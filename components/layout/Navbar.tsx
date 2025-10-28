@@ -38,8 +38,8 @@ export default function Navbar() {
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/m1"
-              className={`px-[15px] ${pathname === '/m1' ? 'text-white' : ''}`}
+              href="/articles"
+              className={`px-[15px] ${pathname === '/articles' ? 'text-white' : ''}`}
             >
               旅行筆記
             </Link>
