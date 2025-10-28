@@ -1,4 +1,3 @@
-import { faL } from '@fortawesome/free-solid-svg-icons';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -18,6 +17,20 @@ const nextConfig: NextConfig = {
     remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
   },
   devIndicators: false,
+
+  async rewrites() {
+    const apiTarget = process.env.EXPRESS_SERVER_URL || 'http://localhost:3002';
+
+    return [
+      {
+        // 前端呼叫： /api/users
+        source: '/api/:path*',
+
+        // Next.js 轉發到： http://localhost:5000/api/users
+        destination: `${apiTarget}/api/:path*`, // <--- 在這裡加上 /api
+      },
+    ];
+  },
 };
 
 export default nextConfig;
