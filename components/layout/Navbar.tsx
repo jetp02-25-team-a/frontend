@@ -13,22 +13,22 @@ export default function Navbar() {
         <div className="flex gap-8 items-center">
           <div className="flex gap-[10px] items-center">
             <Link
-              href="/m2"
-              className={`px-[15px] ${pathname === '/m2' ? 'text-white' : ''}`}
+              href="/trip"
+              className={`px-[15px] ${pathname === '/trip' ? 'text-white' : ''}`}
             >
               行程規劃
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/m4"
-              className={`px-[15px] ${pathname === '/m4' ? 'text-white' : ''}`}
+              href="/place"
+              className={`px-[15px] ${pathname === '/place' ? 'text-white' : ''}`}
             >
               美食景點
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/m3"
-              className={`px-[15px] ${pathname === '/m3' ? 'text-white' : ''}`}
+              href="/accommodation"
+              className={`px-[15px] ${pathname === '/accommodation' ? 'text-white' : ''}`}
             >
               住宿交通
             </Link>
@@ -41,9 +41,9 @@ export default function Navbar() {
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/grabgroup"
+              href="/grabgroup/team-up"
               className={`px-[15px] ${
-                pathname === '/grabgroup' ? 'text-white' : ''
+                pathname === '/grabgroup/team-up' ? 'text-white' : ''
               }`}
             >
               尋找旅伴
