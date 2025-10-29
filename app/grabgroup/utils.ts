@@ -56,4 +56,16 @@ export function getTimeCost(time?: string) {
   return `${hours}小時${minutes}分`;
 }
 
-//
+//處理時間至小時到分加上PMAM
+export function formatTime12Hour(time: string): string {
+  // time 格式: "HH:MM:SS"
+  const [hourStr, minuteStr] = time.split(':');
+  let hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  hour = hour % 12;
+  if (hour === 0) hour = 12; // 12 AM 或 12 PM
+
+  return `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+}
