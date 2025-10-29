@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import HeroImage from '@/components/HeroImage';
-import HeroSection from '@/components/HeroSection';
-import IntroText from '@/components/IntroText';
-import SidebarAction from '@/components/SidebarAction';
-import DestinationGrid from '@/components/DestinationGrid';
+import HeroImage from '@/app/articles/_components/HeroImage';
+import HeroSection from '@/app/articles/_components/HeroSection';
+import IntroText from '@/app/articles/_components/IntroText';
+import SidebarAction from '@/app/articles/_components/SidebarAction';
+import DestinationGrid from '@/app/articles/_components/DestinationGrid';
 
 export default function ArticlePage() {
   return (
