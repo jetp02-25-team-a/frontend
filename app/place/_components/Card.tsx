@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 export default function Card({ spot, photo }: { spot: any; photo: string }) {
   const name = spot.name;
@@ -9,7 +10,10 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
   const address = spot.address;
   return (
     <>
-      <div className="w-[303px] rounded-2xl customize_shadow bg-white overflow-hidden group">
+      <Link
+        href={`place/view-info/${spot.id}`}
+        className="w-[303px] rounded-2xl customize_shadow bg-white overflow-hidden group"
+      >
         <div className="w-full h-[259px] object-cover overflow-hidden">
           <img
             src={photo}
@@ -40,7 +44,7 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
           <p className="text-sm text-gray-600 truncate">{address}</p>
           <p className="text-sm">{desc.slice(0, 100)}</p>
         </div>
-      </div>
+      </Link>
     </>
   );
 }
