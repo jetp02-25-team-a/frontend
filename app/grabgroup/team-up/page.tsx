@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
-import AreaButton from './_components/AreaButton';
-import TourCard from './_components/TourCard';
+import AreaButton from './_components/area-button';
+import TourCard from './_components/tour-card';
 export default function TeamUpPage() {
   const [area, setArea] = useState('taipeicity');
 

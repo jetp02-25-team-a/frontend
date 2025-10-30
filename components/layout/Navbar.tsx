@@ -6,10 +6,14 @@ import Link from 'next/link';
 
 export default function Navbar() {
   const pathname = usePathname();
+  if (pathname.includes('/grabgroup/panel')) return;
   return (
     <>
       <nav className="relative yellow-orange w-full h-[88px] flex justify-between items-center px-[80px] p-[13px]">
-        <img src="/logo.png" alt="logo" className="object-contain h-full" />
+        <Link href="/">
+          <img src="/logo.png" alt="logo" className="object-contain h-full" />
+        </Link>
+
         <div className="flex gap-8 items-center">
           <div className="flex gap-[10px] items-center">
             <Link
@@ -34,8 +38,8 @@ export default function Navbar() {
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/m1"
-              className={`px-[15px] ${pathname === '/m1' ? 'text-white' : ''}`}
+              href="/articles"
+              className={`px-[15px] ${pathname === '/articles' ? 'text-white' : ''}`}
             >
               旅行筆記
             </Link>
@@ -43,7 +47,7 @@ export default function Navbar() {
             <Link
               href="/grabgroup/team-up"
               className={`px-[15px] ${
-                pathname === '/grabgroup/team-up' ? 'text-white' : ''
+                pathname.startsWith('/grabgroup') ? 'text-white' : ''
               }`}
             >
               尋找旅伴
