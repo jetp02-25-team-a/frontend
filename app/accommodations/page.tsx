@@ -1,4 +1,5 @@
 import TourCard from '../grabgroup/team-up/_components/tour-card';
+import Container from './_components/Container';
 
 export default async function AccommodationPage() {
   console.log(process.env.NEXT_PUBLIC_EXPRESS_API_TARGET);
@@ -14,6 +15,7 @@ export default async function AccommodationPage() {
         user_name="小美"
         image="https://www.travel.taipei/image/216608/?r=1625036397904"
       />
+      <Container />
     </>
   );
 }

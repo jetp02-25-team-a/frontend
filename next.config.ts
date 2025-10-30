@@ -14,7 +14,16 @@ const nextConfig: NextConfig = {
   },
   images: {
     // 從遠端連結圖片用的設定
-    remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      {
+        protocol: 'https',
+        // ⭐️ 將 Faker 圖片的來源域名加入
+        hostname: 'loremflickr.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
   devIndicators: false,
 
