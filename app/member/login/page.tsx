@@ -1,6 +1,5 @@
 'use client';
 
-import { log } from 'console';
 import React, { useState, useEffect } from 'react';
 
 export default function Page() {
@@ -32,7 +31,7 @@ export default function Page() {
         localStorage.setItem('userToken', jsonRes.data.token);
         console.log('JWT已經儲存到LocalStorage');
       } else {
-        console.error('登入失敗');
+        console.log('登入失敗');
       }
     } catch (e) {
       console.log(e);
@@ -41,24 +40,38 @@ export default function Page() {
 
   return (
     <>
-      <div>登入</div>
-      <form onSubmit={handleSubmit}>
-        <h2>電子郵件</h2>
-        <input
-          type="text"
-          name="email"
-          value={data.email}
-          onChange={handleFieldChange}
-        />
-        <h2>密碼</h2>
-        <input
-          type="text"
-          name="password"
-          value={data.password}
-          onChange={handleFieldChange}
-        />
-        <button type="submit">登入</button>
-      </form>
+      <div className="w-screen h-full flex items-center justify-center bg-amber-50">
+        <form onSubmit={handleSubmit}>
+          <div className=" w-full justify-center flex">
+            <h1>登入</h1>
+          </div>
+          <h2>電子郵件</h2>
+          <input
+            className="bg-white"
+            type="text"
+            name="email"
+            value={data.email}
+            onChange={handleFieldChange}
+          />
+          <h2>密碼</h2>
+          <input
+            className="bg-white"
+            type="text"
+            name="password"
+            value={data.password}
+            onChange={handleFieldChange}
+          />
+
+          <div>
+            <button
+              type="submit"
+              className="bg-amber-100 px-10 py-0.5 rounded-xl"
+            >
+              登入
+            </button>
+          </div>
+        </form>
+      </div>
     </>
   );
 }
