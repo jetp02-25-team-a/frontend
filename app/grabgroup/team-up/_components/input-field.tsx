@@ -1,5 +1,6 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import Link from 'next/link';
 export default function InputField() {
   return (
     <>
@@ -15,11 +16,12 @@ export default function InputField() {
           <div className="customize_gray h-[20px] w-[2px]"></div>
           <input type="text" placeholder="人數" className="w-[72px]" />
         </div>
-
-        <button className="bg-amber-400 text-white px-[30px] py-[10px] flex justify-center items-center gap-[10px] rounded-full">
-          <FontAwesomeIcon icon={faPlus} />
-          新增行程
-        </button>
+        <Link href="./create-group-itinerary">
+          <button className="bg-amber-400 text-white px-[30px] py-[10px] flex justify-center items-center gap-[10px] rounded-full cursor-pointer">
+            <FontAwesomeIcon icon={faPlus} />
+            新增行程
+          </button>
+        </Link>
       </div>
     </>
   );
