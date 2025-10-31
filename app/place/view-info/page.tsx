@@ -5,7 +5,7 @@ import RatingSummary from './_components/RatingSummary';
 import MapSection from './_components/MapSection';
 import ReviewList from './_components/ReviewList';
 import ReviewComposer from './_components/ReviewComposer';
-import { getSpotDetail } from './lib/adapter';
+import { getSpotDetail } from '@/app/place/lib/adapter';
 
 export default async function SpotPage({ params }: { params: { id: string } }) {
   const placeId = Number(params.id) || 1;
