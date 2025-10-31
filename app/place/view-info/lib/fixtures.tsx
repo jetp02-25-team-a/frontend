@@ -1,80 +1,354 @@
-// lib/fixtures.ts
-export const spot = {
-  id: "s_202",
-  name: "澎湖 雙心石滬",
-  description:
-    "位於澎湖北海吉貝嶼東北角，以石滬形成的雙心圖樣聞名。退潮時適合散步觀景、拍照。",
-  heroPhoto: "https://picsum.photos/id/1011/1200/600",
-  photos: [
-    "https://picsum.photos/id/1015/400/240",
-    "https://picsum.photos/id/1016/400/240",
-    "https://picsum.photos/id/1020/400/240",
-    "https://picsum.photos/id/1025/400/240",
-  ],
-  tags: ["觀景", "海景", "步道"],
-  address: "澎湖縣白沙鄉",
-  ratingAvg: 4.8,
-  ratingDist: [
-    { star: 5, pct: 72 },
-    { star: 4, pct: 20 },
-    { star: 3, pct: 6 },
-    { star: 2, pct: 1 },
-    { star: 1, pct: 1 },
-  ],
-  reviewCount: 125,
-  geo: { lat: 23.7, lng: 119.6 },
-  contacts: [
-    { icon: <span>📍</span>, text: "883澎湖縣七美鄉" },
-    { icon: <span>🟢</span>, text: "883澎湖縣七美鄉", href: "#" },
-    { icon: <span>📘</span>, text: "883澎湖縣七美鄉", href: "#" },
-    { icon: <span>📸</span>, text: "883澎湖縣七美鄉", href: "#" },
-    { icon: <span>✖️</span>, text: "883澎湖縣七美鄉" },
-  ],
-  hours: [
-    "星期日：11:00–21:30",
-    "星期一：11:00–21:30",
-    "星期二：11:00–21:30",
-    "星期三：11:00–21:30",
-    "星期四：11:00–21:30",
-    "星期五：11:00–21:30",
-    "星期六：11:00–21:30",
-  ],
-};
+// --- 地點資料 (Place + Photo) ---
+export const places = [
+  // ---------- 景點 ----------
+  {
+    place_id: 1,
+    type: 'spot',
+    name: '澎湖 雙心石滬',
+    introduce: '澎湖著名地標，退潮時能步行至石滬中央欣賞浪花。',
+    contact: '06-123-4567',
+    region: '澎湖縣白沙鄉',
+    address: '澎湖縣白沙鄉吉貝嶼東北角',
+    latitude: 23.7,
+    longitude: 119.6,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 1,
+    Photos: [
+      {
+        photo_id: 1,
+        place_id: 1,
+        url: 'https://picsum.photos/id/1011/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 2,
+        place_id: 1,
+        url: 'https://picsum.photos/id/1012/800/600',
+        sort_order: 2,
+      },
+    ],
+  },
+  {
+    place_id: 2,
+    type: 'spot',
+    name: '高美濕地',
+    introduce: '以日落景色著稱，是攝影愛好者必訪景點。',
+    contact: '04-2611-2111',
+    region: '台中市清水區',
+    address: '台中市清水區美堤街',
+    latitude: 24.3,
+    longitude: 120.5,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 2,
+    Photos: [
+      {
+        photo_id: 3,
+        place_id: 2,
+        url: 'https://picsum.photos/id/1040/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 4,
+        place_id: 2,
+        url: 'https://picsum.photos/id/1041/800/600',
+        sort_order: 2,
+      },
+    ],
+  },
+  {
+    place_id: 3,
+    type: 'spot',
+    name: '阿里山森林遊樂區',
+    introduce: '雲海、日出、鐵道與神木並存的經典山林景點。',
+    contact: '05-267-9917',
+    region: '嘉義縣阿里山鄉',
+    address: '嘉義縣阿里山鄉中正村59號',
+    latitude: 23.5,
+    longitude: 120.8,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 3,
+    Photos: [
+      {
+        photo_id: 5,
+        place_id: 3,
+        url: 'https://picsum.photos/id/1050/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 6,
+        place_id: 3,
+        url: 'https://picsum.photos/id/1051/800/600',
+        sort_order: 2,
+      },
+    ],
+  },
+  {
+    place_id: 4,
+    type: 'spot',
+    name: '九份老街',
+    introduce: '山城老街，遍布茶館與小吃，夜晚燈籠閃爍極具懷舊氛圍。',
+    contact: '02-2496-2800',
+    region: '新北市瑞芳區',
+    address: '新北市瑞芳區基山街',
+    latitude: 25.109,
+    longitude: 121.844,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 4,
+    Photos: [
+      {
+        photo_id: 7,
+        place_id: 4,
+        url: 'https://picsum.photos/id/1060/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 8,
+        place_id: 4,
+        url: 'https://picsum.photos/id/1061/800/600',
+        sort_order: 2,
+      },
+    ],
+  },
+  {
+    place_id: 5,
+    type: 'spot',
+    name: '太魯閣峽谷',
+    introduce: '壯麗大理岩峽谷與蜿蜒公路，是花蓮最具代表性的景觀之一。',
+    contact: '03-862-1100',
+    region: '花蓮縣秀林鄉',
+    address: '花蓮縣秀林鄉富世村富世291號',
+    latitude: 24.167,
+    longitude: 121.602,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 5,
+    Photos: [
+      {
+        photo_id: 9,
+        place_id: 5,
+        url: 'https://picsum.photos/id/1070/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 10,
+        place_id: 5,
+        url: 'https://picsum.photos/id/1071/800/600',
+        sort_order: 2,
+      },
+    ],
+  },
 
-export const reviews = [
+  // ---------- 美食 ----------
   {
-    id: "r1",
-    user: { name: "Sophie Carter", avatar: "https://i.pravatar.cc/40?img=3" },
-    rating: 5,
-    content: "夕陽超美！退潮時能走到石滬旁邊，海風很舒服，適合拍照散步。",
-    createdAt: "2025-08-02",
+    place_id: 6,
+    type: 'food',
+    name: '阿宗麵線',
+    introduce: '台北西門町著名小吃，以大腸與柴魚高湯聞名。',
+    contact: '02-2388-8808',
+    region: '台北市萬華區',
+    address: '台北市萬華區峨嵋街8之1號',
+    latitude: 25.042,
+    longitude: 121.507,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 1,
+    Photos: [
+      {
+        photo_id: 11,
+        place_id: 6,
+        url: 'https://picsum.photos/id/1080/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 12,
+        place_id: 6,
+        url: 'https://picsum.photos/id/1081/800/600',
+        sort_order: 2,
+      },
+    ],
   },
   {
-    id: "r2",
-    user: { name: "Ethan Bennett", avatar: "https://i.pravatar.cc/40?img=5" },
-    rating: 5,
-    content: "現場比照片更壯觀，晚上星空也很清楚。路線好找，停車方便。",
-    createdAt: "2025-07-18",
+    place_id: 7,
+    type: 'food',
+    name: '阜杭豆漿',
+    introduce: '人氣早餐店，以厚燒餅與鹹豆漿著名。',
+    contact: '02-2392-2175',
+    region: '台北市中正區',
+    address: '台北市中正區忠孝東路一段108號2樓',
+    latitude: 25.045,
+    longitude: 121.523,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 1,
+    Photos: [
+      {
+        photo_id: 13,
+        place_id: 7,
+        url: 'https://picsum.photos/id/1090/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 14,
+        place_id: 7,
+        url: 'https://picsum.photos/id/1091/800/600',
+        sort_order: 2,
+      },
+    ],
   },
   {
-    id: "r3",
-    user: { name: "Olivia Taylor", avatar: "https://i.pravatar.cc/40?img=8" },
-    rating: 4,
-    content: "白天人較多，建議卡退潮時段。沿岸木棧道很好走。",
-    createdAt: "2025-06-01",
+    place_id: 8,
+    type: 'food',
+    name: '鼎泰豐 信義店',
+    introduce: '台灣代表性中餐品牌，以小籠包聞名世界。',
+    contact: '02-2321-8928',
+    region: '台北市信義區',
+    address: '台北市信義區信義路二段194號',
+    latitude: 25.032,
+    longitude: 121.564,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 1,
+    Photos: [
+      {
+        photo_id: 15,
+        place_id: 8,
+        url: 'https://picsum.photos/id/1100/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 16,
+        place_id: 8,
+        url: 'https://picsum.photos/id/1101/800/600',
+        sort_order: 2,
+      },
+    ],
+  },
+  {
+    place_id: 9,
+    type: 'food',
+    name: '老牌牛肉麵',
+    introduce: '紅燒湯頭濃郁，筋肉分明，是在地人推薦的平價美食。',
+    contact: '02-2331-7777',
+    region: '台北市中山區',
+    address: '台北市中山區南京東路二段101號',
+    latitude: 25.052,
+    longitude: 121.525,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 1,
+    Photos: [
+      {
+        photo_id: 17,
+        place_id: 9,
+        url: 'https://picsum.photos/id/1110/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 18,
+        place_id: 9,
+        url: 'https://picsum.photos/id/1111/800/600',
+        sort_order: 2,
+      },
+    ],
+  },
+  {
+    place_id: 10,
+    type: 'food',
+    name: '一蘭拉麵 台北店',
+    introduce: '來自日本的拉麵品牌，以個人化包廂與濃厚豚骨湯底聞名。',
+    contact: '02-2723-8978',
+    region: '台北市信義區',
+    address: '台北市信義區松壽路11號',
+    latitude: 25.034,
+    longitude: 121.566,
+    created_at: '2025-10-01T09:00:00Z',
+    updated_at: '2025-10-01T09:00:00Z',
+    city_id: 1,
+    Photos: [
+      {
+        photo_id: 19,
+        place_id: 10,
+        url: 'https://picsum.photos/id/1120/800/600',
+        sort_order: 1,
+      },
+      {
+        photo_id: 20,
+        place_id: 10,
+        url: 'https://picsum.photos/id/1121/800/600',
+        sort_order: 2,
+      },
+    ],
   },
 ];
 
-// export default function Page() {
-//   return (
-//     <div className="max-w-6xl mx-auto p-4">
-//       <RatingAndInfo
-//         avg={4.8}
-//         reviewCount={125}
-//         dist={dist as any}
-//         contacts={contacts}
-//         hours={hours}
-//       />
-//     </div>
-//   );
-// }
+export const favorites = [
+  {
+    favorite_id: 1,
+    user_id: 1,
+    place_id: 1,
+    created_at: '2025-10-01T10:00:00Z',
+  },
+  {
+    favorite_id: 2,
+    user_id: 1,
+    place_id: 6,
+    created_at: '2025-10-01T10:10:00Z',
+  },
+];
+
+export const comments = [
+  {
+    comment_id: 1,
+    user_id: 2,
+    place_id: 1,
+    content: '太美了！日落超級棒！',
+    created_at: '2025-10-01T10:20:00Z',
+    updated_at: '2025-10-01T10:20:00Z',
+  },
+  {
+    comment_id: 2,
+    user_id: 3,
+    place_id: 6,
+    content: '阿宗麵線真的名不虛傳',
+    created_at: '2025-10-01T10:25:00Z',
+    updated_at: '2025-10-01T10:25:00Z',
+  },
+];
+
+export const ranks = [
+  {
+    rank_id: 1,
+    user_id: 2,
+    place_id: 1,
+    score: 5,
+    created_at: '2025-10-01T10:30:00Z',
+    updated_at: '2025-10-01T10:30:00Z',
+  },
+  {
+    rank_id: 2,
+    user_id: 3,
+    place_id: 6,
+    score: 4,
+    created_at: '2025-10-01T10:35:00Z',
+    updated_at: '2025-10-01T10:35:00Z',
+  },
+];
+
+export const histories = [
+  {
+    history_id: 1,
+    user_id: 1,
+    place_id: 1,
+    last_viewed_at: '2025-10-01T11:00:00Z',
+  },
+  {
+    history_id: 2,
+    user_id: 1,
+    place_id: 6,
+    last_viewed_at: '2025-10-01T11:05:00Z',
+  },
+];
