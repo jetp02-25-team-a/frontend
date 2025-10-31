@@ -8,7 +8,7 @@ export default function HeroSection() {
     <>
       <div className="relative w-full h-[500px] bg-white-200 ">
         <Image
-          src={'/image/BANNER-3.jpg'}
+          src={'/images/BANNER-3.jpg'}
           alt=""
           fill
           style={{ zIndex: '-1' }}
