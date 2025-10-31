@@ -23,6 +23,10 @@
   @apply border-[#F2A922];
 }
 
+.bg-light-orange {
+  @apply bg-[#FBE7C1];
+}
+
 .bg-light-gray {
   @apply bg-[#F4F4F4];
 }

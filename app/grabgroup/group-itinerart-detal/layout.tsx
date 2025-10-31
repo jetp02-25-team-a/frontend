@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import Button from '../_components/button';
+import Button from './../_components/Button';
 
 export default function GroupItineraryDetalPage({
   children,
