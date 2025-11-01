@@ -30,11 +30,20 @@ const messages = {
 
 interface ChatBoxProps {
   roomId: number | null; // 新增房間 ID
+  roomTitle: string | null;
   userId: number | null;
+  userNickname: string | null;
+
   onClose?: () => void;
 }
 
-export default function ChatBox({ roomId, onClose }: ChatBoxProps) {
+export default function ChatBox({
+  roomId,
+  roomTitle,
+  userId,
+  userNickname,
+  onClose,
+}: ChatBoxProps) {
   const [isHide, setIsHide] = useState(true);
   const [message, setMessage] = useState<string>('');
   const [socket, setSocket] = useState<any>(null);
@@ -96,7 +105,8 @@ export default function ChatBox({ roomId, onClose }: ChatBoxProps) {
       }`}
     >
       <h2 className="text-[20px] px-[15px] py-2.5 flex  items-center justify-between bg-amber-300">
-        {messages.title}
+        {roomTitle ? roomTitle : ''}
+        {userNickname ? userNickname : ''}
 
         <div className="space-x-2">
           <FontAwesomeIcon

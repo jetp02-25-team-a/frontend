@@ -3,7 +3,7 @@ import MessageBox from '../_components/message-box';
 import FriendCard from '../_components/friend-card';
 import ChatBox from '../_components/chat-box';
 import { useState, useEffect } from 'react';
-
+// import isEqual from 'lodash/isEqual';
 //引入hooks(自定義)
 import { useFetch } from '@/hooks/useFetch';
 import { useAuth } from '../../../hooks/use-Auth';
@@ -75,13 +75,6 @@ interface PersonMessage {
   friendData: friendData;
 }
 
-// interface contactFetchData {
-//   data: Data;
-//   loading: boolean;
-//   error: Error;
-//   refetch: () => Promise<void>;
-// }
-
 export default function UserInfoPage() {
   const [openChats, setOpenChats] = useState<ChatInterface[]>([]); //所有聊天室資訊 小視窗
   const [contact, setContact] = useState<any>({
@@ -111,6 +104,19 @@ export default function UserInfoPage() {
     setOpenChats(nextChats);
   };
 
+  //卻認是否存在於小視窗清單中
+  const existChat = (chatsList: ChatInterface[], newChat: ChatInterface) => {
+    // const exists = chatsList.find(
+    //   (chat) => JSON.stringify(chat) === JSON.stringify(newChat)
+    // );
+    const exists = chatsList.some(
+      (chat) =>
+        chat.room_id === newChat.room_id && chat.user_id === newChat.user_id
+    );
+    if (exists) return;
+    else setOpenChats((prev) => [...prev, newChat]);
+  };
+
   return (
     <>
       <div className="grid grid-cols-[80%_20%]">
@@ -122,7 +128,9 @@ export default function UserInfoPage() {
                 <ChatBox
                   key={index}
                   roomId={chatroom.room_id}
+                  roomTitle={chatroom.room_name}
                   userId={chatroom.user_id}
+                  userNickname={chatroom.user_name}
                   onClose={() => closeChat(index)}
                 />
               );
@@ -165,16 +173,10 @@ export default function UserInfoPage() {
                   content={
                     message.LatestMessage ? message.LatestMessage : '還沒有訊息'
                   }
-                  image={null}
+                  image={'/place-default_avatar.jpg'}
                   time={null}
                   // time={message.time}
-                  onClick={() => {
-                    const exists = openChats.find(
-                      (room) => room.room_id === newChat.room_id
-                    );
-                    if (exists) return;
-                    else setOpenChats((prev) => [...prev, newChat]);
-                  }}
+                  onClick={() => existChat(openChats, newChat)}
                 />
               );
             }
@@ -198,47 +200,17 @@ export default function UserInfoPage() {
                   content={
                     message.LatestMessage ? message.LatestMessage : '還沒有訊息'
                   }
-                  image={message.friendData.avatar}
+                  image={
+                    message.friendData.avatar
+                      ? message.friendData.avatar
+                      : '/avatar_default.png'
+                  }
                   time={null}
-                  onClick={() => {
-                    const exists = openChats.find(
-                      (room) => room.room_id === newChat.room_id
-                    );
-                    if (exists) return;
-                    else setOpenChats((prev) => [...prev, newChat]);
-                  }}
+                  onClick={() => existChat(openChats, newChat)}
                 />
               );
             }
           )}
-
-          {/* {datax.map((message, index) => {
-            const newChat = {
-              user_name: message.user_name,
-              user_id: message.id,
-              image: message.image,
-              content: message.content,
-              time: message.time,
-              room_name: message.room_name,
-              room_id: message.room_id,
-            };
-            return (
-              <MessageBox
-                key={index}
-                title={message.user_name}
-                image={`/${message.image}`}
-                content={message.content}
-                time={message.time}
-                onClick={() => {
-                  const exists = openChats.find(
-                    (room) => room.room_id === newChat.room_id
-                  );
-                  if (exists) return;
-                  else setOpenChats((prev) => [...prev, newChat]);
-                }}
-              />
-            );
-          })} */}
         </div>
       </div>
     </>
