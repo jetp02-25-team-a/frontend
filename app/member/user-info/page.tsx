@@ -171,7 +171,9 @@ export default function UserInfoPage() {
                   key={index}
                   title={message.roomData.roomName}
                   content={
-                    message.LatestMessage ? message.LatestMessage : '還沒有訊息'
+                    message.LatestMessage
+                      ? message.LatestMessage.content
+                      : '還沒有訊息'
                   }
                   image={'/place-default_avatar.jpg'}
                   time={null}

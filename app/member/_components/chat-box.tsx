@@ -11,6 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
+import { useAuth } from '../../../hooks/use-Auth';
 
 const messages = {
   title: '台北一日遊',
@@ -45,13 +46,14 @@ export default function ChatBox({
   onClose,
 }: ChatBoxProps) {
   const [isHide, setIsHide] = useState(true);
-  const [message, setMessage] = useState<string>('');
+  const [message, setMessage] = useState<string>(''); //發送的訊息textarea內容
   const [socket, setSocket] = useState<any>(null);
   //所有對話的訊息
   const [chatMessages, setChatMessages] = useState<{ content: string }[]>([]);
 
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const messagesRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null); //dom
+  const messagesRef = useRef<HTMLDivElement>(null); //dom
+  const { user, login, logout, getAuthHeader, isReady } = useAuth();
 
   useEffect(() => {
     const API_URL = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
@@ -62,37 +64,41 @@ export default function ChatBox({
     socket.on('connect', () => {
       console.log('已連線:', socket.id);
     });
-
-    //發送房間號碼
-    socket.emit('joinRoom', roomId);
+    if (roomId) {
+      //發送房間號碼
+      socket.emit('joinRoomId', roomId);
+    }
+    if (userId) {
+      //發送對方id
+      socket.emit('friendID', userId);
+    }
 
     // const content = '這是自己以外都可以看到的訊息';
-    //發第一條訊息
-    // socket.emit('chat', { roomId, content });
 
     //收到訊息時運作
-    socket.on('chat', (msg) => {
-      console.log('收到訊息:', msg);
+    socket.on('public', (msg) => {
+      console.log('後台來的訊息:', msg);
       addMessage(msg.content);
     });
-
-    // socket.on('chat', (msg) => {
-    //   console.log(msg, msg.senderId, socket.id);
-    //   // if (msg.senderId === socket.id) return; // 自己的訊息跳過
-    //   // addMessage(msg.content, 'left'); // 別人訊息顯示左邊
-    // });
 
     return () => {
       socket.disconnect();
     };
   }, [roomId]);
 
+  //發送訊息
   const sendMessage = (msg: string) => {
-    if (!socket || msg.length < 1) return;
-    socket.emit('chat', { roomId, content: msg }); // 發送給後端
+    if (!socket || msg.length < 1) return; //輸入為空
+    socket.emit(
+      'chat',
+      roomId
+        ? { providerId: user?.id, roomId: roomId, content: msg }
+        : { providerId: user?.id, acceptId: userId, content: msg }
+    ); // 發送給後端 判斷是room還是單人
     setMessage(''); //清空輸入欄位state
     if (textAreaRef.current) textAreaRef.current.value = ''; //清空輸入欄位
   };
+
   //更新訊息至 react state 中的 chatMessages 讓畫面更新
   const addMessage = (msg: string) => {
     setChatMessages((prev) => [...prev, { content: msg }]);
