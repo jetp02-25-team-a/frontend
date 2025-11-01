@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface UseFetchOptions {
   method?: string;
@@ -6,7 +6,6 @@ interface UseFetchOptions {
   headers?: Record<string, string>;
 }
 
-// 轉入url
 export function useFetch<T = any>(url: string, options: UseFetchOptions = {}) {
   const { method = 'GET', body = null, headers = {} } = options;
 
@@ -14,30 +13,39 @@ export function useFetch<T = any>(url: string, options: UseFetchOptions = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true); //讀取中...
-    setError(null); // 有無錯誤
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('BackpackUserInfo');
+        let newToken;
+        if (token) {
+          newToken = 'Bearer ' + JSON.parse(token).token;
+        }
 
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          ...headers,
-        },
-        body: body ? JSON.stringify(body) : null,
-      });
+        const res = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(newToken ? { Authorization: newToken } : {}),
+            ...headers,
+          },
+          body: body ? JSON.stringify(body) : null,
+        });
 
-      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
-      const result = await res.json();
-      setData(result);
-    } catch (err: any) {
-      setError(err);
-    } finally {
-      setLoading(false); //執行後修改狀態
-    }
-  };
+        const result = await res.json();
+        setData(result);
+      } catch (err: any) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  return { data, loading, error, refetch: fetchData };
+    fetchData();
+  }, [url]); // 每次 url 改變時重新 fetch
+
+  return { data, loading, error };
 }

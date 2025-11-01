@@ -1,4 +1,6 @@
 'use client';
+
+import { useAuth } from '@/hooks/use-Auth';
 import JoinButton from '../components/ui/join-button';
 import { Roboto } from 'next/font/google';
 const roboto = Roboto({
