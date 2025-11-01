@@ -3,19 +3,24 @@ import Image from 'next/image';
 import { formatTime12Hour } from '@/app/grabgroup/utils';
 
 interface MessageBoxProps {
-  title: string;
+  title: string | null;
   image: string;
-  content?: string;
+  content: string | null;
   time: string;
+  onClick: () => void;
 }
 export default function MessageBox({
   title,
   image,
   content,
   time,
+  onClick,
 }: MessageBoxProps) {
   return (
-    <div className="w-full h-20 flex border-b-2 border-gray-600 bg-white px-2.5 py-2 gap-2">
+    <div
+      onClick={onClick}
+      className="w-full h-20 flex border-b-2 border-gray-600 bg-white px-2.5 py-2 gap-2"
+    >
       <div className="shrink-0 w-2.5 h-2.5 bg-[#61FF8B] rounded-full"></div>
       <Image
         width={64}
