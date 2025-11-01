@@ -2,7 +2,7 @@
 
 import HeroSlider from './_components/HeroSlider';
 import SearchBar from './_components/SearchBar';
-import PlaceGrid from './_components/Grid';
+import ExploreSection from './_components/ExploreSection';
 
 export default function HomePage() {
   return (
@@ -14,7 +14,7 @@ export default function HomePage() {
       <SearchBar />
 
       {/* 熱門地點 */}
-      <PlaceGrid />
+      <ExploreSection />
     </main>
   );
 }
