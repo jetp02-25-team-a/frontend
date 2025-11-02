@@ -13,39 +13,39 @@ export function useFetch<T = any>(url: string, options: UseFetchOptions = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const token = localStorage.getItem('BackpackUserInfo');
-        let newToken;
-        if (token) {
-          newToken = 'Bearer ' + JSON.parse(token).token;
-        }
-
-        const res = await fetch(url, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            ...(newToken ? { Authorization: newToken } : {}),
-            ...headers,
-          },
-          body: body ? JSON.stringify(body) : null,
-        });
-
-        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-
-        const result = await res.json();
-        setData(result);
-      } catch (err: any) {
-        setError(err);
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('BackpackUserInfo');
+      let newToken;
+      if (token) {
+        newToken = 'Bearer ' + JSON.parse(token).token;
       }
-    };
 
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(newToken ? { Authorization: newToken } : {}),
+          ...headers,
+        },
+        body: body ? JSON.stringify(body) : null,
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+
+      const result = await res.json();
+      setData(result);
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
-  }, [url]); // 每次 url 改變時重新 fetch
+  }, [url]);
 
-  return { data, loading, error };
+  return { data, loading, error, refetch: fetchData };
 }

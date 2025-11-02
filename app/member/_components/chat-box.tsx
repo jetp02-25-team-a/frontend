@@ -9,9 +9,10 @@ import {
   faXmark,
   faMinus,
 } from '@fortawesome/free-solid-svg-icons';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, use } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../../../hooks/use-Auth';
+import { useFetch } from '../../../hooks/useFetch';
 
 const messages = {
   title: '台北一日遊',
@@ -46,10 +47,11 @@ export default function ChatBox({
   onClose,
 }: ChatBoxProps) {
   const [isHide, setIsHide] = useState(true);
+  const [allMessage, setAllMessage] = useState<any[]>([]); //歷史所有訊息
   const [message, setMessage] = useState<string>(''); //發送的訊息textarea內容
   const [socket, setSocket] = useState<any>(null);
   //所有對話的訊息
-  const [chatMessages, setChatMessages] = useState<{ content: string }[]>([]);
+  // const [chatMessages, setChatMessages] = useState<{ content: string }[]>([]);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null); //dom
   const messagesRef = useRef<HTMLDivElement>(null); //dom
@@ -76,15 +78,30 @@ export default function ChatBox({
     // const content = '這是自己以外都可以看到的訊息';
 
     //收到訊息時運作
-    socket.on('public', (msg) => {
-      console.log('後台來的訊息:', msg);
-      addMessage(msg.content);
-    });
+    // socket.on('public', (msg) => {
+    //   console.log('後台來的訊息:', msg);
+    // });
 
     return () => {
       socket.disconnect();
     };
   }, [roomId]);
+
+  //開啟時讀取所有歷史訊息
+  const roomUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/chat/allmessage?roomId=${roomId}`;
+  const receiverUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/chat/allmessage?receiverId=${userId}`;
+  const { data, refetch } = useFetch(roomId ? roomUrl : receiverUrl);
+
+  useEffect(() => {
+    if (data?.data) setAllMessage(data.data);
+  }, [data]);
+
+  //訊息有變動會把訊息會顯示在底部
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
+  }, [allMessage]);
 
   //發送訊息
   const sendMessage = (msg: string) => {
@@ -97,11 +114,7 @@ export default function ChatBox({
     ); // 發送給後端 判斷是room還是單人
     setMessage(''); //清空輸入欄位state
     if (textAreaRef.current) textAreaRef.current.value = ''; //清空輸入欄位
-  };
-
-  //更新訊息至 react state 中的 chatMessages 讓畫面更新
-  const addMessage = (msg: string) => {
-    setChatMessages((prev) => [...prev, { content: msg }]);
+    refetch();
   };
 
   return (
@@ -131,42 +144,48 @@ export default function ChatBox({
       {isHide && (
         <>
           {/* 所有參與者頭像 */}
-          <div className="flex items-center justify-between bg-white py-3 px-2">
-            <div className="flex gap-2.5">
-              {messages.messages.map((message, index) => {
-                return (
-                  <Image
-                    key={index}
-                    width={46}
-                    height={46}
-                    src={`/${message.avatar}`}
-                    alt=""
-                    className=" rounded-full w-[46px] h-[46px] "
-                  />
-                );
-              })}
+          {roomId && (
+            <div className="flex items-center justify-between bg-white py-3 px-2">
+              <div className="flex gap-2.5">
+                {messages.messages.map((message, index) => {
+                  return (
+                    <Image
+                      key={index}
+                      width={46}
+                      height={46}
+                      src={`/${message.avatar}`}
+                      alt=""
+                      className=" rounded-full w-[46px] h-[46px] "
+                    />
+                  );
+                })}
+              </div>
+              <FontAwesomeIcon
+                icon={faEllipsisVertical}
+                className="cursor-pointer"
+              />
             </div>
-            <FontAwesomeIcon
-              icon={faEllipsisVertical}
-              className="cursor-pointer"
-            />
-          </div>
+          )}
 
           {/* 訊息內容 */}
           <div
-            className="h-auto bg-gray-300 py-5 px-[15px] flex flex-col"
+            className=" bg-gray-300 py-5 px-[15px] flex flex-col min-h-10  max-h-80 overflow-y-auto"
             ref={messagesRef}
           >
-            {chatMessages.map((message, index) => {
-              return (
-                <Chat
-                  key={index}
-                  content={message.content}
-                  direction={message.direction}
-                  avatar="/image.png"
-                />
-              );
-            })}
+            {/* 訊息 */}
+            {console.log(allMessage)}
+            {Array.isArray(allMessage) &&
+              allMessage.map((message, index) => {
+                console.log('userID', user?.id);
+                return (
+                  <Chat
+                    key={index}
+                    content={message.content}
+                    direction={message.senderId === user?.id ? 'right' : 'left'}
+                    avatar="/image.png"
+                  />
+                );
+              })}
           </div>
           {/* 輸入框 */}
           <div className="bg-gray-100 px-3 py-3 flex items-center gap-2">
@@ -181,6 +200,7 @@ export default function ChatBox({
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   sendMessage(message);
+                  setMessage('');
                 }
               }}
             />

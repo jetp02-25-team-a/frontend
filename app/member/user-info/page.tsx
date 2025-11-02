@@ -14,35 +14,35 @@ const friend_data = [
 ];
 
 //使用者好友 團體 假資料
-const datax = [
-  {
-    id: 1,
-    user_name: null,
-    image: 'image.png',
-    content: 'xxxxxx',
-    time: '20:00:00',
-    room_name: '台北一日遊',
-    room_id: 6,
-  },
-  {
-    id: 2,
-    user_name: null,
-    image: 'image.png',
-    content: 'aaaaaa',
-    time: '21:00:00',
-    room_name: '台北一日遊',
-    room_id: 2,
-  },
-  {
-    id: 3,
-    user_name: 'BBBBB',
-    image: 'image.png',
-    content: 'aaaaaa',
-    time: '21:00:00',
-    room_name: null,
-    room_id: null,
-  },
-];
+// const datax = [
+//   {
+//     id: 1,
+//     user_name: null,
+//     image: 'image.png',
+//     content: 'xxxxxx',
+//     time: '20:00:00',
+//     room_name: '台北一日遊',
+//     room_id: 6,
+//   },
+//   {
+//     id: 2,
+//     user_name: null,
+//     image: 'image.png',
+//     content: 'aaaaaa',
+//     time: '21:00:00',
+//     room_name: '台北一日遊',
+//     room_id: 2,
+//   },
+//   {
+//     id: 3,
+//     user_name: 'BBBBB',
+//     image: 'image.png',
+//     content: 'aaaaaa',
+//     time: '21:00:00',
+//     room_name: null,
+//     room_id: null,
+//   },
+// ];
 
 //
 interface ChatInterface {
@@ -121,7 +121,11 @@ export default function UserInfoPage() {
     <>
       <div className="grid grid-cols-[80%_20%]">
         <div className="bg-light-orange relative">
-          userInfo{openChats.length}
+          登入id：{user?.id}
+          <hr />
+          登入email：{user?.email}
+          <hr />
+          登入nickname：{user?.nickname}
           <div className="absolute right-0 bottom-0 flex gap-2.5 items-end">
             {openChats.map((chatroom, index) => {
               return (
@@ -200,7 +204,9 @@ export default function UserInfoPage() {
                   key={index}
                   title={message.friendData.nickname}
                   content={
-                    message.LatestMessage ? message.LatestMessage : '還沒有訊息'
+                    message.LatestMessage
+                      ? message.LatestMessage.content
+                      : '還沒有訊息'
                   }
                   image={
                     message.friendData.avatar
