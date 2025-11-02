@@ -65,7 +65,8 @@ export default function Navbar() {
               商城
             </Link>
           </div>
-          {isReady && (
+
+          {user?.email ? (
             <>
               <p className="text-white">{user?.nickname} 歡迎回來</p>
               <div className="relative cursor-pointer">
@@ -79,9 +80,9 @@ export default function Navbar() {
                 ></div>
               </div>
             </>
+          ) : (
+            <Button></Button>
           )}
-          {!isReady && <Button></Button>}
-
           <Avatar></Avatar>
           <div className="absolute bottom-0 left-0 w-full h-[6px] bg-gradient-to-r from-[#FFD069] to-[#FF9292]"></div>
         </div>
