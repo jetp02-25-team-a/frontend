@@ -3,7 +3,6 @@ import MessageBox from '../_components/message-box';
 import FriendCard from '../_components/friend-card';
 import ChatBox from '../_components/chat-box';
 import { useState, useEffect } from 'react';
-// import isEqual from 'lodash/isEqual';
 //引入hooks(自定義)
 import { useFetch } from '@/hooks/useFetch';
 import { useAuth } from '../../../hooks/use-Auth';
@@ -12,37 +11,6 @@ const friend_data = [
   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
   { id: 2, user_name: '大衝名', avatar: 'image.png', address: '新北產業園區' },
 ];
-
-//使用者好友 團體 假資料
-// const datax = [
-//   {
-//     id: 1,
-//     user_name: null,
-//     image: 'image.png',
-//     content: 'xxxxxx',
-//     time: '20:00:00',
-//     room_name: '台北一日遊',
-//     room_id: 6,
-//   },
-//   {
-//     id: 2,
-//     user_name: null,
-//     image: 'image.png',
-//     content: 'aaaaaa',
-//     time: '21:00:00',
-//     room_name: '台北一日遊',
-//     room_id: 2,
-//   },
-//   {
-//     id: 3,
-//     user_name: 'BBBBB',
-//     image: 'image.png',
-//     content: 'aaaaaa',
-//     time: '21:00:00',
-//     room_name: null,
-//     room_id: null,
-//   },
-// ];
 
 //
 interface ChatInterface {
@@ -91,12 +59,8 @@ export default function UserInfoPage() {
   useEffect(() => {
     if (data) {
       setContact(data.data);
-      console.log('📦 contact data:', data.data); // ✅ 打印在 console
     }
   }, [data]);
-  useEffect(() => {
-    console.log(contact);
-  }, [contact]);
 
   //關閉聊天室
   const closeChat = (index: number) => {
@@ -106,9 +70,6 @@ export default function UserInfoPage() {
 
   //卻認是否存在於小視窗清單中
   const existChat = (chatsList: ChatInterface[], newChat: ChatInterface) => {
-    // const exists = chatsList.find(
-    //   (chat) => JSON.stringify(chat) === JSON.stringify(newChat)
-    // );
     const exists = chatsList.some(
       (chat) =>
         chat.room_id === newChat.room_id && chat.user_id === newChat.user_id

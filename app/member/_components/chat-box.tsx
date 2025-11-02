@@ -173,16 +173,16 @@ export default function ChatBox({
             ref={messagesRef}
           >
             {/* 訊息 */}
-            {console.log(allMessage)}
+
             {Array.isArray(allMessage) &&
               allMessage.map((message, index) => {
-                console.log('userID', user?.id);
                 return (
                   <Chat
                     key={index}
                     content={message.content}
                     direction={message.senderId === user?.id ? 'right' : 'left'}
                     avatar="/image.png"
+                    updatedAt={message.updatedAt}
                   />
                 );
               })}
