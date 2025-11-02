@@ -64,11 +64,14 @@ export default function Home() {
               className="absolute left-150 bottom-25"
             />
           </div>
-          <div className="flex flex-col w-[461px]">
-            <h2 className="text-[32px]">周末小旅行、快速揪到夥伴</h2>
-            <p className="text-xl te">
-              想旅行、想吃美食？立即揪夥伴，一起安排住宿、交通、美食！
-            </p>
+          <div className="flex flex-col w-[461px] gap-[30px]">
+            <div>
+              <h2 className="text-[32px]">周末小旅行、快速揪到夥伴</h2>
+              <p className="text-xl te">
+                想旅行、想吃美食？立即揪夥伴，一起安排住宿、交通、美食！
+              </p>
+            </div>
+
             <div className="flex w-full justify-between">
               {/* 1 */}
               <div className="flex flex-col items-center">

@@ -3,8 +3,13 @@ import Button from '../ui/button';
 import Avatar from '../ui/avatar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell } from '@fortawesome/free-regular-svg-icons';
+import { useAuth } from '../../hooks/use-Auth';
 
 export default function Navbar() {
+  const { user, login, logout, getAuthHeader, isReady } = useAuth();
+
   const pathname = usePathname();
   if (pathname.includes('/grabgroup/panel')) return;
   return (
@@ -60,7 +65,23 @@ export default function Navbar() {
               商城
             </Link>
           </div>
-          <Button></Button>
+          {isReady && (
+            <>
+              <p className="text-white">{user?.nickname} 歡迎回來</p>
+              <div className="relative cursor-pointer">
+                <FontAwesomeIcon
+                  icon={faBell}
+                  className="text-white text-2xl"
+                />
+                <div
+                  className="bg-red-400 w-3 h-3 rounded-full absolute top-0.5 right-0"
+                  data-redball
+                ></div>
+              </div>
+            </>
+          )}
+          {!isReady && <Button></Button>}
+
           <Avatar></Avatar>
           <div className="absolute bottom-0 left-0 w-full h-[6px] bg-gradient-to-r from-[#FFD069] to-[#FF9292]"></div>
         </div>

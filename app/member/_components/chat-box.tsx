@@ -50,8 +50,6 @@ export default function ChatBox({
   const [allMessage, setAllMessage] = useState<any[]>([]); //歷史所有訊息
   const [message, setMessage] = useState<string>(''); //發送的訊息textarea內容
   const [socket, setSocket] = useState<any>(null);
-  //所有對話的訊息
-  // const [chatMessages, setChatMessages] = useState<{ content: string }[]>([]);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null); //dom
   const messagesRef = useRef<HTMLDivElement>(null); //dom
