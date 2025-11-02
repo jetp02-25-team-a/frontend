@@ -9,8 +9,9 @@ import {
   faXmark,
   faMinus,
 } from '@fortawesome/free-solid-svg-icons';
-import React, { useState, useEffect, useRef, use } from 'react';
-import { io } from 'socket.io-client';
+import React, { useState, useEffect, useRef } from 'react';
+// import { io } from 'socket.io-client';
+import { useSocket } from '@/hooks/use-Socket';
 import { useAuth } from '../../../hooks/use-Auth';
 import { useFetch } from '../../../hooks/useFetch';
 
@@ -49,21 +50,16 @@ export default function ChatBox({
   const [isHide, setIsHide] = useState(true);
   const [allMessage, setAllMessage] = useState<any[]>([]); //歷史所有訊息
   const [message, setMessage] = useState<string>(''); //發送的訊息textarea內容
-  const [socket, setSocket] = useState<any>(null);
+  // const [socket, setSocket] = useState<any>(null);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null); //dom
   const messagesRef = useRef<HTMLDivElement>(null); //dom
   const { user, login, logout, getAuthHeader, isReady } = useAuth();
 
+  const { socket } = useSocket();
   useEffect(() => {
-    const API_URL = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
-    const socket = io(API_URL, { withCredentials: true });
-    setSocket(socket); //把我創建的socket 放到react state 中 讓function 外面的可以使用
-
-    //自動連線訊息
-    socket.on('connect', () => {
-      console.log('已連線:', socket.id);
-    });
+    if (!socket) return;
+    console.log('chat 連線 id=>', socket.id);
     if (roomId) {
       //發送房間號碼
       socket.emit('joinRoomId', roomId);
@@ -72,18 +68,40 @@ export default function ChatBox({
       //發送對方id
       socket.emit('friendID', userId);
     }
-
-    // const content = '這是自己以外都可以看到的訊息';
-
-    //收到訊息時運作
-    // socket.on('public', (msg) => {
-    //   console.log('後台來的訊息:', msg);
-    // });
-
     return () => {
-      socket.disconnect();
+      socket.off('public');
     };
-  }, [roomId]);
+  }, [socket, roomId, userId]);
+
+  // useEffect(() => {
+  //   const API_URL = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
+  //   const socket = io(API_URL, { withCredentials: true });
+  //   setSocket(socket); //把我創建的socket 放到react state 中 讓function 外面的可以使用
+
+  //   //自動連線訊息
+  //   socket.on('connect', () => {
+  //     console.log('已連線:', socket.id);
+  //   });
+  //   if (roomId) {
+  //     //發送房間號碼
+  //     socket.emit('joinRoomId', roomId);
+  //   }
+  //   if (userId) {
+  //     //發送對方id
+  //     socket.emit('friendID', userId);
+  //   }
+
+  //   // const content = '這是自己以外都可以看到的訊息';
+
+  //   //收到訊息時運作
+  //   // socket.on('public', (msg) => {
+  //   //   console.log('後台來的訊息:', msg);
+  //   // });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [roomId]);
 
   //開啟時讀取所有歷史訊息
   const roomUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/chat/allmessage?roomId=${roomId}`;
