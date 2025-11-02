@@ -53,7 +53,7 @@ export default function InputField() {
             pathname: './create-group-itinerary',
             query: {
               destination,
-              startDate,
+              startDate: startDate ? startDate.toISOString() : '',
               people,
             },
           }}
