@@ -1,10 +1,9 @@
-// app/view-info/[id]/page.tsx
+// app/spots/[id]/page.tsx
 import Hero from '../_components/Hero';
 import MetaPanel from '../_components/MetaPanel';
-import RatingSummary from '../_components/RatingSummary';
 import MapSection from '../_components/MapSection';
-import ReviewList from '../_components/ReviewList';
-import ReviewComposer from '../_components/ReviewComposer';
+import RatingSummary from '../_components/RatingSummary';
+import ReviewsSection from '../_components/ReviewsSection';
 import { getSpotDetail } from '@/app/place/lib/adapter';
 
 export default async function SpotPage({ params }: { params: { id: string } }) {
@@ -39,11 +38,9 @@ export default async function SpotPage({ params }: { params: { id: string } }) {
             </div>
           </div>
           <MapSection />
-
-          <ReviewList reviews={reviews} />
-          <ReviewComposer />
+          {/* ✅ 改成由 Client 包裹控制送出/Modal/灰階 */}
+          <ReviewsSection spot={spot} initialReviews={reviews} />
         </main>
-        {/* <aside className="col-span-12 lg:col-span-4"></aside> */}
       </div>
     </div>
   );
