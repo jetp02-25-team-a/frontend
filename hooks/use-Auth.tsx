@@ -15,7 +15,7 @@ interface User {
 
 // 定義Context類型
 interface AuthContextType {
-  user: User | null;
+  user: User;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   getAuthHeader: () => { Authorization: string };
@@ -41,8 +41,6 @@ export function AuthProvider({
 
   // 登入
   const login = async (email: string, password: string): Promise<boolean> => {
-    console.log('login');
-
     try {
       const data = {
         email: email,
@@ -153,8 +151,6 @@ export const useAuthRequired = () => {
   const { user, isReady } = useAuth();
 
   useEffect(() => {
-    console.log('useAuthRequired:', { isReady, user });
-
     if (isReady && !user!.email) {
       router.push('/member/login');
     }
