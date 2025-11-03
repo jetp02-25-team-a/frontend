@@ -3,8 +3,12 @@ import type { Metadata } from 'next';
 
 // 導入Context Provider
 import { AuthProvider } from '@/hooks/use-Auth';
+// 導入 context soket
+import { SocketProvider } from '@/hooks/use-Socket';
+
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import { useContext } from 'react';
 
 export const metadata: Metadata = {
   title: '旅行背包',
@@ -20,9 +24,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-          <Navbar />
-          {children}
-          <Footer />
+          <SocketProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </SocketProvider>
         </AuthProvider>
       </body>
     </html>

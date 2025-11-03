@@ -8,7 +8,7 @@ interface DatePickerProps {
 }
 
 export default function DatePicker({ initialDates = [] }: DatePickerProps) {
-  const [selectedDates, setSelectedDates] = useState<string[]>(initialDates);
+  const [selectedDates, setSelectedDates] = useState<string[]>(initialDates); //傳進來的日期
   const today = moment();
 
   // 產生這個月和下個月的日期陣列
