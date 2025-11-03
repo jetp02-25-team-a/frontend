@@ -2,7 +2,7 @@
 
 import { createContext, useState, useContext, useEffect } from 'react';
 import { API_SERVER } from '../app/config/api-path';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 // 定義User 類型
 interface User {
@@ -158,5 +158,5 @@ export const useAuthRequired = () => {
     if (isReady && !user!.email) {
       router.push('/member/login');
     }
-  }, [user]);
+  }, [user, isReady]);
 };
