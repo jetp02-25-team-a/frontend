@@ -1,9 +1,29 @@
 // components/spot/Reviews/ReviewComposer.tsx
-"use client";
-import { useState } from "react";
-export default function ReviewComposer() {
-  const [text, setText] = useState("");
+'use client';
+import { useState } from 'react';
+
+export type ReviewInput = { placeId: string; content: string; rating: number };
+
+export default function ReviewComposer({
+  placeId,
+  pending = false,
+  onSubmit,
+}: {
+  placeId: string;
+  pending?: boolean;
+  onSubmit: (input: ReviewInput) => Promise<boolean> | boolean;
+}) {
+  const [text, setText] = useState('');
   const [star, setStar] = useState(5);
+
+  async function handleSend() {
+    const ok = await onSubmit({ placeId, content: text, rating: star });
+    if (ok) {
+      setText('');
+      setStar(5);
+    }
+  }
+
   return (
     <section className="rounded-2xl border p-4  w-[60%]">
       <h3 className="font-semibold mb-2">撰寫評論</h3>
@@ -28,17 +48,23 @@ export default function ReviewComposer() {
         className="w-full min-h-[100px] rounded-xl border p-3"
       />
       <div className="mt-3 flex gap-2">
-        <button className="rounded-xl bg-yellow-500 text-white px-4 py-2">
-          送出（假）
-        </button>
         <button
-          className="rounded-xl border px-4 py-2"
+          className="rounded-xl border px-4 py-2 hover:cursor-pointer"
           onClick={() => {
-            setText("");
+            setText('');
             setStar(5);
           }}
+          disabled={pending}
         >
           清除
+        </button>
+        <button
+          className="rounded-xl bg-yellow-500 text-white px-4 py-2 disabled:opacity-50 hover:cursor-pointer"
+          type="button"
+          onClick={handleSend}
+          disabled={pending || !text.trim()}
+        >
+          {pending ? '發佈中…' : '發佈'}
         </button>
       </div>
     </section>

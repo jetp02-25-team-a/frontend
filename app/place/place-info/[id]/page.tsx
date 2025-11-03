@@ -1,13 +1,25 @@
-// app/view-info/[id]/page.tsx
+// app/spots/[id]/page.tsx
 import Hero from '../_components/Hero';
 import MetaPanel from '../_components/MetaPanel';
-import RatingSummary from '../_components/RatingSummary';
 import MapSection from '../_components/MapSection';
-import ReviewList from '../_components/ReviewList';
-import ReviewComposer from '../_components/ReviewComposer';
-import { spot, reviews } from '../lib/fixtures';
+import RatingSummary from '../_components/RatingSummary';
+import ReviewsSection from '../_components/ReviewsSection';
+import { getSpotDetail } from '@/app/place/lib/adapter';
 
-export default async function SpotPage() {
+export default async function SpotPage({ params }: { params: { id: string } }) {
+  const placeId = Number(params.id) || 1;
+  const data = getSpotDetail(placeId);
+
+  // 防呆
+  if (!data) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-6">
+        <p>找不到這個地點</p>
+      </div>
+    );
+  }
+
+  const { spot, reviews } = data;
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 space-y-8">
       <Hero spot={spot} photos={spot.photos ?? []} />
@@ -26,11 +38,9 @@ export default async function SpotPage() {
             </div>
           </div>
           <MapSection />
-
-          <ReviewList reviews={reviews} />
-          <ReviewComposer />
+          {/* ✅ 改成由 Client 包裹控制送出/Modal/灰階 */}
+          <ReviewsSection spot={spot} initialReviews={reviews} />
         </main>
-        {/* <aside className="col-span-12 lg:col-span-4"></aside> */}
       </div>
     </div>
   );

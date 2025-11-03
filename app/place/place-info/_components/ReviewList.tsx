@@ -3,7 +3,7 @@ export default function ReviewList({ reviews }: { reviews: any[] }) {
   return (
     <section className="space-y-3 w-[60%]">
       {reviews.map((r) => (
-        <article key={r.id} className="rounded-2xl border p-4">
+        <article key={r.id} className="rounded-2xl border p-4 bg-white">
           <div className="flex items-center gap-3">
             <img src={r.user.avatar} className="h-8 w-8 rounded-full" />
             <div className="font-semibold">{r.user.name}</div>
