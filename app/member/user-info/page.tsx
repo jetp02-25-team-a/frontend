@@ -2,44 +2,103 @@
 import MessageBox from '../_components/message-box';
 import FriendCard from '../_components/friend-card';
 import ChatBox from '../_components/chat-box';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+//引入hooks(自定義)
+import { useFetch } from '@/hooks/useFetch';
+import { useAuth } from '../../../hooks/use-Auth';
+
 const friend_data = [
   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
   { id: 2, user_name: '大衝名', avatar: 'image.png', address: '新北產業園區' },
 ];
 
-const data = [
-  {
-    id: 1,
-    user_name: 'AAAAA',
-    image: 'image.png',
-    content: 'xxxxxx',
-    time: '20:00:00',
-  },
-  {
-    id: 2,
-    user_name: 'BBBBB',
-    image: 'image.png',
-    content: 'aaaaaa',
-    time: '21:00:00',
-  },
-];
-export default function UserInfoPage() {
-  const [openChats, setOpenChats] = useState<number[]>([1, 2]); //所有聊天室的id
+//
+interface ChatInterface {
+  user_name: string | null;
+  user_id: number | null;
+  image: string | null;
+  content: string | null;
+  time: string | null;
+  room_name: string | null;
+  room_id: number | null;
+}
 
-  const closeChat = (id: number) => {
-    const nextChats = openChats.filter((chatId) => chatId !== id);
+interface RoomData {
+  createdAt: string;
+  id: number;
+  roomName: string;
+}
+interface RoomMessage {
+  LatestMessage: string;
+  roomData: RoomData;
+}
+interface friendData {
+  avatar: string | null;
+  id: number;
+  nickname: string;
+}
+
+interface PersonMessage {
+  LatestMessage: string;
+  friendData: friendData;
+}
+
+export default function UserInfoPage() {
+  const [openChats, setOpenChats] = useState<ChatInterface[]>([]); //所有聊天室資訊 小視窗
+  const [contact, setContact] = useState<any>({
+    allRoomsLatestMessages: [],
+    allFriendLatestMessage: [],
+  }); //通訊錄所有使用者
+  const { user, isReady } = useAuth(); //使用者資訊
+  //搜索有好有房間最新訊息
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships/allmessage`;
+  //取得後放入state
+  const { data, loading, error } = useFetch(url);
+
+  //打印出來
+  useEffect(() => {
+    if (data) {
+      setContact(data.data);
+    }
+  }, [data]);
+
+  //關閉聊天室
+  const closeChat = (index: number) => {
+    const nextChats = openChats.filter((room) => room !== openChats[index]);
     setOpenChats(nextChats);
+  };
+
+  //卻認是否存在於小視窗清單中
+  const existChat = (chatsList: ChatInterface[], newChat: ChatInterface) => {
+    const exists = chatsList.some(
+      (chat) =>
+        chat.room_id === newChat.room_id && chat.user_id === newChat.user_id
+    );
+    if (exists) return;
+    else setOpenChats((prev) => [...prev, newChat]);
   };
 
   return (
     <>
       <div className="grid grid-cols-[80%_20%]">
         <div className="bg-light-orange relative">
-          userInfo
+          登入id：{user?.id}
+          <hr />
+          登入email：{user?.email}
+          <hr />
+          登入nickname：{user?.nickname}
           <div className="absolute right-0 bottom-0 flex gap-2.5 items-end">
-            {openChats.map((id) => {
-              return <ChatBox key={id} id={id} onClose={() => closeChat(id)} />;
+            {openChats.map((chatroom, index) => {
+              return (
+                <ChatBox
+                  key={index}
+                  roomId={chatroom.room_id}
+                  roomTitle={chatroom.room_name}
+                  userId={chatroom.user_id}
+                  userNickname={chatroom.user_name}
+                  onClose={() => closeChat(index)}
+                />
+              );
             })}
           </div>
         </div>
@@ -60,17 +119,67 @@ export default function UserInfoPage() {
           <h4 className="text-center text-[24px] py-2.5 border-b-2 border-gray-600 bg-white">
             聯絡人
           </h4>
-          {data.map((message, index) => {
-            return (
-              <MessageBox
-                key={index}
-                title={message.user_name}
-                image={`/${message.image}`}
-                content={message.content}
-                time={message.time}
-              />
-            );
-          })}
+          {/* 1.團體 */}
+          {contact.allRoomsLatestMessages.map(
+            (message: RoomMessage, index: number) => {
+              const newChat = {
+                user_name: null,
+                user_id: null,
+                image: null,
+                content: message.LatestMessage ?? null,
+                time: new Date().toISOString(), // 或 null
+                room_name: message.roomData.roomName,
+                room_id: message.roomData.id,
+              };
+              return (
+                <MessageBox
+                  key={index}
+                  title={message.roomData.roomName}
+                  content={
+                    message.LatestMessage
+                      ? message.LatestMessage.content
+                      : '還沒有訊息'
+                  }
+                  image={'/place-default_avatar.jpg'}
+                  time={null}
+                  // time={message.time}
+                  onClick={() => existChat(openChats, newChat)}
+                />
+              );
+            }
+          )}
+          {/* 2.個人 */}
+          {contact.allFriendLatestMessage.map(
+            (message: PersonMessage, index: number) => {
+              const newChat = {
+                user_name: message.friendData.nickname,
+                user_id: message.friendData.id,
+                image: message.friendData.avatar,
+                content: message.LatestMessage ?? null,
+                time: new Date().toISOString(), // 或 null
+                room_name: null,
+                room_id: null,
+              };
+              return (
+                <MessageBox
+                  key={index}
+                  title={message.friendData.nickname}
+                  content={
+                    message.LatestMessage
+                      ? message.LatestMessage.content
+                      : '還沒有訊息'
+                  }
+                  image={
+                    message.friendData.avatar
+                      ? message.friendData.avatar
+                      : '/avatar_default.png'
+                  }
+                  time={null}
+                  onClick={() => existChat(openChats, newChat)}
+                />
+              );
+            }
+          )}
         </div>
       </div>
     </>

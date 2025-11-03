@@ -1,8 +1,9 @@
 'use client';
+import { useState } from 'react';
 import Button from '../_components/Button';
 import DatePicker from './_components/date-picker';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const user_friends = [
   { id: 1, avatar: '/avatar.png' },
@@ -13,9 +14,24 @@ const user_friends = [
 export default function CreateGroupItineraryPage() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  //上一頁來的參數
+  const destination = searchParams.get('destination');
+  const startDate = searchParams.get('startDate');
+  const people = searchParams.get('people');
+
+  const [itineraryTitle, setItineraryTitle] = useState<string>('');
+  const [peopleMax, setPeopleMax] = useState<number>(people ? +people : 0);
+
   return (
     <main className="w-full flex flex-col items-center py-16 gap-[30px]">
       <h1 className="text-4xl text-center">行程頁面</h1>
+
+      <p>目的地：{destination}</p>
+      <p>
+        開始時間：{startDate ? new Date(startDate).toLocaleString() : '未選擇'}
+      </p>
+      <p>目前人數：{people}</p>
 
       <div className="w-[920px]">
         <div className="w-full flex">
@@ -43,12 +59,18 @@ export default function CreateGroupItineraryPage() {
             type="text"
             placeholder="輸入"
             className="border-1 border-gray-300 w-full rounded-sm px-[12px] py-[4px]"
+            value={itineraryTitle}
+            onChange={(e) => setItineraryTitle(e.target.value)}
           />
           <label htmlFor="">參加人數上限</label>
           <input
             type="number"
             max={8}
             className="border-1 border-gray-300 w-full rounded-sm px-[12px] py-[4px]"
+            value={peopleMax}
+            onChange={(e) => {
+              setPeopleMax(+e.target.value);
+            }}
           />
           <div className="w-full flex justify-end gap-[8px]">
             {/* 使用者的好友 */}
@@ -71,7 +93,7 @@ export default function CreateGroupItineraryPage() {
 
           <div className="flex flex-col items-center">
             <label htmlFor="">活動時間</label>
-            <DatePicker />
+            <DatePicker initialDates={startDate ? [startDate] : []} />
           </div>
           <div className="flex justify-center gap-[21px]">
             <Button content="回上一步" onClick={() => router.back()} />

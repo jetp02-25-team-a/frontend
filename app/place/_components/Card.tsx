@@ -11,7 +11,7 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
   return (
     <>
       <Link
-        href={`place/view-info/${spot.id}`}
+        href={`place/place-info/${spot.id}`}
         className="w-[303px] rounded-2xl customize_shadow bg-white overflow-hidden group"
       >
         <div className="w-full h-[259px] object-cover overflow-hidden">
