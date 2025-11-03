@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import AccCard from './AccCard';
 import SearchBar4 from './Searchbar-4';
+import Filters from './Filter';
 
 interface AccommodationData {
   imageUrl: string;
@@ -73,9 +74,9 @@ export default function Container() {
           {renderAccCards}
         </div>
       </div>
-      {/* <div className="container bg-amber-300 p-3 flex gap-5 ">
-        <SearchBar4 />
-      </div> */}
+      <div className="container bg-amber-300 p-3 flex gap-5 ">
+        <SearchBar4 /> <Filters />
+      </div>
     </>
   );
 }
