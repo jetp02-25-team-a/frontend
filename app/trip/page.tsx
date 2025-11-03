@@ -14,19 +14,29 @@ export default function TripPage() {
   const [hasMore, setHasMore] = useState(true);
   const [showGoTop, setShowGoTop] = useState(false);
 
-  // ✅ 模擬載入資料
-  const loadMockTrips = async (): Promise<Trip[]> => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    return Array.from({ length: 8 }).map((_, i) => ({
-      id: Date.now() + i,
-      title: '台南兩天一夜',
-      location: '台南市',
-      date: '2025/02/12 - 2025/02/13',
-      image: '/trip_sample.jpg',
-    }));
+  // ✅ 從後端 API 載入行程資料
+  const fetchTripsFromAPI = async (): Promise<Trip[]> => {
+    try {
+      const res = await fetch('/api/trips?userId=1'); // TODO: 改成動態 userId
+      const json = await res.json();
+
+      if (json.success) {
+        return json.data.map((trip: any) => ({
+          id: trip.id,
+          title: trip.title,
+          area: trip.area,
+          date: `${trip.startDate.slice(0, 10)} - ${trip.endDate.slice(0, 10)}`,
+          image: trip.url,
+          type: trip.type || undefined,
+        }));
+      }
+    } catch (error) {
+      console.error('載入行程失敗:', error);
+    }
+    return [];
   };
 
-  // ✅ 初始載入：localStorage + 模擬資料
+  // ✅ 初始載入：localStorage + 後端資料
   useEffect(() => {
     const initTrips = async () => {
       const saved: Trip[] = JSON.parse(
@@ -34,17 +44,17 @@ export default function TripPage() {
       );
       localStorage.removeItem('customTrips');
 
-      const mockTrips = await loadMockTrips();
-      setTrips([...saved, ...mockTrips]);
+      const fetchedTrips = await fetchTripsFromAPI();
+      setTrips([...saved, ...fetchedTrips]);
     };
 
     initTrips();
   }, []);
 
-  // ✅ Infinite Scroll 載入更多資料
+  // ✅ Infinite Scroll 載入更多資料（目前仍使用模擬）
   const loadMoreTrips = async () => {
     setLoading(true);
-    const moreTrips = await loadMockTrips();
+    const moreTrips = await fetchTripsFromAPI(); // 可改為分頁 API
     setTrips((prev) => [...prev, ...moreTrips]);
     setHasMore(moreTrips.length > 0);
     setLoading(false);
@@ -90,7 +100,7 @@ export default function TripPage() {
           <TripCard
             key={trip.id}
             title={trip.title}
-            location={trip.location}
+            area={trip.area}
             date={trip.date}
             image={trip.image}
           />

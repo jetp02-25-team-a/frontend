@@ -1,6 +1,6 @@
 import { Trip } from '../types/trip';
 
-export default function TripCard({ title, location, date, image }: Trip) {
+export default function TripCard({ title, area, date, image }: Trip) {
   return (
     <div className="w-[303px] rounded-2xl customize_shadow bg-white overflow-hidden group">
       {/* ✅ 圖片區塊：固定高度 + hover 放大 */}
