@@ -1,4 +1,5 @@
 import { Trip } from '../types/trip';
+import type { TripCardProps } from '../types/props';
 
 export default function TripCard({ title, area, date, image }: Trip) {
   return (
@@ -15,7 +16,7 @@ export default function TripCard({ title, area, date, image }: Trip) {
       {/* ✅ 文字區塊：保持原本排版 */}
       <div className="p-4 flex flex-col gap-2">
         <h3 className="font-bold text-lg">{title}</h3>
-        <p className="text-sm customize_text_gray">{location}</p>
+        <p className="text-sm customize_text_gray">{area}</p>
         <p className="text-sm customize_text_gray">{date}</p>
         <button className="yellow-orange text-white px-3 py-2 rounded-lg text-sm hover:opacity-90 transition mt-2">
           查看詳情
