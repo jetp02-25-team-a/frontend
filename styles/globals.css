@@ -15,6 +15,10 @@
   @apply bg-[#797878];
 }
 
+@theme {
+  --color-brand: #f2a922;
+}
+
 .yellow-orange {
   @apply bg-[#F2A922];
 }

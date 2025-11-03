@@ -8,7 +8,24 @@ import { SocketProvider } from '@/hooks/use-Socket';
 
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { useContext } from 'react';
+
+import { Noto_Sans_TC, Roboto } from 'next/font/google';
+
+// 1. 定義 Roboto 字型 (處理英文字和數字)
+const roboto = Roboto({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-roboto', // 定義 CSS 變數
+});
+
+// 2. 定義 Noto Sans TC 字型 (處理繁體中文字)
+const noto_sans_tc = Noto_Sans_TC({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-noto-sans-tc', // 定義 CSS 變數
+});
 
 export const metadata: Metadata = {
   title: '旅行背包',
@@ -21,7 +38,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${roboto.variable} ${noto_sans_tc.variable} font-sans`}
+    >
       <body>
         <AuthProvider>
           <SocketProvider>
