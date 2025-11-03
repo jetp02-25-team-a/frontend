@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     // 從遠端連結圖片用的設定
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'picsum.photos' },
       {
         protocol: 'https',
         // ⭐️ 將 Faker 圖片的來源域名加入

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import AccCard from './AccCard';
 import SearchBar4 from './Searchbar-4';
 import Filters from './Filter';
+import GalleryRatio from './Gallery';
 
 interface AccommodationData {
   imageUrl: string;
@@ -76,6 +77,13 @@ export default function Container() {
       </div>
       <div className="container bg-amber-300 p-3 flex gap-5 ">
         <SearchBar4 /> <Filters />
+      </div>
+
+      <div className="p-2">
+        <GalleryRatio className="w-[1024px] h-[416px]" />
+      </div>
+      <div className="p-2">
+        <GalleryRatio className="w-[1440px] h-[617px]" />
       </div>
     </>
   );
