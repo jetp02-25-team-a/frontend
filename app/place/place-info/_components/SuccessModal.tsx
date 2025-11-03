@@ -35,17 +35,20 @@ export default function SuccessModal({
         className="relative z-10 w-[320px] max-w-[90vw] rounded-2xl bg-white p-6 text-center shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
-          <span className="text-lg">✅</span>
+        <h1 id="success-title" className="mb-1 text-3xl font-semibold">
+          {title}✅
+        </h1>
+        <p className="mt-5 mb-5 text-sm text-gray-600">{message}</p>
+        <div className="mb-5  flex justify-center items-center">
+          <img
+            src="/black_nb.png"
+            alt="黑筆記本"
+            className="h-32 w-32 drop-shadow-md mt-5 mb-5"
+          />
         </div>
-        <h2 id="success-title" className="mb-1 text-lg font-semibold">
-          {title}
-        </h2>
-        <p className="mb-5 text-sm text-gray-600">{message}</p>
-        <div className="mb-5 text-5xl">📒</div>
         <button
           ref={okRef}
-          className="w-full rounded-xl bg-amber-500 px-4 py-2 font-medium text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-300"
+          className="w-[60%] rounded-xl bg-amber-500 px-4 py-2 font-medium text-white hover:bg-amber-600 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-300 "
           onClick={onClose}
         >
           確認

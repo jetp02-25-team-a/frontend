@@ -49,7 +49,7 @@ export default function ReviewComposer({
       />
       <div className="mt-3 flex gap-2">
         <button
-          className="rounded-xl border px-4 py-2"
+          className="rounded-xl border px-4 py-2 hover:cursor-pointer"
           onClick={() => {
             setText('');
             setStar(5);
@@ -59,7 +59,7 @@ export default function ReviewComposer({
           清除
         </button>
         <button
-          className="rounded-xl bg-yellow-500 text-white px-4 py-2 disabled:opacity-50"
+          className="rounded-xl bg-yellow-500 text-white px-4 py-2 disabled:opacity-50 hover:cursor-pointer"
           type="button"
           onClick={handleSend}
           disabled={pending || !text.trim()}
