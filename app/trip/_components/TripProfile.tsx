@@ -13,7 +13,7 @@ export default function TripProfile({ name }: TripProfileProps) {
         />
       </div>
       <h2 className="text-xl font-semibold">{name}</h2>
-      <p className="text-gray-500 mt-1">我的行程</p>
+      <p className="text-gray-500 mt-1">私人行程</p>
     </div>
   );
 }
