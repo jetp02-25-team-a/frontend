@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trip } from '../types/trip';
 import TripCard from './TripCard';
@@ -25,6 +25,14 @@ export default function NewTripForm() {
     coverImage: '/covers/tainan.jpg',
   });
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('請先登入');
+      router.push('/trip/member/login');
+    }
+  }, []);
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -37,8 +45,8 @@ export default function NewTripForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const token = localStorage.getItem('token');
     const payload = {
-      userId: 1, // 可改為動態取得
       title: form.title,
       area: form.destination,
       startDate: form.startDate,
@@ -48,7 +56,10 @@ export default function NewTripForm() {
 
     const res = await fetch('/api/trips', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(payload),
     });
 
@@ -56,7 +67,7 @@ export default function NewTripForm() {
     if (result.success) {
       router.push('/trip');
     } else {
-      alert('建立失敗：' + result.message || '未知錯誤');
+      alert('建立失敗：' + result.message);
     }
   };
 
