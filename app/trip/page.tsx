@@ -15,9 +15,19 @@ export default function TripPage() {
   const [showGoTop, setShowGoTop] = useState(false);
 
   // ✅ 從後端 API 載入行程資料
-  const fetchTripsFromAPI = async (): Promise<Trip[]> => {
+  const fetchTripsFromAPI = async (filters?: {
+    area?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<Trip[]> => {
     try {
-      const res = await fetch('/api/trips?userId=1'); // TODO: 改成動態 userId
+      const params = new URLSearchParams();
+      params.append('userId', '1'); // TODO: 改成動態 userId
+      if (filters?.area) params.append('area', filters.area);
+      if (filters?.startDate) params.append('startDate', filters.startDate);
+      if (filters?.endDate) params.append('endDate', filters.endDate);
+
+      const res = await fetch(`/api/trips?${params.toString()}`);
       const json = await res.json();
 
       if (json.success) {
@@ -34,6 +44,15 @@ export default function TripPage() {
       console.error('載入行程失敗:', error);
     }
     return [];
+  };
+  const handleSearch = async (filters: {
+    area: string;
+    startDate?: string;
+    endDate?: string;
+  }) => {
+    const results = await fetchTripsFromAPI(filters);
+    setTrips(results);
+    setHasMore(false); // 搜尋結果不支援 infinite scroll
   };
 
   // ✅ 初始載入：localStorage + 後端資料
@@ -82,7 +101,7 @@ export default function TripPage() {
   return (
     <div className="flex flex-col items-center gap-8 py-10">
       <TripProfile name="Ellen Lambert" />
-      <TripFilter />
+      <TripFilter onSearch={handleSearch} />
 
       {/* 行程卡區塊 */}
       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

@@ -34,26 +34,30 @@ export default function NewTripForm() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newTrip: Trip = {
-      id: Date.now(),
+    const payload = {
+      userId: 1, // 可改為動態取得
       title: form.title,
-      location: form.destination,
-      date: `${form.startDate} - ${form.endDate}`,
-      image: form.coverImage,
-      type: form.type,
-      departure: form.departure,
-      transport: form.transport,
-      notes: form.notes,
+      area: form.destination,
+      startDate: form.startDate,
+      endDate: form.endDate,
+      url: form.coverImage,
     };
 
-    const existing: Trip[] = JSON.parse(
-      localStorage.getItem('customTrips') || '[]'
-    );
-    localStorage.setItem('customTrips', JSON.stringify([...existing, newTrip]));
-    router.push('/trip');
+    const res = await fetch('/api/trips', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      router.push('/trip');
+    } else {
+      alert('建立失敗：' + result.message || '未知錯誤');
+    }
   };
 
   return (
@@ -167,7 +171,7 @@ export default function NewTripForm() {
         <div className="max-w-[303px] mx-auto">
           <TripCard
             title={form.title || '預覽行程'}
-            location={form.destination || '尚未填寫'}
+            area={form.destination || '尚未填寫'}
             date={
               form.startDate && form.endDate
                 ? `${form.startDate} - ${form.endDate}`
