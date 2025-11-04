@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import type { ExpenseFormData } from './types';
-import { createExpense } from './expense';
+import { useEffect, useState } from 'react';
+import type { ExpenseFormData, ExpenseType } from './types';
+import { createExpense, fetchExpenseTypes } from './expense';
 
 export default function ExpenseForm({ tripPlanId }: { tripPlanId: number }) {
   const [form, setForm] = useState<ExpenseFormData>({
@@ -14,8 +14,13 @@ export default function ExpenseForm({ tripPlanId }: { tripPlanId: number }) {
     tripPlanId,
   });
 
+  const [types, setTypes] = useState<ExpenseType[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    fetchExpenseTypes().then(setTypes);
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -50,18 +55,14 @@ export default function ExpenseForm({ tripPlanId }: { tripPlanId: number }) {
           expenseDate: '',
           tripPlanId,
         });
-      } else {
-        setSuccess(false);
       }
     } catch (error) {
-      console.error(error);
-      setSuccess(false);
+      console.error('送出失敗:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ 這裡才是元件的 return
   return (
     <form
       onSubmit={handleSubmit}
@@ -77,6 +78,7 @@ export default function ExpenseForm({ tripPlanId }: { tripPlanId: number }) {
         required
         className="w-full border px-3 py-2 rounded"
       />
+
       <input
         name="amount"
         type="number"
@@ -86,6 +88,7 @@ export default function ExpenseForm({ tripPlanId }: { tripPlanId: number }) {
         required
         className="w-full border px-3 py-2 rounded"
       />
+
       <select
         name="typeId"
         value={form.typeId ?? ''}
@@ -93,12 +96,13 @@ export default function ExpenseForm({ tripPlanId }: { tripPlanId: number }) {
         className="w-full border px-3 py-2 rounded"
       >
         <option value="">選擇分類</option>
-        <option value="1">美食</option>
-        <option value="2">住宿</option>
-        <option value="3">交通</option>
-        <option value="4">購物</option>
-        <option value="5">票券</option>
+        {types.map((t) => (
+          <option key={t.id} value={t.id}>
+            {t.name}
+          </option>
+        ))}
       </select>
+
       <input
         name="area"
         value={form.area}
@@ -106,6 +110,7 @@ export default function ExpenseForm({ tripPlanId }: { tripPlanId: number }) {
         placeholder="地區（選填）"
         className="w-full border px-3 py-2 rounded"
       />
+
       <input
         name="expenseDate"
         type="date"

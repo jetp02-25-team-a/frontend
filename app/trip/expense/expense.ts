@@ -1,4 +1,4 @@
-import { ExpenseFormData } from './types';
+import type { ExpenseFormData, ExpenseType } from './types';
 
 export const fetchExpenses = async (tripPlanId: number) => {
   const res = await fetch(`/api/expenses?tripPlanId=${tripPlanId}`);
@@ -13,4 +13,10 @@ export const createExpense = async (data: ExpenseFormData) => {
     body: JSON.stringify(data),
   });
   return await res.json();
+};
+
+export const fetchExpenseTypes = async (): Promise<ExpenseType[]> => {
+  const res = await fetch('/api/expense-types');
+  const json = await res.json();
+  return json.success ? json.data : [];
 };
