@@ -4,12 +4,13 @@ import { faXmark, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 interface IframeProps {
   visible: boolean;
+  dayData: number;
   onSend: (msg: boolean) => void;
 }
 
-export default function Iframe({ visible, onSend }: IframeProps) {
+export default function Iframe({ visible, dayData, onSend }: IframeProps) {
   const router = useRouter();
-  const url = `${process.env.NEXT_PUBLIC_API_URL}:${process.env.NEXT_PUBLIC_API_PORT}/grabgroup/panel`;
+  const url = `${process.env.NEXT_PUBLIC_API_URL}:${process.env.NEXT_PUBLIC_API_PORT}/grabgroup/panel?daydata=${dayData}`;
   return (
     <>
       <div

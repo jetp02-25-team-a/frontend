@@ -12,6 +12,7 @@ import NodeCard from './_components/node-card';
 import { addTimeWrap } from '../utils';
 import AddItineraryButton from './_components/addItinerary-button';
 import Iframe from './_components/iframe';
+import { useFetch } from '@/hooks/useFetch';
 
 const data = [
   {
@@ -84,12 +85,26 @@ interface MyNode {
   start_time: string;
   end_time: string;
 }
+interface Node {
+  id: number;
+  itineraryDayId: number;
+  durationMinutes: string;
+  googleMapPlaceId: string;
+}
+interface StayNode {
+  id: number;
+  itineraryDayId: number;
+  accommodationId: number;
+}
 
 interface DayWithNodes {
+  Nodes: Node[];
+  StayNodes: StayNode[];
+  dayDate: string;
   id: number;
-  date: string;
-  start_time: string;
-  nodes?: MyNode[];
+  itineraryId: number;
+  startTime: string;
+  status: number;
 }
 
 export default function GroupItineraryDetalPage() {
@@ -106,25 +121,32 @@ export default function GroupItineraryDetalPage() {
   };
 
   const [days, setDays] = useState<DayWithNodes[]>([]);
+  const [iframeDayData, setIframeDayData] = useState<number>(0);
+
+  const itineraryId = 22;
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/detail?itineraryId=${itineraryId}`;
+  const { data, loading, error, refetch } = useFetch(url);
 
   useEffect(() => {
-    const newData = data.map((day) => ({
-      ...day,
-      nodes: day.nodes?.reduce(
-        (acc, node, idx) => {
-          const start_time = idx === 0 ? day.start_time : acc[idx - 1].end_time;
-
-          const end_time = addTimeWrap(start_time, node.duration_minute);
-
-          acc.push({ ...node, start_time, end_time });
-          return acc; // 給下一輪使用
-        },
-        [] as (MyNode & { start_time: string; end_time: string })[]
-      ),
-    }));
-
-    setDays(newData);
-  }, []);
+    console.log('data=>', data);
+    if (data && data.success) {
+      const datas = data.data;
+      setDays(datas);
+    }
+    // const newData = data.map((day) => ({
+    //   ...day,
+    //   nodes: day.nodes?.reduce(
+    //     (acc, node, idx) => {
+    //       const start_time = idx === 0 ? day.start_time : acc[idx - 1].end_time;
+    //       const end_time = addTimeWrap(start_time, node.duration_minute);
+    //       acc.push({ ...node, start_time, end_time });
+    //       return acc; // 給下一輪使用
+    //     },
+    //     [] as (MyNode & { start_time: string; end_time: string })[]
+    //   ),
+    // }));
+    // setDays(newData);
+  }, [data]);
   // 控制iframe顯示
   const [isIframeVisible, setIsIframeVisible] = useState(false);
   // 這個函式會傳給子組件
@@ -151,9 +173,9 @@ export default function GroupItineraryDetalPage() {
               className="flex bg-gray-400 w-full  overflow-x-auto scrollbar-hide"
               ref={scrollRef}
             >
-              {data.map((date_card, index) => {
+              {days.map((day: any, index: number) => {
                 return (
-                  <DayCard key={index} id={index + 1} date={date_card.date} />
+                  <DayCard key={day.id} id={index + 1} date={day.dayDate} />
                 );
               })}
             </div>
@@ -179,10 +201,11 @@ export default function GroupItineraryDetalPage() {
                 <div className="flex flex-col items-center gap-3.5" key={index}>
                   <div className="w-full">
                     <h3 className="text-start text-[24px]">{`第${index + 1}天`}</h3>
-                    <p className="text-start text-base">{day.date}</p>
+                    {/* <p className="text-start text-base">{day.dayDate}</p>
+                    <p className="text-start text-base">{day.id}</p> */}
                   </div>
 
-                  {day.nodes?.map((node, index) => {
+                  {/* {day.Nodes.map((node, index) => {
                     return (
                       <div key={index} className="w-full">
                         <NodeCard
@@ -196,13 +219,32 @@ export default function GroupItineraryDetalPage() {
                         <div className="bg-gray-600 w-1 h-[43px] m-auto"></div>
                       </div>
                     );
-                  })}
+                  })} */}
+
+                  {/* {day.nodes?.map((node, index) => {
+                    return (
+                      <div key={index} className="w-full">
+                        <NodeCard
+                          image={node.image}
+                          duration_minute={node.duration_minute}
+                          title={node.title}
+                          address={node.address}
+                          start_time={node.start_time?.slice(0, 5)}
+                          end_time={node.end_time?.slice(0, 5)}
+                        />
+                        <div className="bg-gray-600 w-1 h-[43px] m-auto"></div>
+                      </div>
+                    );
+                  })} */}
                   {/* add btn  */}
                   <div className="flex gap-[30px]">
                     <AddItineraryButton
                       icon={faPlus}
                       btn_name="加入行程"
-                      onClick={() => setIsIframeVisible(true)}
+                      onClick={() => {
+                        setIframeDayData(day.id);
+                        setIsIframeVisible(true);
+                      }}
                     />
                     <AddItineraryButton icon={faHouse} btn_name="加入住宿" />
                   </div>
@@ -214,7 +256,11 @@ export default function GroupItineraryDetalPage() {
         {/* map_zone */}
         <div className="bg-amber-700 relative">
           {isIframeVisible && (
-            <Iframe visible={isIframeVisible} onSend={handleIframeVisible} />
+            <Iframe
+              visible={isIframeVisible}
+              dayData={iframeDayData}
+              onSend={handleIframeVisible}
+            />
           )}
         </div>
       </div>
