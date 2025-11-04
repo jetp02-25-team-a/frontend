@@ -15,7 +15,15 @@ const nextConfig: NextConfig = {
   },
   images: {
     // 從遠端連結圖片用的設定
-    remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3005',
+        pathname: '/**',
+      },
+    ],
   },
   devIndicators: false,
 };
