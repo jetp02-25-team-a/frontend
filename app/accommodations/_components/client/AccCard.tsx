@@ -36,10 +36,10 @@ export default function ComponentsAccCard({
     <>
       <div
         className="
-      flex flex-col overflow-hidden             {/* 1. 佈局 */}
-      w-[266px] h-[384px] gap-[10px]           {/* 3. 大小 */}
-      rounded-2xl bg-white customize_shadow     {/* 5. 外觀/效果 */}
-      group                                     {/* 6. 互動性 */}
+      flex flex-col shrink-0 overflow-hidden
+      w-[266px] h-[384px] gap-2.5
+      rounded-2xl bg-white customize_shadow
+      group
     "
       >
         {/* 1. 圖片區塊 */}
@@ -49,7 +49,7 @@ export default function ComponentsAccCard({
             src={imageUrl}
             alt={imageAlt}
             fill={true}
-            className="object-cover  transition-all  duration-700 ease-in-out group-hover:scale-110"
+            className="object-cover transition-all duration-700 ease-in-out group-hover:scale-110"
           />
 
           {/* 評分顯示區塊 */}
