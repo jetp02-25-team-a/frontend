@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '../../../hooks/use-Auth';
 import { useParams } from 'next/navigation';
 import { API_SERVER } from '../../config/api-path';
 import { ApiResponse } from '../_interfaces/userData';
+import { useRouter } from 'next/navigation';
+import { IMAGE_PATH } from '../../config/image-path';
 
 const userDataInit: ApiResponse = {
   success: false,
@@ -26,11 +28,13 @@ export default function UserIdPage() {
   const [userData, setUserData] = useState(userDataInit);
   const id_string = Array.isArray(user_id) ? user_id[0] : user_id;
   const uid = parseInt(id_string!);
+  const router = useRouter();
 
   //資料拿取
   const getUserData = async () => {
     const response = await fetch(`${API_SERVER}/user/${user_id}`);
     const data = await response.json();
+    if (!data.success) router.push('/member');
 
     setUserData(data);
   };
@@ -38,11 +42,19 @@ export default function UserIdPage() {
   useEffect(() => {
     getUserData();
   }, []);
+  useEffect(() => {
+    if (uid == user.id) router.push('/member');
+  }, [uid, user.id]);
+
   return (
     <>
       <div>
-        <img
-          src={user.avatar || '/avatar_default.png'}
+        <Image
+          src={
+            userData.data.avatar
+              ? `${IMAGE_PATH}${userData.data.avatar}`
+              : '/avatar_default.png'
+          }
           alt=""
           height={100}
           width={100}
@@ -50,11 +62,7 @@ export default function UserIdPage() {
         <h1>{userData.data.nickname}</h1>
         <h1>{userData.data.description}</h1>
       </div>
-      {user.id == uid ? (
-        <Link href={`edit/${user.id}`}>編輯資料 使用者編號:{user.id} </Link>
-      ) : (
-        <h1>正在查看別人的個人檔案</h1>
-      )}
+      <h1>正在查看別人的個人檔案</h1>
     </>
   );
 }
