@@ -7,6 +7,8 @@ import { API_SERVER } from '../config/api-path';
 import { ApiResponse } from './_interfaces/userData';
 import Link from 'next/link';
 import { IMAGE_PATH } from '../config/image-path';
+import ComponentsUserCard from './_components/user-card';
+import ComponentsButton from './_components/button-orange';
 
 const userDataInit: ApiResponse = {
   success: false,
@@ -43,20 +45,17 @@ export default function M6Page() {
 
   return (
     <>
-      <div>
-        <Image
-          src={
+      <div className="bg-[#FBE7C1] w-full h-full">
+        <ComponentsUserCard
+          avatar={
             userData.data.avatar
               ? `${IMAGE_PATH}${userData.data.avatar}`
               : '/avatar_default.png'
           }
-          alt=""
-          height={100}
-          width={100}
+          name={userData.data.nickname || '尚未設定暱稱'}
+          description={userData.data.description || '向別人介紹你自己!'}
+          id={user.id}
         />
-        <h1>{userData.data.nickname}</h1>
-        <h1>{userData.data.description}</h1>
-        <Link href={`member/edit/${user.id}`}>編輯個人資料</Link>
       </div>
     </>
   );
