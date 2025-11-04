@@ -16,3 +16,8 @@ export interface ExpenseFormData {
   expenseDate?: string;
   tripPlanId: number;
 }
+
+export interface ExpenseType {
+  id: number;
+  name: string;
+}
