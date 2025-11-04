@@ -33,7 +33,7 @@ interface SearchBar4Props {
 export default function SearchBar4({ className }: SearchBar4Props) {
   return (
     <div
-      className={`flex w-[954px] items-center justify-between pl-6 pr-3 py-1.5  bg-white rounded-[72px] border border-solid border-[#d9d9d9] shadow-card-shadow ${className}`}
+      className={`flex w-[954px] items-center justify-between pl-6 pr-3 py-1.5  bg-white rounded-[72px] border border-solid border-[#d9d9d9] customize_shadow ${className}`}
     >
       <div className="flex w-[845px] items-center justify-center gap-12 relative">
         {/* 1. Location */}

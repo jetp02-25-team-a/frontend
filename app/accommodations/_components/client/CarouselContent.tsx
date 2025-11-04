@@ -117,7 +117,7 @@ export default function CarouselContent({ title, data }: CarouselContentProps) {
       {/* 捲動區域 (Wrapper) */}
       <div className="w-full relative overflow-hidden px-4">
         <div
-          className="flex justify-start gap-5 flex-nowrap min-w-max pb-4 bg-amber-600/10 transition-transform duration-500 ease-out"
+          className="flex justify-start gap-5 flex-nowrap min-w-max pb-4  transition-transform duration-500 ease-out"
           // 🚨 核心：根據 currentIndex 應用位移
           style={{ transform: `translateX(-${translateX}px)` }}
         >
