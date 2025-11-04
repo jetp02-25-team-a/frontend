@@ -22,6 +22,11 @@ const nextConfig: NextConfig = {
         // ⭐️ 將 Faker 圖片的來源域名加入
         hostname: 'loremflickr.com',
         port: '',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3005',
         pathname: '/**',
       },
     ],
