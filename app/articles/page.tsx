@@ -1,11 +1,11 @@
 'use client'; // jika kamu pakai Next.js App Router
 
 import { useEffect, useState } from 'react';
-import HeroImage from './_components/HeroImage';
-import HeroSection from './_components/HeroSection';
-import IntroText from './_components/IntroText';
-import SidebarAction from './_components/SidebarActions';
-import DestinationCard from './_components/DestinationCard';
+import HeroImage from './(site)/_components/HeroImage';
+import HeroSection from './(site)/_components/HeroSection';
+import IntroText from './(site)/_components/IntroText';
+import SidebarAction from './(site)/_components/SidebarActions';
+import DestinationCard from './(site)/_components/DestinationCard';
 
 export default function HomePage() {
   const [destinations, setDestinations] = useState([]);
