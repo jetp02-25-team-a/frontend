@@ -1,14 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { useAuth } from '../../hooks/use-Auth';
 import { API_SERVER } from '../config/api-path';
 import { ApiResponse } from './_interfaces/userData';
-import Link from 'next/link';
 import { IMAGE_PATH } from '../config/image-path';
-import ComponentsUserCard from './_components/user-card';
-import ComponentsButton from './_components/button-orange';
+import UserCard from './_components/user-card';
 
 const userDataInit: ApiResponse = {
   success: false,
@@ -45,8 +42,8 @@ export default function M6Page() {
 
   return (
     <>
-      <div className="bg-[#FBE7C1] w-full h-full">
-        <ComponentsUserCard
+      <div className="bg-[#FBE7C1]">
+        <UserCard
           avatar={
             userData.data.avatar
               ? `${IMAGE_PATH}${userData.data.avatar}`
