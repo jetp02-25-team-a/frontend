@@ -1,5 +1,6 @@
 'use client';
 import Image from 'next/image';
+import { useMemo } from 'react';
 
 interface DestinationCardProps {
   image?: string;
@@ -29,18 +30,31 @@ export default function DestinationCard({
       : null;
 
   return (
-    <div className="bg-white shadow rounded overflow-hidden">
-      <Image
-        src={isValidUrl(image) ? image : '/istockphoto-1209191587-612x612.jpg'}
-        alt={title}
-        width={30}
-        height={30}
-        className="object-cover w-full"
-      />
-      <div className="p-4">
-        <h3 className="text-lg font-semibold">{title}</h3>
-        <p className="text-sm text-gray-600 mt-2">{description}</p>
-        <button className="mt-4 text-blue-600 hover:underline">查看</button>
+    <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all overflow-hidden">
+      {displayImage ? (
+        <Image
+          src={displayImage}
+          alt={title}
+          width={400}
+          height={250}
+          className="object-cover w-full h-64"
+        />
+      ) : (
+        <div className="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+          No image available
+        </div>
+      )}
+
+      <div className="p-4 flex flex-col justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          {description && (
+            <p className="text-sm text-gray-600 mt-2">{description}</p>
+          )}
+        </div>
+        <button className="mt-4 text-blue-600 hover:underline self-start">
+          查看
+        </button>
       </div>
     </div>
   );
@@ -95,3 +109,30 @@ export default function DestinationCard({
 //     </div>
 //   );
 // }
+
+// // 'use client';
+// // import Image from 'next/image';
+
+// // export default function DestinationCard({ image, title, description }: {
+// //   image: string;
+// //   title: string;
+// //   description: string;
+// // }) {
+// //   return (
+// //     <div className="bg-white shadow rounded overflow-hidden">
+// //       <Image
+// //         src={isValidUrl(image) ? image : "/public/istockphoto-1209191587-612x612.jpg"}
+
+// //         alt={title}
+// //         width={30}
+// //         height={30}
+// //         className="object-cover w-full"
+// //       />
+// //       <div className="p-4">
+// //         <h3 className="text-lg font-semibold">{title}</h3>
+// //         <p className="text-sm text-gray-600 mt-2">{description}</p>
+// //         <button className="mt-4 text-blue-600 hover:underline">查看</button>
+// //       </div>
+// //     </div>
+// //   );
+// // }

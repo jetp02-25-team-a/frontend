@@ -1,6 +1,7 @@
 const destinations = [
   {
-    image: '/images/Taipei-night-wensan1.png',
+    image:
+      'http://localhost:3005/images/a33b9906-145f-4781-8751-8361ab73f83c.png',
     title: '台北101',
     description: '探索台北的歷史建築與文化遺產。',
   },

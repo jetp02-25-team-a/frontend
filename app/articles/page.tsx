@@ -6,16 +6,30 @@ import HeroSection from './(site)/_components/HeroSection';
 import IntroText from './(site)/_components/IntroText';
 import SidebarAction from './(site)/_components/SidebarActions';
 import DestinationCard from './(site)/_components/DestinationCard';
-
+import { API_SERVER } from '../config/api-path';
+interface DestType {
+  title: string;
+  location: string;
+  id: number;
+  imgUrl: string | undefined;
+}
 export default function HomePage() {
-  const [destinations, setDestinations] = useState([]);
+  const [destinations, setDestinations] = useState<DestType[] | null>([]);
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/destinations')
+    fetch(`${API_SERVER}/article`)
       .then((res) => res.json())
       .then((data) => {
-        setDestinations(data);
-        console.log(data);
+        const newDest = data.map((d: any) => {
+          return {
+            id: d.id,
+            title: d.title,
+            location: d.Location.city,
+            imgUrl: d.Photos[0]?.url,
+          };
+        });
+        setDestinations(newDest);
+        console.log(newDest);
       })
       .catch((err) => console.error(err));
   }, []);
@@ -32,12 +46,13 @@ export default function HomePage() {
           <SidebarAction />
           {/* <DestinationGrid destinations={destinations} /> */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-            {destinations.map((dest, idx) => (
+            {destinations?.map((dest, idx) => (
               <DestinationCard
-                key={idx}
+                key={dest.id}
                 // image={dest.image}
-                title={dest.name}
-                description={dest.city}
+                title={dest.title}
+                description="{dest.content}"
+                image={dest.imgUrl ? dest.imgUrl : ''}
               />
             ))}
           </div>
@@ -46,27 +61,6 @@ export default function HomePage() {
     </main>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // 'use client';
 
