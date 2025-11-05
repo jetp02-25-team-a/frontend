@@ -97,7 +97,7 @@ export default function PlacePanel({
         <div className="flex justify-end">
           {/* 回上一頁 */}
           <span className={` w-full m-auto`}>
-            <FontAwesomeIcon icon={faAngleLeft} onClick={() => router.back()} />
+            <FontAwesomeIcon icon={faAngleLeft} onClick={() => {}} />
           </span>
           {/* 關閉 */}
           <FontAwesomeIcon

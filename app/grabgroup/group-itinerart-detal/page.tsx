@@ -22,39 +22,8 @@ import {
   StayNode,
   GoogleMapPlace,
 } from '../_types/itineraryTypes';
-import { id } from 'date-fns/locale';
+
 import { addMinutes } from 'date-fns';
-
-// interface MyNode {
-//   id: number;
-//   image: string;
-//   title: string;
-//   duration_minute: string;
-//   address: string;
-//   start_time: string;
-//   end_time: string;
-// }
-// interface Node {
-//   id: number;
-//   itineraryDayId: number;
-//   durationMinutes: string;
-//   googleMapPlaceId: string;
-// }
-// interface StayNode {
-//   id: number;
-//   itineraryDayId: number;
-//   accommodationId: number;
-// }
-
-// interface DayWithNodes {
-//   Nodes: Node[];
-//   StayNodes: StayNode[];
-//   dayDate: string;
-//   id: number;
-//   itineraryId: number;
-//   startTime: string;
-//   status: number;
-// }
 
 export default function GroupItineraryDetalPage() {
   //處理滑動
@@ -90,6 +59,7 @@ export default function GroupItineraryDetalPage() {
 
   //公共資料更新後刷新
   useEffect(() => {
+    console.log('itineraryData=>', itineraryData);
     if (itineraryData) setDays(itineraryData);
   }, [itineraryData]);
 
@@ -138,7 +108,24 @@ export default function GroupItineraryDetalPage() {
             <p className="text-gray-600">活動天數上限為7天</p>
             <button
               className="cursor-pointer text-white yellow-orange px-[30px] py-2.5"
-              onClick={() => {}}
+              onClick={() => {
+                const lastDay = itineraryData?.at(-1); // ES2022 新語法，取最後一個元素
+                const dayString = lastDay
+                  ? new Date(
+                      new Date(lastDay.dayDate).getTime() + 24 * 60 * 60 * 1000
+                    ).toISOString()
+                  : new Date().toISOString(); // 加一天
+                //創建新天的資料
+                const newDay = {
+                  itineraryId: itineraryId,
+                  dayDate: dayString,
+                  startTime: lastDay?.startTime ?? '08:00',
+                  Nodes: [],
+                  StayNodes: [],
+                };
+                if ((itineraryData?.length ?? 0) >= 7) return;
+                setItineraryData((prev) => [...(prev ?? []), newDay]);
+              }}
             >
               新增
             </button>
@@ -192,7 +179,7 @@ export default function GroupItineraryDetalPage() {
                       icon={faPlus}
                       btn_name="加入行程"
                       onClick={() => {
-                        setCurrentDayIndex(day.id);
+                        if (day.id) setCurrentDayIndex(day.id);
                         setIsIframeVisible(true);
                       }}
                     />
