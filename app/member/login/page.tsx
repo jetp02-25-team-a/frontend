@@ -59,7 +59,7 @@ export default function Page() {
           <div className=" w-full justify-center flex m-3">
             <p>
               還沒有帳號嗎?
-              <Link href={`/member/sign_up`} className="text-blue-500">
+              <Link href={`/member/sign-up`} className="text-blue-500">
                 註冊
               </Link>
             </p>
