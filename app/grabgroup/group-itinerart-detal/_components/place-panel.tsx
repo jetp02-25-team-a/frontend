@@ -91,7 +91,7 @@ export default function PlacePanel({
   return (
     <>
       <div
-        className={`absolute bg-[#F7FAFC] w-[564px] h-[779px] rounded-2xl p-4  shadow-[0_4px_10px_rgba(0,0,0,0.4)] space-y-2.5 `}
+        className={` bg-[#F7FAFC] w-[564px] h-[779px] rounded-2xl p-4  shadow-[0_4px_10px_rgba(0,0,0,0.4)] space-y-2.5 `}
       >
         {/* 按鈕 */}
         <div className="flex justify-end">

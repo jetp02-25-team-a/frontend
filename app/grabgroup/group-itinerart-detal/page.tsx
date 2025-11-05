@@ -22,8 +22,15 @@ import {
   StayNode,
   GoogleMapPlace,
 } from '../_types/itineraryTypes';
+import Map from '../_components/GoogleMap';
 
 import { addMinutes } from 'date-fns';
+import { number } from 'framer-motion';
+
+export interface mapPoint {
+  latitude: number; //預設台北101
+  longitude: number;
+}
 
 export default function GroupItineraryDetalPage() {
   //處理滑動
@@ -40,6 +47,11 @@ export default function GroupItineraryDetalPage() {
   const [days, setDays] = useState<ItineraryData[]>([]);
   // const [iframeDayData, setIframeDayData] = useState<number>(0);
   const [currentDayIndex, setCurrentDayIndex] = useState<number | null>(null);
+  //設定經緯度 預設101
+  const [mapPoint, setMapPoint] = useState<mapPoint>({
+    latitude: 25.033964,
+    longitude: 121.564468,
+  });
   // const [tmpTime, setTmpTime] = useState<string>('');
 
   const { itineraryData, setItineraryData } = useItinerary(); //公共
@@ -170,6 +182,12 @@ export default function GroupItineraryDetalPage() {
                           end_time={end.toISOString()}
                           dayIndex={index}
                           nodeIndex={nodeIndex}
+                          onClick={() =>
+                            setMapPoint({
+                              latitude: node.GoogleMapPlace.lat,
+                              longitude: node.GoogleMapPlace.lng,
+                            })
+                          }
                         />
                         <div className="bg-gray-600 w-1 h-[43px] m-auto"></div>
                       </div>
@@ -198,12 +216,24 @@ export default function GroupItineraryDetalPage() {
         {/* ------------------------------------------- */}
         {/* map_zone */}
         <div className="bg-amber-700 relative">
-          {isIframeVisible && currentDayIndex && (
-            <PlacePanel
-              visible={isIframeVisible}
-              onSend={handleIframeVisible}
-              currentId={currentDayIndex}
+          {/* googlemap */}
+          <div className="w-full mx-auto my-auto ">
+            <Map
+              latitude={mapPoint.latitude}
+              longitude={mapPoint.longitude}
+              width={1000}
+              height={1000}
             />
+          </div>
+          {/* 彈出視窗 */}
+          {isIframeVisible && currentDayIndex && (
+            <div className="absolute inset-0 z-50 flex left-3 top-3">
+              <PlacePanel
+                visible={isIframeVisible}
+                onSend={handleIframeVisible}
+                currentId={currentDayIndex}
+              />
+            </div>
           )}
         </div>
       </div>

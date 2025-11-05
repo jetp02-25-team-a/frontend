@@ -26,6 +26,7 @@ interface NodeCardProps {
   end_time?: string | null;
   dayIndex: number;
   nodeIndex: number;
+  onClick?: () => void;
 }
 export default function NodeCard({
   image,
@@ -36,6 +37,7 @@ export default function NodeCard({
   end_time,
   dayIndex,
   nodeIndex,
+  onClick,
 }: NodeCardProps) {
   const { itineraryData, setItineraryData } = useItinerary(); //公共
 
@@ -52,7 +54,7 @@ export default function NodeCard({
     hour12: true,
   });
   return (
-    <div className="flex items-center ">
+    <div className="flex items-center " onClick={onClick}>
       <div className="flex flex-col w-[100px] px-3 gap-1 items-center">
         <p className="text-gray-400">{startTime}</p>
         <FontAwesomeIcon
