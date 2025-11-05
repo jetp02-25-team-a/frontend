@@ -2,7 +2,7 @@
 
 import { createContext, useState, useContext, useEffect } from 'react';
 import { API_SERVER } from '../app/config/api-path';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 // 定義User 類型
 interface User {
@@ -15,7 +15,7 @@ interface User {
 
 // 定義Context類型
 interface AuthContextType {
-  user: User | null;
+  user: User;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   getAuthHeader: () => { Authorization: string };
@@ -41,8 +41,6 @@ export function AuthProvider({
 
   // 登入
   const login = async (email: string, password: string): Promise<boolean> => {
-    console.log('login');
-
     try {
       const data = {
         email: email,
@@ -153,10 +151,8 @@ export const useAuthRequired = () => {
   const { user, isReady } = useAuth();
 
   useEffect(() => {
-    console.log('useAuthRequired:', { isReady, user });
-
     if (isReady && !user!.email) {
       router.push('/member/login');
     }
-  }, [user]);
+  }, [user, isReady]);
 };
