@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react';
 import Grid from './Grid';
 import { places } from '../lib/fixtures';
-import { toFrontSpot } from '../lib/adapter';
+// import { toFrontSpot } from '../lib/adapter';
 
 export default function ExploreSection() {
   // 狀態：目前選中的類型與排序方式
@@ -10,17 +10,17 @@ export default function ExploreSection() {
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
   // 經 adapter 轉換資料格式（算好 ratingAvg）
-  const data = useMemo(() => {
-    const converted = places
-      .filter((p) => p.type === activeTab)
-      .map(toFrontSpot)
-      .sort((a, b) =>
-        sortOrder === 'desc'
-          ? b.ratingAvg - a.ratingAvg
-          : a.ratingAvg - b.ratingAvg
-      );
-    return converted;
-  }, [activeTab, sortOrder]);
+  // const data = useMemo(() => {
+  //   const converted = places
+  //     .filter((p) => p.type === activeTab)
+  //     .map(toFrontSpot)
+  //     .sort((a, b) =>
+  //       sortOrder === 'desc'
+  //         ? b.ratingAvg - a.ratingAvg
+  //         : a.ratingAvg - b.ratingAvg
+  //     );
+  //   return converted;
+  // }, [activeTab, sortOrder]);
 
   return (
     <section className="max-w-6xl mx-auto px-4 mb-12">
@@ -67,7 +67,7 @@ export default function ExploreSection() {
       </div>
 
       {/* Grid 卡片 */}
-      <Grid data={data} />
+      {/* <Grid data={data} /> */}
     </section>
   );
 }
