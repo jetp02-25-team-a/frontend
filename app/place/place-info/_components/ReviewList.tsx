@@ -19,7 +19,23 @@ export default function ReviewList({ reviews }: { reviews: any[] }) {
                 })
                 .replace(' ', '　')}
             </div>
-            <div className="ml-auto">⭐ {r.score}</div>
+            <div className="ml-auto flex items-center mt-1 space-x-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <svg
+                  key={i}
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill={i < r.score ? '#f59e0b' : '#e5e7eb'}
+                  className="w-5 h-5"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 1.5l2.472 5.009 5.528.804-4 3.898.944 5.507L10 14.773l-4.944 2.945.944-5.507-4-3.898 5.528-.804L10 1.5z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              ))}
+            </div>
           </div>
           <p className="mt-2 text-sm">{r.content}</p>
         </article>

@@ -1,72 +1,78 @@
-// components/spot/Reviews/ReviewComposer.tsx
 'use client';
 import { useState } from 'react';
+import StarRatingInput from './StarRating';
 
-export type ReviewInput = { placeId: string; content: string; rating: number };
+export type ReviewInput = {
+  placeId: string;
+  rating: number;
+  content: string;
+};
 
 export default function ReviewComposer({
   placeId,
-  pending = false,
+  pending,
   onSubmit,
 }: {
   placeId: string;
   pending?: boolean;
   onSubmit: (input: ReviewInput) => Promise<boolean> | boolean;
 }) {
-  const [text, setText] = useState('');
-  const [star, setStar] = useState(5);
+  const [rating, setRating] = useState<number>(5);
+  const [content, setContent] = useState('');
 
-  async function handleSend() {
-    const ok = await onSubmit({ placeId, content: text, rating: star });
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!content.trim() || rating === 0) return;
+
+    const ok = await onSubmit({ placeId, rating, content });
     if (ok) {
-      setText('');
-      setStar(5);
+      setContent('');
+      // 保留 rating 或歸零都行
+      // setRating(0);
     }
   }
 
   return (
-    <section className="rounded-2xl border p-4  w-[60%]">
-      <h3 className="font-semibold mb-2">撰寫評論</h3>
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-sm">評分</span>
-        <select
-          value={star}
-          onChange={(e) => setStar(Number(e.target.value))}
-          className="border rounded px-2 py-1"
-        >
-          {[5, 4, 3, 2, 1].map((s) => (
-            <option key={s} value={s}>
-              {s} ★
-            </option>
-          ))}
-        </select>
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-3xl rounded-2xl border p-4"
+    >
+      <div className="font-semibold mb-3">撰寫評論</div>
+
+      {/* 星星評分（動畫點擊式） */}
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-neutral-600">評分</span>
+        <StarRatingInput value={rating} onChange={setRating} size={24} />
       </div>
+
       <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="輸入你的心得（僅前端展示，不送出）"
-        className="w-full min-h-[100px] rounded-xl border p-3"
+        className="mt-3 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-amber-300"
+        placeholder="輸入你的心得（僅前端展示，未送出後端）"
+        rows={4}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
       />
-      <div className="mt-3 flex gap-2">
+
+      <div className="mt-3 flex items-center gap-2">
         <button
-          className="rounded-xl border px-4 py-2 hover:cursor-pointer"
+          type="button"
           onClick={() => {
-            setText('');
-            setStar(5);
+            setContent('');
+            setRating(0);
           }}
+          className="rounded-full border px-3 py-1.5 hover:bg-neutral-50"
           disabled={pending}
         >
           清除
         </button>
         <button
-          className="rounded-xl bg-yellow-500 text-white px-4 py-2 disabled:opacity-50 hover:cursor-pointer"
-          type="button"
-          onClick={handleSend}
-          disabled={pending || !text.trim()}
+          type="submit"
+          disabled={pending || !content.trim() || rating === 0}
+          className="rounded-full bg-amber-400 text-white px-4 py-1.5 hover:opacity-90 disabled:opacity-50"
         >
-          {pending ? '發佈中…' : '發佈'}
+          發佈
         </button>
       </div>
-    </section>
+    </form>
   );
 }
