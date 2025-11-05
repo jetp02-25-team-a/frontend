@@ -7,43 +7,18 @@ import React, {
   useEffect,
   Children,
 } from 'react';
-
-interface GoogleMapPlace {
-  name: string;
-  formattedAddress: string;
-  lat: number;
-  lng: number;
-  photoReference: string;
-}
-
-interface Node {
-  id: number;
-  durationMinutes: number;
-  GoogleMapPlace: GoogleMapPlace;
-  //                     "GoogleMapPlace": {
-}
-interface StayNode {
-  id: number;
-}
-
-interface ItineraryData {
-  //一天
-  itineraryId: number;
-  dayDate: string; //日期
-  startTime: string;
-  Nodes: Node[] | [];
-  StayNodes: StayNode[] | [];
-}
-interface ItineraryContextType {
-  itineraryData: ItineraryData[] | null;
-  setItineraryData: React.Dispatch<
-    React.SetStateAction<ItineraryData[] | null>
-  >;
-}
+import {
+  ItineraryContextType,
+  ItineraryData,
+  Node,
+  StayNode,
+  GoogleMapPlace,
+} from '../app/grabgroup/_types/itineraryTypes';
 
 export const ItineraryContext = createContext<ItineraryContextType | null>(
   null
 );
+ItineraryContext.displayName = 'trip_content';
 
 export function ItineraryProvider({ children }: { children: React.ReactNode }) {
   const [itineraryData, setItineraryData] = useState<ItineraryData[] | null>(
@@ -55,4 +30,12 @@ export function ItineraryProvider({ children }: { children: React.ReactNode }) {
       {children}
     </ItineraryContext.Provider>
   );
+}
+
+export function useItinerary() {
+  const context = useContext(ItineraryContext);
+  if (!context) {
+    throw new Error('useItinerary 必須在 ItineraryProvider 內使用');
+  }
+  return context;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import PanelCard from './_components/panel-card';
+import PanelCard from '../group-itinerart-detal/_components/panel-card';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
