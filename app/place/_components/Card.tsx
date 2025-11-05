@@ -12,9 +12,9 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
     <>
       <Link
         href={`place/place-info/${spot.id}`}
-        className="w-[303px] rounded-2xl customize_shadow bg-white overflow-hidden group"
+        className="w-full rounded-2xl customize_shadow bg-white overflow-hidden group"
       >
-        <div className="w-full h-[259px] object-cover overflow-hidden">
+        <div className="w-full h-[240px] object-cover overflow-hidden">
           <img
             src={photo}
             className="w-full h-full bg-center bg-cover transition-all  duration-700 ease-in-out group-hover:scale-110"
