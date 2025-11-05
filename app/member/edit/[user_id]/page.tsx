@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, useRef } from 'react';
 import { useAuth, useAuthRequired } from '../../../../hooks/use-Auth';
 import { useParams } from 'next/navigation';
 import { ApiResponse } from '../../_interfaces/userData';
@@ -30,6 +30,7 @@ export default function UserIdPage() {
   const { user_id } = useParams();
   const [userData, setUserData] = useState(userDataInit);
   const [selectedFile, setSelectedFile] = useState<SelectedFile>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   //資料拿取
@@ -102,52 +103,85 @@ export default function UserIdPage() {
     }
   };
 
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
   useEffect(() => {
     getUserData();
   }, []);
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div>
-          <Image
-            src={
-              selectedFile
-                ? URL.createObjectURL(selectedFile)
-                : userData.data.avatar
-                  ? `${IMAGE_PATH}${userData.data.avatar}`
-                  : '/avatar_default.png'
-            } //檔案>舊頭像>預設頭像
-            alt=""
-            height={100}
-            width={100}
-          />
-          <h1>更改頭像</h1>
-          <input type="file" onChange={handleFileChange} />
-          <h1>顯示名稱</h1>
-          <input
-            type="text"
-            placeholder={'尚未設定'}
-            value={userData.data.nickname || ''}
-            name="nickname"
-            onChange={handleFieldChange}
-          />
-          <h1>全名(訂單顯示名稱)</h1>
-          <input
-            type="text"
-            placeholder={'尚未設定'}
-            value={userData.data.fullName || ''}
-            name="fullName"
-            onChange={handleFieldChange}
-          />
-          <h1>關於我</h1>
-          <textarea
-            placeholder={'介紹你自己!'}
-            value={userData.data.description || ''}
-            name="description"
-            onChange={handleFieldChange}
-          />
+        <div className="bg-[#FBE7C1]">
+          <div className="bg-white  rounded-[15] flex flex-col items-center w-fit p-5 mx-auto ">
+            <div className="flex items-center">
+              <div className="mx-5 ">
+                <Image
+                  src={
+                    selectedFile
+                      ? URL.createObjectURL(selectedFile)
+                      : userData.data.avatar
+                        ? `${IMAGE_PATH}${userData.data.avatar}`
+                        : '/avatar_default.png'
+                  } //檔案>舊頭像>預設頭像
+                  alt=""
+                  height={100}
+                  width={100}
+                  className="rounded-full"
+                />
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  ref={fileInputRef}
+                  className="hidden "
+                />
+
+                <button
+                  type="button"
+                  onClick={handleButtonClick}
+                  className="mt-2 bg-gray-200 hover:bg-gray-300 text-sm py-1 px-3 rounded mt-5"
+                >
+                  選擇新頭像
+                </button>
+              </div>
+              <div>
+                <h1 className="mt-1.5">顯示名稱</h1>
+                <input
+                  type="text"
+                  placeholder={'尚未設定'}
+                  value={userData.data.nickname || ''}
+                  name="nickname"
+                  onChange={handleFieldChange}
+                  className="bg-[#FBE7C1] mt-1.5"
+                />
+                <h1 className="mt-1.5">全名(訂單顯示名稱)</h1>
+                <input
+                  type="text"
+                  placeholder={'尚未設定'}
+                  value={userData.data.fullName || ''}
+                  name="fullName"
+                  onChange={handleFieldChange}
+                  className="bg-[#FBE7C1] mt-1.5"
+                />
+                <h1 className="mt-1.5">關於我</h1>
+                <textarea
+                  placeholder={'介紹你自己!'}
+                  value={userData.data.description || ''}
+                  name="description"
+                  onChange={handleFieldChange}
+                  className="bg-[#FBE7C1] mt-1.5"
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="bg-[#F2A922] px-10 py-0.5 rounded-xl text-white mt-5"
+            >
+              儲存
+            </button>
+          </div>
         </div>
-        <button type="submit">儲存</button>
       </form>
     </>
   );
