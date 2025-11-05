@@ -1,7 +1,6 @@
 // components/spot/Reviews/SpotReviewsPanel.tsx
 'use client';
 import { useEffect, useState } from 'react';
-import RatingSummary from './RatingSummary';
 import ReviewList from './ReviewList';
 import ReviewComposer, { ReviewInput } from './ReviewComposer';
 import SuccessModal from './SuccessModal';
@@ -75,19 +74,18 @@ export default function SpotReviewsPanel({
   });
 
   return (
-    <div className="relative min-h-[60vh]">
+    <div className="relative min-h-[60vh] w-full">
       {/* 主要內容，開啟 Modal 時灰階+變暗 */}
       <div
         className={`transition-all duration-200 ${showSuccess ? 'filter grayscale brightness-75' : ''}`}
       >
-        <div className="mx-auto max-w-5xl px-4 py-8 flex flex-col gap-6">
-          <RatingSummary avg={Number(avg)} count={count} dist={dist} />
+        <div className="mx-auto max-w-5xl px-4 py-8 flex flex-col gap-6 items-center">
+          <ReviewList reviews={reviews} />
           <ReviewComposer
             pending={isSubmitting}
             onSubmit={handleSubmit}
             placeId="demo-place-id"
           />
-          <ReviewList reviews={reviews} />
         </div>
       </div>
 
