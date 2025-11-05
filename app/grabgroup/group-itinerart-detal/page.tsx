@@ -179,7 +179,9 @@ export default function GroupItineraryDetalPage() {
                       icon={faPlus}
                       btn_name="加入行程"
                       onClick={() => {
-                        if (day.id) setCurrentDayIndex(day.id);
+                        // if (day.id) setCurrentDayIndex(day.id);
+                        setCurrentDayIndex(index);
+                        console.log('day_index', index);
                         setIsIframeVisible(true);
                       }}
                     />

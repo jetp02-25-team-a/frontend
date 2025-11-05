@@ -190,13 +190,22 @@ export default function PlacePanel({
                 //將節點放入該天底下的node節點後
                 setItineraryData((prev) =>
                   prev
-                    ? prev.map((day) =>
-                        day.id === currentId
+                    ? prev.map((day, index) =>
+                        index === currentId
                           ? { ...day, Nodes: [...day.Nodes, node] }
                           : day
                       )
                     : []
                 );
+                // setItineraryData((prev) =>
+                //   prev
+                //     ? prev.map((day) =>
+                //         day.id === currentId
+                //           ? { ...day, Nodes: [...day.Nodes, node] }
+                //           : day
+                //       )
+                //     : []
+                // );
               }}
             />
           </>
