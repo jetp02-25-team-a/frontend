@@ -1,7 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useMemo } from 'react';
-
+import { IMAGE_PATH } from '@/app/config/image-path';
 interface DestinationCardProps {
   image?: string;
   title: string;
@@ -10,12 +9,7 @@ interface DestinationCardProps {
 
 const isValidUrl = (url?: string) => {
   if (!url) return false;
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
+  return true;
 };
 
 export default function DestinationCard({
@@ -23,17 +17,12 @@ export default function DestinationCard({
   title,
   description,
 }: DestinationCardProps) {
-  const displayImage = isValidUrl(image)
-    ? image
-    : image
-      ? `http://localhost:4000${image.startsWith('/') ? image : `/${image}`}`
-      : null;
-
+  const url = isValidUrl(image) ? `${IMAGE_PATH}${image}` : '';
   return (
     <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all overflow-hidden">
-      {displayImage ? (
+      {isValidUrl(image) ? (
         <Image
-          src={displayImage}
+          src={url}
           alt={title}
           width={400}
           height={250}
