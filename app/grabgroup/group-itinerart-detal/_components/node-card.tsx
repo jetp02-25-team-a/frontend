@@ -8,6 +8,15 @@ import {
   faEllipsis,
   faLocationDot,
 } from '@fortawesome/free-solid-svg-icons';
+import { ItineraryContext, useItinerary } from '@/hooks/use-itinerart';
+import {
+  ItineraryContextType,
+  ItineraryData,
+  Node,
+  StayNode,
+  GoogleMapPlace,
+} from '../../_types/itineraryTypes';
+
 interface NodeCardProps {
   duration_minute: number;
   title: string;
@@ -15,6 +24,8 @@ interface NodeCardProps {
   image: string;
   start_time?: string | null;
   end_time?: string | null;
+  dayIndex: number;
+  nodeIndex: number;
 }
 export default function NodeCard({
   image,
@@ -23,7 +34,11 @@ export default function NodeCard({
   address,
   start_time,
   end_time,
+  dayIndex,
+  nodeIndex,
 }: NodeCardProps) {
+  const { itineraryData, setItineraryData } = useItinerary(); //公共
+
   const start = new Date(start_time);
   const startTime = start.toLocaleTimeString('en-US', {
     hour: 'numeric',
@@ -60,9 +75,30 @@ export default function NodeCard({
             icon={faEllipsis}
             className="text-gray-400 cursor-pointer"
           />
+          {/* trash 刪除 */}
           <FontAwesomeIcon
             icon={faTrashCan}
             className="text-gray-400 cursor-pointer"
+            onClick={() =>
+              setItineraryData(
+                // ItineraryContext[dayIndex][nodeIndex];
+                (prev) => {
+                  if (!prev) return prev;
+                  //複製
+                  const updated = [...prev];
+                  //取到該天
+                  const targetDay = updated[dayIndex];
+                  if (!targetDay) return prev;
+                  //比對該天的節點 並且過濾
+                  const newNodes = targetDay.Nodes.filter(
+                    (_, i) => i !== nodeIndex
+                  );
+                  //更新資料 更改key 為Nodes
+                  updated[dayIndex] = { ...targetDay, Nodes: newNodes };
+                  return updated;
+                }
+              )
+            }
           />
         </div>
       </div>

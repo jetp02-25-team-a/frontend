@@ -144,10 +144,10 @@ export default function GroupItineraryDetalPage() {
                   </div>
 
                   {/* 節點區 */}
-                  {day.Nodes.map((node, dayIndex) => {
+                  {day.Nodes.map((node, nodeIndex) => {
                     let start;
                     let end;
-                    if (dayIndex === 0) {
+                    if (nodeIndex === 0) {
                       start = new Date(tmpTime); //為第一個設定開始時間為最開始時間
                       end = addMinutes(start, node.durationMinutes); //結束時間設定為開始＋時長度
                       tmpTime = end.toISOString(); //在將暫存時間設定為end時間提供下一次作為開始時間讀取
@@ -158,8 +158,9 @@ export default function GroupItineraryDetalPage() {
                     }
 
                     // const end = addMinutes(start, node.durationMinutes);
+
                     return (
-                      <div key={dayIndex} className="w-full">
+                      <div key={nodeIndex} className="w-full">
                         <NodeCard
                           image={node.GoogleMapPlace.photoReference}
                           duration_minute={node.durationMinutes}
@@ -167,6 +168,8 @@ export default function GroupItineraryDetalPage() {
                           address={node.GoogleMapPlace.formattedAddress}
                           start_time={start.toISOString()}
                           end_time={end.toISOString()}
+                          dayIndex={index}
+                          nodeIndex={nodeIndex}
                         />
                         <div className="bg-gray-600 w-1 h-[43px] m-auto"></div>
                       </div>
