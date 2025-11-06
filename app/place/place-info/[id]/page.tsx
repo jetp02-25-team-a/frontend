@@ -33,20 +33,18 @@ export default async function SpotPage({
         <main className="col-span-12 space-y-6 flex flex-col items-center">
           <div className="flex items-start gap-4 w-full">
             <div className="flex-1">
-              {/* <RatingSummary
-                avg={spot.ratingAvg}
-                dist={spot.ratingDist}
-                count={spot.reviewCount}
-              /> */}
+              <RatingSummary reviews={reviews} />
             </div>
-            <div className="flex-1">{/* <MetaPanel spot={spot} /> */}</div>
+            <div className="flex-1">
+              <MetaPanel spot={spot} />
+            </div>
           </div>
           <MapSection />
           {/* ✅ 改成由 Client 包裹控制送出/Modal/灰階 */}
           <SpotReviewsPanel
             placeId={placeId}
             reviews={reviews}
-            currentUserId={1}
+            currentUserId={30}
           />
         </main>
       </div>

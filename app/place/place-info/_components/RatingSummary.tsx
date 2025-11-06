@@ -1,19 +1,72 @@
 // components/spot/RatingSummary.tsx
-export default function RatingSummary({
-  avg,
-  dist,
-  count,
-}: {
-  avg: number;
-  count: number;
-  dist: { star: number; pct: number }[];
-}) {
+type ReviewItem = {
+  id: number;
+  userId: number;
+  name: string; // adaptor 已攤平好的顯示名稱
+  avatar?: string | null;
+  date: string; // ISO 字串（後端 createdAt）
+  content: string;
+  score?: number | null; // 0~5，可為 null
+};
+
+function buildRatingSummary(reviews: ReviewItem[]) {
+  // 只取有分數的
+  const scored = reviews
+    .map((r) => Number(r.score))
+    .filter((n) => Number.isFinite(n) && n >= 1 && n <= 5);
+
+  const count = scored.length;
+  const avg = count
+    ? Number((scored.reduce((s, n) => s + n, 0) / count).toFixed(1))
+    : 0;
+
+  // 由 5→1 生成分布（百分比四捨五入）
+  const dist = [5, 4, 3, 2, 1].map((star) => {
+    const n = scored.filter((s) => s === star).length;
+    const pct = count ? Math.round((n / count) * 100) : 0;
+    return { star, pct };
+  });
+
+  return { avg, count, dist };
+}
+
+export default function RatingSummary({ reviews }: { reviews: ReviewItem[] }) {
+  const { avg, count, dist } = buildRatingSummary(reviews);
   return (
     <section className="rounded-2xl border p-4">
       <div className="flex items-center gap-6">
         <div>
           <div className="text-4xl font-bold ">{avg}</div>
-          <div className="text-xs font-bold">⭐⭐⭐⭐⭐</div>
+          {/* ✅ 改良版平均分數顯示 */}
+          <div
+            className="flex items-center gap-0.5"
+            aria-label={`average ${avg} stars`}
+          >
+            {Array.from({ length: 5 }).map((_, i) => {
+              const index = i + 1;
+              const full = avg >= index;
+              const half = avg >= index - 0.5 && avg < index;
+              return (
+                <svg key={i} viewBox="0 0 20 20" className="w-5 h-5">
+                  <path
+                    fill="#e5e7eb"
+                    d="M10 1.5l2.472 5.009 5.528.804-4 3.898.944 5.507L10 14.773l-4.944 2.945.944-5.507-4-3.898 5.528-.804L10 1.5z"
+                  />
+                  <path
+                    fill="#f59e0b"
+                    d="M10 1.5l2.472 5.009 5.528.804-4 3.898.944 5.507L10 14.773l-4.944 2.945.944-5.507-4-3.898 5.528-.804L10 1.5z"
+                    style={{
+                      clipPath: full
+                        ? 'none'
+                        : half
+                          ? 'inset(0 50% 0 0)'
+                          : 'inset(0 100% 0 0)',
+                    }}
+                  />
+                </svg>
+              );
+            })}
+          </div>
           <div className="text-[12px] font-bold mt-0.5">總評論數: {count}</div>
         </div>
         <div className="flex-1 space-y-2">
