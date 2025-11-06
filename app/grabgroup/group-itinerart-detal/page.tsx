@@ -52,7 +52,8 @@ export default function GroupItineraryDetalPage() {
     latitude: 25.033964,
     longitude: 121.564468,
   });
-  // const [tmpTime, setTmpTime] = useState<string>('');
+  //日期bar 用來顯示點選的天
+  const [activeId, setActiveId] = useState<number>(0);
 
   const { itineraryData, setItineraryData } = useItinerary(); //公共
 
@@ -103,7 +104,13 @@ export default function GroupItineraryDetalPage() {
             >
               {days.map((day: any, index: number) => {
                 return (
-                  <DayCard key={index} id={index + 1} date={day.dayDate} />
+                  <DayCard
+                    key={index}
+                    id={index + 1}
+                    date={day.dayDate}
+                    active={activeId === index ? true : false}
+                    onClick={() => setActiveId(index)}
+                  />
                 );
               })}
             </div>
@@ -142,10 +149,14 @@ export default function GroupItineraryDetalPage() {
               新增
             </button>
           </div>
+
           {/* 顯示node區域 */}
           <div>
+            {/* 顯示所有天數 */}
+
             {days.map((day, index) => {
               let tmpTime = day.startTime;
+              if (index !== activeId) return;
               return (
                 <div className="flex flex-col items-center gap-3.5" key={index}>
                   <div className="w-full">
