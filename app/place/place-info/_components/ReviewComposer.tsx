@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import StarRatingInput from './StarRating';
+import { createOrUpsertComment } from '@/app/place/lib/commentAdaptor';
 
 export type ReviewInput = {
   placeId: string;
@@ -10,32 +11,32 @@ export type ReviewInput = {
 
 export default function ReviewComposer({
   placeId,
-  pending,
-  onSubmit,
+  onCreated,
 }: {
-  placeId: string;
-  pending?: boolean;
-  onSubmit: (input: ReviewInput) => Promise<boolean> | boolean;
+  placeId: number;
+  onCreated?: () => void;
 }) {
-  const [rating, setRating] = useState<number>(5);
   const [content, setContent] = useState('');
+  const [rating, setRating] = useState(5); // 先保留 UI；Rank 之後接
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!content.trim() || rating === 0) return;
-
-    const ok = await onSubmit({ placeId, rating, content });
-    if (ok) {
+    if (!content.trim()) return;
+    setLoading(true);
+    try {
+      await createOrUpsertComment(placeId, content.trim());
       setContent('');
-      // 保留 rating 或歸零都行
-      // setRating(0);
+      onCreated?.(); // 讓外層 refresh
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-3xl rounded-2xl border p-4"
+      className="w-[60%] max-w-3xl rounded-2xl border p-4"
     >
       <div className="font-semibold mb-3">撰寫評論</div>
 
@@ -47,7 +48,7 @@ export default function ReviewComposer({
 
       <textarea
         className="mt-3 w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-amber-300"
-        placeholder="輸入你的心得（僅前端展示，未送出後端）"
+        placeholder="輸入你的心得"
         rows={4}
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -61,13 +62,13 @@ export default function ReviewComposer({
             setRating(0);
           }}
           className="rounded-full border px-3 py-1.5 hover:bg-neutral-50"
-          disabled={pending}
+          disabled={loading}
         >
           清除
         </button>
         <button
           type="submit"
-          disabled={pending || !content.trim() || rating === 0}
+          disabled={loading || !content.trim()}
           className="rounded-full bg-amber-400 text-white px-4 py-1.5 hover:opacity-90 disabled:opacity-50"
         >
           發佈

@@ -3,9 +3,8 @@ import Hero from '../_components/Hero';
 import MetaPanel from '../_components/MetaPanel';
 import MapSection from '../_components/MapSection';
 import RatingSummary from '../_components/RatingSummary';
-import ReviewsSection from '../_components/ReviewsSection';
 import SpotReviewsPanel from '../_components/SpotReviewsPanel';
-import { getSpotDetail } from '@/app/place/lib/adapter';
+import { getSpotDetail } from '@/app/place/lib/singlePlaceAdapter';
 
 export default async function SpotPage({
   params,
@@ -44,7 +43,11 @@ export default async function SpotPage({
           </div>
           <MapSection />
           {/* ✅ 改成由 Client 包裹控制送出/Modal/灰階 */}
-          <SpotReviewsPanel spot={spot} initialReviews={reviews} />
+          <SpotReviewsPanel
+            placeId={placeId}
+            reviews={reviews}
+            currentUserId={1}
+          />
         </main>
       </div>
     </div>
