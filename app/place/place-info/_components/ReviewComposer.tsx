@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import StarRatingInput from './StarRating';
 import { createOrUpsertComment } from '@/app/place/lib/commentAdaptor';
+import { createOrUpsertRank } from '../../lib/rankAdaptor';
 
 export type ReviewInput = {
   placeId: string;
@@ -23,10 +24,17 @@ export default function ReviewComposer({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!content.trim()) return;
+
+    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+      alert('請選擇 1～5 顆星的評分');
+      return;
+    }
     setLoading(true);
     try {
+      await createOrUpsertRank(placeId, rating);
       await createOrUpsertComment(placeId, content.trim());
       setContent('');
+      setRating(0);
       onCreated?.(); // 讓外層 refresh
     } finally {
       setLoading(false);
@@ -68,7 +76,7 @@ export default function ReviewComposer({
         </button>
         <button
           type="submit"
-          disabled={loading || !content.trim()}
+          disabled={loading || !content.trim() || rating === 0}
           className="rounded-full bg-amber-400 text-white px-4 py-1.5 hover:opacity-90 disabled:opacity-50"
         >
           發佈
