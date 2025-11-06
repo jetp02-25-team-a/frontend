@@ -31,9 +31,7 @@ export default function WriteArticlePage() {
     const URL = `http://localhost:3005/api/article/${pid}`;
     try {
       const res = await fetch(URL);
-      console.log(res);
       const resData = await res.json();
-      console.log(resData);
 
       if (resData.id) {
         setArticle(resData);
@@ -62,19 +60,111 @@ export default function WriteArticlePage() {
   }
 
   return (
-    <main className="max-w-4xl mx-auto py-10">
+    <main className="max-w-4xl mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold mb-6">Article (SearchParams)</h1>
       <hr className="mb-6" />
       <h2 className="text-2xl mb-2">{article.title}</h2>
       <p className="text-gray-600 mb-4">Location: {article.location}</p>
-      <p>{article.content}</p>
-      <div className="mt-8">
+      <p className="mb-6">{article.content}</p>
+
+      {/* ✅ Tambahkan gambar jika tersedia */}
+      {article.photos && (
+        <div className="mb-10">
+          <img
+            src={article.photos}
+            alt={article.title}
+            className="w-full max-h-[500px] object-cover rounded shadow"
+          />
+        </div>
+      )}
+
+      {/* ✅ Komponen Form dan MessageBoard */}
+      <div className="space-y-10">
         <ArticleForms />
         <MessageBoard />
       </div>
     </main>
   );
 }
+
+// 'use client';
+
+// import React, { useState, useEffect } from 'react';
+// import { useSearchParams } from 'next/navigation';
+// import ArticleForms from '../_components/ArticleForms';
+// import MessageBoard from '../_components/MessageBoard';
+
+// interface Article {
+//   userId: string;
+//   title: string;
+//   location: string;
+//   content: string;
+//   photos: string;
+// }
+
+// export default function WriteArticlePage() {
+//   const searchParams = useSearchParams();
+//   const id = searchParams.get('id');
+
+//   const [article, setArticle] = useState<Article>({
+//     userId: '',
+//     title: '',
+//     location: '',
+//     content: '',
+//     photos: '',
+//   });
+
+//   const [isLoading, setIsLoading] = useState(true);
+
+//   const getArticle = async (pid: string) => {
+//     const URL = `http://localhost:3005/api/article/${pid}`;
+//     try {
+//       const res = await fetch(URL);
+//       console.log(res);
+//       const resData = await res.json();
+//       console.log(resData);
+
+//       if (resData.id) {
+//         setArticle(resData);
+//         setTimeout(() => {
+//           setIsLoading(false);
+//         }, 1500);
+//       }
+//     } catch (e) {
+//       console.error(e);
+//       setIsLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (id && typeof id === 'string') {
+//       getArticle(id);
+//     }
+//   }, [id]);
+
+//   if (isLoading) {
+//     return (
+//       <main className="flex justify-center items-center h-screen">
+//         <h2 className="text-xl font-semibold">Loading article...</h2>
+//       </main>
+//     );
+//   }
+
+//   return (
+//     <main className="max-w-4xl mx-auto py-10">
+//       <h1 className="text-3xl font-bold mb-6">Article (SearchParams)</h1>
+//       <hr className="mb-6" />
+//       <h2 className="text-2xl mb-2">{article.title}</h2>
+//       <p className="text-gray-600 mb-4">Location: {article.location}</p>
+//       <p>{article.content}</p>
+//       <div className="mt-8">
+//         <ArticleForms />
+//         <MessageBoard />
+//       </div>
+//     </main>
+//   );
+// }
+
 // 'use client';
 
 // import ArticleForm from '../_components/ArticleForms';
