@@ -24,7 +24,7 @@ import {
 } from '../_types/itineraryTypes';
 import Map from '../_components/GoogleMap';
 
-import { addMinutes } from 'date-fns';
+import { addDays, addMinutes } from 'date-fns';
 import { number } from 'framer-motion';
 
 export interface mapPoint {
@@ -65,15 +65,42 @@ export default function GroupItineraryDetalPage() {
     if (data && data.success) {
       const datas = data.data;
       setItineraryData((prev) => [...datas]); //設定context
+      console.log('itineraryData==>', itineraryData);
 
       setDays(datas);
     }
   }, [data]);
 
+  //日期自動往前補
+  const normalizeDays = (days: ItineraryData[]): ItineraryData[] => {
+    return days.map((d, i) => {
+      if (i === 0) return d;
+      const prevDay = new Date(days[i - 1].dayDate);
+      return { ...d, dayDate: addDays(prevDay, 1).toISOString() };
+    });
+  };
+
+  // useEffect(() => {
+  //   console.log('days 有變動了.....');
+  //   const newDays = normalizeDays(days);
+  //   if (JSON.stringify(newDays) !== JSON.stringify(days)) {
+  //     setDays(newDays);
+  //   }
+
+  //   console.log('newdays=>', days);
+  // }, [days]);
+
   //公共資料更新後刷新
   useEffect(() => {
     console.log('itineraryData=>', itineraryData);
-    if (itineraryData) setDays(itineraryData);
+    // if (itineraryData) setDays(itineraryData);
+    let newItineraryData: ItineraryData[] = [];
+    if (itineraryData) {
+      newItineraryData = normalizeDays(itineraryData);
+    }
+    if (JSON.stringify(newItineraryData) !== JSON.stringify(itineraryData)) {
+      setDays(newItineraryData);
+    }
   }, [itineraryData]);
 
   // 控制iframe顯示
@@ -82,6 +109,9 @@ export default function GroupItineraryDetalPage() {
   const handleIframeVisible = (show: boolean) => {
     setIsIframeVisible(show);
   };
+  //days 計算天數用變數
+  // let tmp: string = '';
+  // let dayTime: string = '';
 
   return (
     <>
@@ -102,17 +132,41 @@ export default function GroupItineraryDetalPage() {
               className="flex bg-gray-400 w-full  overflow-x-auto scrollbar-hide"
               ref={scrollRef}
             >
-              {days.map((day: any, index: number) => {
+              {itineraryData &&
+                itineraryData.map((day: any, index: number) => {
+                  return (
+                    <DayCard
+                      key={index}
+                      id={index + 1}
+                      date={day.dayDate}
+                      // date={dayTime}
+                      active={activeId === index ? true : false}
+                      onClick={() => setActiveId(index)}
+                      onDelete={() => {
+                        const newItineraryData = itineraryData.filter(
+                          (d, i) => i !== index
+                        );
+                        setItineraryData(newItineraryData);
+                      }}
+                    />
+                  );
+                })}
+              {/* {days.map((day: any, index: number) => {
                 return (
                   <DayCard
                     key={index}
                     id={index + 1}
                     date={day.dayDate}
+                    // date={dayTime}
                     active={activeId === index ? true : false}
                     onClick={() => setActiveId(index)}
+                    onDelete={() => {
+                      const newDays = days.filter((d, i) => i !== index);
+                      setDays(newDays);
+                    }}
                   />
                 );
-              })}
+              })} */}
             </div>
             <div
               className="bg-white border  border-gray-300 flex items-center px-2.5 rounded-tr-xl rounded-br-xl"
@@ -129,11 +183,12 @@ export default function GroupItineraryDetalPage() {
               className="cursor-pointer text-white yellow-orange px-[30px] py-2.5"
               onClick={() => {
                 const lastDay = itineraryData?.at(-1); // ES2022 新語法，取最後一個元素
-                const dayString = lastDay
-                  ? new Date(
-                      new Date(lastDay.dayDate).getTime() + 24 * 60 * 60 * 1000
-                    ).toISOString()
-                  : new Date().toISOString(); // 加一天
+                let dayString = new Date().toISOString(); // 假日期
+                if (lastDay)
+                  dayString = addDays(
+                    new Date(lastDay.dayDate),
+                    1
+                  ).toISOString(); // 加一天
                 //創建新天的資料
                 const newDay = {
                   itineraryId: itineraryId,
@@ -154,74 +209,78 @@ export default function GroupItineraryDetalPage() {
           <div>
             {/* 顯示所有天數 */}
 
-            {days.map((day, index) => {
-              let tmpTime = day.startTime;
-              if (index !== activeId) return;
-              return (
-                <div className="flex flex-col items-center gap-3.5" key={index}>
-                  <div className="w-full">
-                    <h3 className="text-start text-[24px]">{`第${index + 1}天`}</h3>
-                    {/* {itineraryData[0].startTime} */}
-                    {/* <p className="text-start text-base">{day.dayDate}</p>
+            {itineraryData &&
+              itineraryData.map((day, index) => {
+                let tmpTime = day.startTime;
+                if (index !== activeId) return;
+                return (
+                  <div
+                    className="flex flex-col items-center gap-3.5"
+                    key={index}
+                  >
+                    <div className="w-full">
+                      <h3 className="text-start text-[24px]">{`第${index + 1}天`}</h3>
+                      {/* {itineraryData[0].startTime} */}
+                      {/* <p className="text-start text-base">{day.dayDate}</p>
                     <p className="text-start text-base">{day.id}</p> */}
+                    </div>
+
+                    {/* 節點區 */}
+                    {day.Nodes.map((node, nodeIndex) => {
+                      let start;
+                      let end;
+                      if (nodeIndex === 0) {
+                        start = new Date(tmpTime); //為第一個設定開始時間為最開始時間
+                        end = addMinutes(start, node.durationMinutes); //結束時間設定為開始＋時長度
+                        tmpTime = end.toISOString(); //在將暫存時間設定為end時間提供下一次作為開始時間讀取
+                      } else {
+                        start = new Date(tmpTime);
+                        end = addMinutes(start, node.durationMinutes); //結束時間設定為開始＋時長度
+                        tmpTime = end.toISOString(); //在將暫存時間設定為end時間提供下一次作為開始時間讀取
+                      }
+
+                      // const end = addMinutes(start, node.durationMinutes);
+
+                      return (
+                        <div key={nodeIndex} className="w-full">
+                          <NodeCard
+                            image={node.GoogleMapPlace.photoReference}
+                            duration_minute={node.durationMinutes}
+                            title={node.GoogleMapPlace.name}
+                            address={node.GoogleMapPlace.formattedAddress}
+                            start_time={start.toISOString()}
+                            end_time={end.toISOString()}
+                            dayIndex={index}
+                            nodeIndex={nodeIndex}
+                            onClick={() =>
+                              setMapPoint({
+                                latitude: node.GoogleMapPlace.lat,
+                                longitude: node.GoogleMapPlace.lng,
+                              })
+                            }
+                          />
+                          <div className="bg-gray-600 w-1 h-[43px] m-auto"></div>
+                        </div>
+                      );
+                    })}
+
+                    {/* add btn  */}
+                    <div className="flex gap-[30px]">
+                      <AddItineraryButton
+                        icon={faPlus}
+                        btn_name="加入行程"
+                        onClick={() => {
+                          // if (day.id) setCurrentDayIndex(day.id);
+                          setCurrentDayIndex(index);
+                          console.log('day_index', index);
+                          setIsIframeVisible(true);
+                        }}
+                      />
+                      <AddItineraryButton icon={faHouse} btn_name="加入住宿" />
+                    </div>
                   </div>
-
-                  {/* 節點區 */}
-                  {day.Nodes.map((node, nodeIndex) => {
-                    let start;
-                    let end;
-                    if (nodeIndex === 0) {
-                      start = new Date(tmpTime); //為第一個設定開始時間為最開始時間
-                      end = addMinutes(start, node.durationMinutes); //結束時間設定為開始＋時長度
-                      tmpTime = end.toISOString(); //在將暫存時間設定為end時間提供下一次作為開始時間讀取
-                    } else {
-                      start = new Date(tmpTime);
-                      end = addMinutes(start, node.durationMinutes); //結束時間設定為開始＋時長度
-                      tmpTime = end.toISOString(); //在將暫存時間設定為end時間提供下一次作為開始時間讀取
-                    }
-
-                    // const end = addMinutes(start, node.durationMinutes);
-
-                    return (
-                      <div key={nodeIndex} className="w-full">
-                        <NodeCard
-                          image={node.GoogleMapPlace.photoReference}
-                          duration_minute={node.durationMinutes}
-                          title={node.GoogleMapPlace.name}
-                          address={node.GoogleMapPlace.formattedAddress}
-                          start_time={start.toISOString()}
-                          end_time={end.toISOString()}
-                          dayIndex={index}
-                          nodeIndex={nodeIndex}
-                          onClick={() =>
-                            setMapPoint({
-                              latitude: node.GoogleMapPlace.lat,
-                              longitude: node.GoogleMapPlace.lng,
-                            })
-                          }
-                        />
-                        <div className="bg-gray-600 w-1 h-[43px] m-auto"></div>
-                      </div>
-                    );
-                  })}
-
-                  {/* add btn  */}
-                  <div className="flex gap-[30px]">
-                    <AddItineraryButton
-                      icon={faPlus}
-                      btn_name="加入行程"
-                      onClick={() => {
-                        // if (day.id) setCurrentDayIndex(day.id);
-                        setCurrentDayIndex(index);
-                        console.log('day_index', index);
-                        setIsIframeVisible(true);
-                      }}
-                    />
-                    <AddItineraryButton icon={faHouse} btn_name="加入住宿" />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
         {/* ------------------------------------------- */}
