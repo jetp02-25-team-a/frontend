@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { locations, Location } from '../_components/Location/types'; // 假設 type.ts 在同一個目錄
+import { locations, Location } from './Location/types'; // 假設 type.ts 在同一個目錄
 
 /**
  * 🇹🇼 地區下拉選單組件
