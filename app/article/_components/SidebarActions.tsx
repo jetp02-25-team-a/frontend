@@ -7,19 +7,19 @@ export default function SidebarActions() {
 
   const menuItems = [
     {
-      href: 'articles/rankingpage',
+      href: 'article/rankingpage',
       label: '推薦景點排行榜',
       // href: '/rankingpage',
       // label: '推薦景點排行榜',
       // color: 'hover:text-blue-600',
     },
     {
-      href: 'articles/review',
+      href: 'article/review',
       label: '推薦文章景點分享',
       color: 'hover:text-green-600',
     },
     {
-      href: 'articles/guide',
+      href: 'article/guide',
       label: '建立分享',
       color: 'hover:text-purple-600',
     },

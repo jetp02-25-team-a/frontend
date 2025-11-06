@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function ArticleForm() {
   const [title, setTitle] = useState('');
@@ -7,16 +8,22 @@ export default function ArticleForm() {
   const [content, setContent] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
+  // router
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('location', location);
-    formData.append('content', content);
-    if (file) formData.append('image', file);
+    //fake userId
+    formData.append('userId', '1');
 
-    const res = await fetch('http://localhost:3005/api/articles', {
+    formData.append('title', title);
+    formData.append('locationId', location);
+    formData.append('content', content);
+    if (file) formData.append('photo', file);
+
+    const res = await fetch('http://localhost:3005/api/article', {
       method: 'POST',
       body: formData,
     });
@@ -24,6 +31,8 @@ export default function ArticleForm() {
     const data = await res.json();
     console.log('✅ Article saved:', data);
     alert('Article submitted successfully!');
+    console.log(data.post.id);
+    router.push(`http://localhost:3001/article/review?id=${data.post.id}`);
   };
 
   return (
@@ -43,19 +52,18 @@ export default function ArticleForm() {
         className="border p-2"
       >
         <option value="">選擇地點</option>
-        <option value="台北">台北</option>
-        <option value="桃園">桃園</option>
-        <option value="新竹">新竹</option>
-        <option value="苗栗">苗栗</option>
-        <option value="台中">台中</option>
-        <option value="彰化">彰化</option>
-        <option value="雲林">雲林</option>
-        <option value="嘉義">嘉義</option>
-        <option value="台南">台南</option>
-        <option value="高雄">高雄</option>
-        <option value="屏東">屏東</option>
-        <option value="金門">金門</option>
-        <option value="澎湖">澎湖</option>
+        <option value="1">台北</option>
+        <option value="2">桃園</option>
+        <option value="3">新竹</option>
+        <option value="4">苗栗</option>
+        <option value="5">台中</option>
+        <option value="6">彰化</option>
+        <option value="7">嘉義</option>
+        <option value="8">台南</option>
+        <option value="9">高雄</option>
+        <option value="10">屏東</option>
+        <option value="11">金門</option>
+        <option value="12">澎湖</option>
       </select>
       <textarea
         name="content"
@@ -71,7 +79,7 @@ export default function ArticleForm() {
       {/* 圖片上傳 */}
       <input
         type="file" // Asumsi ada type="file" di baris sebelumnya
-        name="image"
+        name="photo"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
       />{' '}
       {/* 圖片上傳 - Pindahkan komentar ke luar tag input */}
