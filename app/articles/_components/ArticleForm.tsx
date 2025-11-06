@@ -30,7 +30,7 @@ export default function ArticleForm() {
     const fetchLocations = async () => {
       setIsLoadingLocations(true);
       try {
-        const response = await fetch('http://localhost:4000/api/destinations'); 
+        const response = await fetch('http://localhost:3005/api/destinations'); 
         if (!response.ok) throw new Error('Failed to fetch locations.');
         
         const data = await response.json();

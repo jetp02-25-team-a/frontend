@@ -14,7 +14,7 @@ export default function SidebarActions() {
       // color: 'hover:text-blue-600',
     },
     {
-      href: '/review',
+      href: 'articles/review',
       label: '推薦文章景點分享',
       color: 'hover:text-green-600',
     },
