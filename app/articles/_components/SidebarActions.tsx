@@ -7,7 +7,7 @@ export default function SidebarActions() {
 
   const menuItems = [
     {
-      href: '/rankingpage',
+      href: 'articles/rankingpage',
       label: '推薦景點排行榜',
       // href: '/rankingpage',
       // label: '推薦景點排行榜',
@@ -18,7 +18,11 @@ export default function SidebarActions() {
       label: '推薦文章景點分享',
       color: 'hover:text-green-600',
     },
-    { href: '/guide', label: '建立分享', color: 'hover:text-purple-600' },
+    {
+      href: 'articles/guide',
+      label: '建立分享',
+      color: 'hover:text-purple-600',
+    },
   ];
 
   return (
