@@ -1,26 +1,36 @@
 // components/spot/Reviews/SpotReviewsPanel.tsx
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import ReviewList from './ReviewList';
-import ReviewComposer, { ReviewInput } from './ReviewComposer';
+import ReviewComposer from './ReviewComposer';
 import SuccessModal from './SuccessModal';
 
-type Review = {
-  id: string;
-  user: { name: string; avatar: string };
-  rating: number;
+type ReviewItem = {
+  id: number;
+  userId: number;
+  name: string; // adaptor 已攤平好的顯示名稱
+  avatar?: string | null;
+  date: string; // ISO 字串（後端 createdAt）
   content: string;
-  createdAt: string;
+  score?: number | null; // 0~5，可為 null
 };
 
 export default function SpotReviewsPanel({
-  initialReviews,
+  placeId,
+  reviews,
+  currentUserId,
 }: {
-  initialReviews: Review[];
+  placeId: number;
+  reviews: ReviewItem[]; // 直接吃 adaptor 輸出的 reviews[]
+  currentUserId?: number; // 方法A可傳固定 mock，用來顯示「編輯/刪除」
 }) {
-  const [reviews, setReviews] = useState<Review[]>(initialReviews);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
+  // ✅ env → number；若 props 有給就用 props，否則用 env
+  const envUidRaw = process.env.NEXT_PUBLIC_MOCK_USER_ID;
+  const envUid = envUidRaw ? Number(envUidRaw) : undefined;
+  const uid = typeof currentUserId === 'number' ? currentUserId : envUid;
 
   // Modal 打開時鎖卷軸
   useEffect(() => {
@@ -30,61 +40,40 @@ export default function SpotReviewsPanel({
     };
   }, [showSuccess]);
 
-  async function handleSubmit(input: ReviewInput) {
-    if (!input.content.trim() || input.rating === 0) return;
-    setIsSubmitting(true);
-    try {
-      // ==== 之後直接打開這段就能串後端 ====
-      // const res = await fetch('/api/comments', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ placeId: input.placeId, content: input.content, rating: input.rating }),
-      // });
-      // if (!res.ok) throw new Error('Create comment failed');
-      // const saved = await res.json();
-
-      // Demo: 模擬回傳一筆新評論
-      const saved = {
-        id: crypto.randomUUID(),
-        user: { name: '你', avatar: 'https://i.pravatar.cc/64' },
-        rating: input.rating,
-        content: input.content.trim(),
-        createdAt: new Date().toISOString().slice(0, 10),
-      };
-      setReviews((prev) => [saved, ...prev]);
-      setShowSuccess(true);
-      return true;
-    } catch (e) {
-      alert('送出失敗，請稍後再試');
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
   // 計算平均與分布（給 RatingSummary）
-  const count = reviews.length;
-  const avg = count
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / count).toFixed(1)
-    : '0.0';
-  const dist = [5, 4, 3, 2, 1].map((star) => {
-    const n = reviews.filter((r) => r.rating === star).length;
-    const pct = count ? Math.round((n / count) * 100) : 0;
-    return { star, pct };
-  });
+  // const count = reviews.length;
+  // const avg = count
+  //   ? (reviews.reduce((s, r) => s + r.rating, 0) / count).toFixed(1)
+  //   : '0.0';
+  // const dist = [5, 4, 3, 2, 1].map((star) => {
+  //   const n = reviews.filter((r) => r.rating === star).length;
+  //   const pct = count ? Math.round((n / count) * 100) : 0;
+  //   return { star, pct };
+  // });
 
   return (
     <div className="relative min-h-[60vh] w-full">
       {/* 主要內容，開啟 Modal 時灰階+變暗 */}
-      <div
-        className={`transition-all duration-200 ${showSuccess ? 'filter grayscale brightness-75' : ''}`}
-      >
+      <div className={`transition-all duration-200 ${showSuccess}`}>
         <div className="mx-auto max-w-5xl px-4 py-8 flex flex-col gap-6 items-center">
-          <ReviewList reviews={reviews} />
+          {/* 留言清單（內含編輯/刪除；完成後 refresh） */}
+          <ReviewList
+            placeId={placeId}
+            reviews={reviews}
+            currentUserId={uid}
+            onChanged={() => router.refresh()}
+          />
+          {/* 發表留言（送出後 refresh 以重新跑 adaptor） */}
           <ReviewComposer
-            pending={isSubmitting}
-            onSubmit={handleSubmit}
-            placeId="demo-place-id"
+            // pending={isSubmitting}
+            // onSubmit={handleSubmit}
+            placeId={placeId}
+            onCreated={() => {
+              // 先顯示成功提示
+              setShowSuccess(true);
+              // 稍後再 refresh，避免 state 被洗掉看不到 Modal
+              setTimeout(() => router.refresh(), 300);
+            }}
           />
         </div>
       </div>
