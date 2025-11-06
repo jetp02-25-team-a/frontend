@@ -145,6 +145,7 @@ export function CartProvider({
 
   const clearCart = () => {
     setCart(initCart); // 將狀態重設為初始的空購物車
+    localStorage.removeItem(storageKey);
   };
 
   useEffect(() => {
