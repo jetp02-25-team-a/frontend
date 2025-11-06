@@ -84,7 +84,7 @@ export default function ArticleForm() {
       />{' '}
       {/* 圖片上傳 - Pindahkan komentar ke luar tag input */}
       <label className="block text-sm font-medium text-gray-700 pt-4">
-        Upload Foto (最多上傳5張 - 主圖 + 4張副圖)
+        Upload Foto (限制上傳2張)
       </label>
       {/* <label className="block text-sm font-medium text-gray-700 pt-4">
            Upload Foto (最多上傳5張 - 主圖 + 4張副圖)
