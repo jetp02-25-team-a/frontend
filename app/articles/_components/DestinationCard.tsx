@@ -36,7 +36,7 @@ export default function DestinationCard({
 
       <div className="p-4 flex flex-col justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="">{title}</h3>
           {description && (
             <p className="text-sm text-gray-600 mt-2">{description}</p>
           )}
