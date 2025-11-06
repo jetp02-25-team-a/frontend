@@ -55,7 +55,7 @@
 
 'use client';
 import DestinationCard from './DestinationCard';
-import destinations from '../data/destination';
+import destinations from '../_data/destination';
 
 export default function DestinationGrid() {
   return (

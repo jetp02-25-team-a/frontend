@@ -1,76 +1,100 @@
 'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function SidebarActions() {
+  const pathname = usePathname();
+
+  const menuItems = [
+    {
+      href: '/rankingpage',
+      label: '推薦景點排行榜',
+      // href: '/rankingpage',
+      // label: '推薦景點排行榜',
+      // color: 'hover:text-blue-600',
+    },
+    {
+      href: '/review',
+      label: '推薦文章景點分享',
+      color: 'hover:text-green-600',
+    },
+    { href: '/guide', label: '建立分享', color: 'hover:text-purple-600' },
+  ];
+
   return (
-      <div className="flex justify-center gap-8 mt-10">
-      {/* 左側選單 */}
-      <aside className="px-6 py-6 flex flex-col gap-6 text-3xl text-amber-200 bg-amber-100 shadow-md w-[220px] h-fit rounded-xl">
-        <Link href="/rankingpage">
-          <button className="text-black hover:text-blue-600 w-full py-2 rounded-lg transition">
-            推薦景點排行榜
-          </button>
-        </Link>
-        <Link href="/review">
-          <button className="text-black hover:text-green-600 w-full py-2 rounded-lg transition">
-            推薦文章景點分享
-          </button>
-        </Link>
-        <Link href="/guide">
-          <button className="text-black hover:text-purple-600 w-full py-2 rounded-lg transition">
-            建立分享
-          </button>
-        </Link>
-      </aside>
-
-      {/* 右側內容：5張卡片 */}
-      <div className="flex flex-col gap-4 max-w-2xl">
-        {/* 在這裡放你的五張卡片 */}
-      </div>
-    </div>
+    <aside className="px-6 py-6 flex flex-col gap-4 bg-amber-50 text-lg shadow-md w-[220px] h-fit rounded-xl">
+      {menuItems.map((item) => {
+        const isActive = pathname === item.href;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`w-full text-left px-3 py-2 rounded-lg transition 
+              ${isActive ? 'bg-amber-200 text-black font-bold' : 'text-black'} 
+              ${item.color}`}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
+    </aside>
   );
-
-
-
-    // <div className="flex justify-center gap-8 mt-10">
-    //   {/* 左側選單 */}
-    //   <aside className="px-6 py-6 flex flex-col gap-4 text-3xl text-amber-200 bg-amber-100 shadow-md w-[180px] h-fit rounded-xl">
-    //     <Link href="/rankingpage">
-    //       <button className="text-black hover:text-blue-600">推薦景點排行榜</button>
-    //     </Link>
-    //     <Link href="/review">
-    //       <button className="text-black hover:text-green-600">推薦文章景點分享</button>
-    //     </Link>
-    //     <Link href="/guide">
-    //       <button className="text-black hover:text-purple-600">建立分享</button>
-    //     </Link>
-        
-    //   </aside>
-
-    //   {/* 右側內容：5張卡片 */}
-    //   <div className="flex flex-col gap-4 max-w-2xl">
-    //     {/* 在這裡放你的五張卡片 */}
-    //   </div>
-    // </div>
-  // );
 }
 
+// 'use client';
+// import Link from 'next/link';
 
+// export default function SidebarActions() {
+//   return (
+//       <div className="flex justify-center gap-8 mt-10">
+//       {/* 左側選單 */}
+//       <aside className="px-6 py-6 flex flex-col gap-6 text-3xl text-amber-200 bg-amber-100 shadow-md w-[220px] h-fit rounded-xl">
+//         <Link href="/rankingpage">
+//           <button className="text-black hover:text-blue-600 w-full py-2 rounded-lg transition">
+//             推薦景點排行榜
+//           </button>
+//         </Link>
+//         <Link href="/review">
+//           <button className="text-black hover:text-green-600 w-full py-2 rounded-lg transition">
+//             推薦文章景點分享
+//           </button>
+//         </Link>
+//         <Link href="/guide">
+//           <button className="text-black hover:text-purple-600 w-full py-2 rounded-lg transition">
+//             建立分享
+//           </button>
+//         </Link>
+//       </aside>
 
+//       {/* 右側內容：5張卡片 */}
+//       <div className="flex flex-col gap-4 max-w-2xl">
+//         {/* 在這裡放你的五張卡片 */}
+//       </div>
+//     </div>
+//   );
 
+//     // <div className="flex justify-center gap-8 mt-10">
+//     //   {/* 左側選單 */}
+//     //   <aside className="px-6 py-6 flex flex-col gap-4 text-3xl text-amber-200 bg-amber-100 shadow-md w-[180px] h-fit rounded-xl">
+//     //     <Link href="/rankingpage">
+//     //       <button className="text-black hover:text-blue-600">推薦景點排行榜</button>
+//     //     </Link>
+//     //     <Link href="/review">
+//     //       <button className="text-black hover:text-green-600">推薦文章景點分享</button>
+//     //     </Link>
+//     //     <Link href="/guide">
+//     //       <button className="text-black hover:text-purple-600">建立分享</button>
+//     //     </Link>
 
+//     //   </aside>
 
-
-
-
-
-
-
-
-
-
-
-
+//     //   {/* 右側內容：5張卡片 */}
+//     //   <div className="flex flex-col gap-4 max-w-2xl">
+//     //     {/* 在這裡放你的五張卡片 */}
+//     //   </div>
+//     // </div>
+//   // );
+// }
 
 // // components/SectionList.tsx'
 
@@ -81,7 +105,6 @@ export default function SidebarActions() {
 
 // <div className="flex flex-col gap-4 max-w-2xl">
 //     你的 5 張卡片
- 
 
 //   return (    <aside className="sticky top-20 left-0 px-4 py-6 flex flex-col gap-4 bg-white shadow-md w-[180px] h-fit">
 
