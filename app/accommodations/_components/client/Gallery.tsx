@@ -24,6 +24,8 @@ export default function GalleryRatio({ className }: Props) {
           fill={true}
           alt="左側主圖"
           className="object-cover"
+          sizes="60%"
+          priority={true}
         />
       </div>
 
@@ -36,6 +38,8 @@ export default function GalleryRatio({ className }: Props) {
             fill={true}
             alt="右上圖"
             className="object-cover"
+            sizes="40%"
+            priority={true}
           />
         </div>
 
@@ -48,6 +52,8 @@ export default function GalleryRatio({ className }: Props) {
               fill={true}
               alt="右下左圖"
               className="object-cover"
+              sizes="50%"
+              priority={true}
             />
           </div>
 
@@ -58,6 +64,8 @@ export default function GalleryRatio({ className }: Props) {
               fill={true}
               alt="右下右圖"
               className="object-cover"
+              sizes="50%"
+              priority={true}
             />
           </div>
         </div>
