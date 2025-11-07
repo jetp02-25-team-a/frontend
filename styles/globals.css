@@ -42,3 +42,14 @@
   -ms-overflow-style: none; /* IE 10+ */
   scrollbar-width: none; /* Firefox */
 }
+
+.slick-prev:before,
+.slick-next:before {
+  color: black !important; /* 確保覆蓋預設的灰色 */
+  font-size: 30px; /* 您也可以在這裡調整大小 */
+}
+
+.slick-prev:hover:before,
+.slick-next:hover:before {
+  color: black !important;
+}
