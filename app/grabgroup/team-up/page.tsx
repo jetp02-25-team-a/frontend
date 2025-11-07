@@ -66,7 +66,11 @@ export default function TeamUpPage() {
               description={card.Article?.title}
               avatar="https://randomuser.me/api/portraits/women/20.jpg"
               user_name={card.User.nickname}
-              image="https://www.travel.taipei/image/216608/?r=1625036397904"
+              image={
+                card.Images?.[0]
+                  ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/${card.Images?.[0].imageName}`
+                  : '/istockphoto-1209191587-612x612.jpg'
+              }
               onClick={() =>
                 router.push(
                   `/grabgroup/team-up-info/${card.id}?userId=${card.User.id}`
