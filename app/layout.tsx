@@ -1,5 +1,7 @@
 import '@/styles/globals.css';
 import type { Metadata } from 'next';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 // 導入Context Provider
 import { AuthProvider } from '@/hooks/use-Auth';
