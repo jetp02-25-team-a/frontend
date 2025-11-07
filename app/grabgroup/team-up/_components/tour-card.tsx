@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface TourCardProps {
   title: string;
@@ -33,10 +33,10 @@ export default function TourCard({
             />
             <div>
               <p className="text-base">{user_name}</p>
-              <p className="text-2xl">{title}</p>
+              <p className="text-2xl">{`${title?.length > 7 ? title.slice(0, 7) + '..' : title}`}</p>
             </div>
           </div>
-          <p className="text-sm">{description.slice(0, 100)}</p>
+          <p className="text-sm">{description?.slice(0, 100)}</p>
         </div>
       </div>
     </>

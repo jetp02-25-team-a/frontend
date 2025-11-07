@@ -28,7 +28,8 @@ export default function DayCard({
     >
       <div className="flex flex-col">
         <p>{formatDateToChinese(date)}</p>
-        <p>{`第${numberToChinese(id)}天`}</p>
+        {/* <p>{`第${numberToChinese(id)}天`}</p> */}
+        <p>{`第${id}天`}</p>
       </div>
       {active && (
         <div className="flex flex-col justify-between h-full">

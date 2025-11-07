@@ -186,7 +186,6 @@ export default function PlacePanel({
                   durationMinutes: durationMinutes,
                   GoogleMapPlace: placeData,
                 };
-                console.log('node=======>', node);
                 //將節點放入該天底下的node節點後
                 setItineraryData((prev) =>
                   prev
@@ -197,15 +196,6 @@ export default function PlacePanel({
                       )
                     : []
                 );
-                // setItineraryData((prev) =>
-                //   prev
-                //     ? prev.map((day) =>
-                //         day.id === currentId
-                //           ? { ...day, Nodes: [...day.Nodes, node] }
-                //           : day
-                //       )
-                //     : []
-                // );
               }}
             />
           </>

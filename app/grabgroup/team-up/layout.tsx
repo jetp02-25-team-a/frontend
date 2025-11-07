@@ -1,12 +1,13 @@
 'use client';
 import InputField from './_components/input-field';
-import TourCard from './_components/tour-card';
-import AreaButton from './_components/area-button';
+// import TourCard from './_components/tour-card';
+
+import React, { useEffect, useState } from 'react';
 
 export default function TeamUpLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactElement;
 }) {
   return (
     <>
@@ -22,10 +23,8 @@ export default function TeamUpLayout({
 
         <h1 className="text-4xl">熱門景點</h1>
         <div className="bg-gray-200 h-[2px] w-full"></div>
-        <div className=" flex flex-col gap-[30px]">
-          {/* 顯示不同區域 */}
-          {children}
-        </div>
+
+        {children}
       </div>
     </>
   );

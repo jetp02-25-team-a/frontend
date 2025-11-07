@@ -7,7 +7,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DayCard from './_components/day-card';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import NodeCard from './_components/node-card';
 import { addTimeWrap } from '../utils';
 import AddItineraryButton from './_components/addItinerary-button';
@@ -23,9 +23,10 @@ import {
   GoogleMapPlace,
 } from '../_types/itineraryTypes';
 import Map from '../_components/GoogleMap';
+import { debounce } from 'lodash';
 
 import { addDays, addMinutes } from 'date-fns';
-import { number } from 'framer-motion';
+import { ItineraryEditor } from '../_components/ItineraryEditor';
 
 export interface mapPoint {
   latitude: number; //預設台北101
@@ -44,8 +45,6 @@ export default function GroupItineraryDetalPage() {
     });
   };
   //state-------------------
-  const [days, setDays] = useState<ItineraryData[]>([]);
-  // const [iframeDayData, setIframeDayData] = useState<number>(0);
   const [currentDayIndex, setCurrentDayIndex] = useState<number | null>(null);
   //設定經緯度 預設101
   const [mapPoint, setMapPoint] = useState<mapPoint>({
@@ -65,9 +64,6 @@ export default function GroupItineraryDetalPage() {
     if (data && data.success) {
       const datas = data.data;
       setItineraryData((prev) => [...datas]); //設定context
-      console.log('itineraryData==>', itineraryData);
-
-      setDays(datas);
     }
   }, [data]);
 
@@ -80,16 +76,6 @@ export default function GroupItineraryDetalPage() {
     });
   };
 
-  // useEffect(() => {
-  //   console.log('days 有變動了.....');
-  //   const newDays = normalizeDays(days);
-  //   if (JSON.stringify(newDays) !== JSON.stringify(days)) {
-  //     setDays(newDays);
-  //   }
-
-  //   console.log('newdays=>', days);
-  // }, [days]);
-
   //公共資料更新後刷新
   useEffect(() => {
     console.log('itineraryData=>', itineraryData);
@@ -99,7 +85,7 @@ export default function GroupItineraryDetalPage() {
       newItineraryData = normalizeDays(itineraryData);
     }
     if (JSON.stringify(newItineraryData) !== JSON.stringify(itineraryData)) {
-      setDays(newItineraryData);
+      setItineraryData(newItineraryData);
     }
   }, [itineraryData]);
 
@@ -109,12 +95,10 @@ export default function GroupItineraryDetalPage() {
   const handleIframeVisible = (show: boolean) => {
     setIsIframeVisible(show);
   };
-  //days 計算天數用變數
-  // let tmp: string = '';
-  // let dayTime: string = '';
 
   return (
     <>
+      <ItineraryEditor itineraryData={itineraryData} />
       {/* map_area */}
       <div className="grid grid-cols-[40%_60%] h-screen">
         {/* area_zone */}
@@ -151,22 +135,6 @@ export default function GroupItineraryDetalPage() {
                     />
                   );
                 })}
-              {/* {days.map((day: any, index: number) => {
-                return (
-                  <DayCard
-                    key={index}
-                    id={index + 1}
-                    date={day.dayDate}
-                    // date={dayTime}
-                    active={activeId === index ? true : false}
-                    onClick={() => setActiveId(index)}
-                    onDelete={() => {
-                      const newDays = days.filter((d, i) => i !== index);
-                      setDays(newDays);
-                    }}
-                  />
-                );
-              })} */}
             </div>
             <div
               className="bg-white border  border-gray-300 flex items-center px-2.5 rounded-tr-xl rounded-br-xl"
@@ -193,7 +161,7 @@ export default function GroupItineraryDetalPage() {
                 const newDay = {
                   itineraryId: itineraryId,
                   dayDate: dayString,
-                  startTime: lastDay?.startTime ?? '08:00',
+                  startTime: lastDay?.startTime ?? '2025-11-06T08:53:23.234Z',
                   Nodes: [],
                   StayNodes: [],
                 };
