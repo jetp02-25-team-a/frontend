@@ -2,7 +2,7 @@
 import InfoButton from '../_components/InfoButton';
 import JoinButton from '@/components/ui/join-button';
 import { addTimeWrap } from '../../utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Map from '../_components/GoogleMap';
 import MessageBox from '../_components/MessageBox';
 import ResponseBox from '../_components/ResponseBox';
@@ -10,88 +10,9 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { useFetch } from '@/hooks/useFetch';
 import Image from 'next/image';
 import { addMinutes } from 'date-fns';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import 'react-photo-view/dist/react-photo-view.css';
 
-// const data = {
-//   brigade_images: [
-//     { 1: 'image.png' },
-//     { 2: 'image.png' },
-//     { 3: 'image.png' },
-//     { 4: 'image.png' },
-//   ],
-//   brigade_holder_name: 'Ellen Lambert',
-//   brigade_holder_avatar: '/avatar.png',
-//   join_persons: [
-//     { id: 1, user_name: 'Ellen Lambert', avatar: 'avatar.png' },
-//     { id: 2, user_name: 'Ellen Lambert', avatar: 'avatar.png' },
-//     { id: 3, user_name: 'Ellen Lambert', avatar: 'avatar.png' },
-//   ],
-//   brigade_title: '台北一日遊',
-//   brigade_content:
-//     '想用一天認識台北，這趟行程帶你從城市的歷史出發，走進文化、自然與美食交織的日常。早晨在龍山寺感受老台北的信仰與香火氣息，午間轉進西門町與永康街，體驗最地道的街頭美食與年輕活力。午後前往中正紀念堂，感受莊嚴與設計之美，最後登上象山步道，用一場夕陽遠眺，為這趟台北小旅行畫下完美句點。這不是走馬看花的觀光，而是一場在地生活的輕旅行——用一天時間，品味台北的舊情懷與新節奏。',
-//   brigade_subtitle: '???',
-//   brigade_subcontent: 'xxxx',
-//brigade_starttime: "2025-10-21 09:30:00", //???有存在必要？應該以第一個節點做開頭算吧？
-// brigade_days: [
-//   {
-//     date: '2025-10-21',
-//     start_time: '09:30:00',
-//     nodes: [
-//       {
-//         id: 1,
-//         name: '台北101',
-//         itinerarie_time: '01:30:00',
-//         latitude: 25.033,
-//         longitude: 121.5654,
-//       },
-//       {
-//         id: 2,
-//         name: '台北圓山',
-//         itinerarie_time: '02:30:00',
-//         latitude: 25.034,
-//         longitude: 121.566,
-//       },
-//     ],
-//   },
-//   {
-//     date: '2025-10-22',
-//     start_time: '10:00:00',
-//     nodes: [
-//       {
-//         id: 1,
-//         name: '台北101',
-//         itinerarie_time: '01:00:00',
-//         latitude: 25.033,
-//         longitude: 121.5654,
-//       },
-//       {
-//         id: 2,
-//         name: '台北圓山',
-//         itinerarie_time: '04:30:00',
-//         latitude: 25.034,
-//         longitude: 121.566,
-//       },
-//     ],
-//   },
-// ],
-// };
-
-// const messageData = [
-//   {
-//     id: 1,
-//     avatar: 'avatar.png',
-//     user_name: '林宥辰',
-//     content: '這個行程看起來超棒！特別喜歡晚上爬象山看夕陽的安排，想報名～😊',
-//     create_at: '2025-10-22 14:08',
-//   },
-//   {
-//     id: 2,
-//     avatar: 'avatar.png',
-//     user_name: '陳佳穎',
-//     content:
-//       '行程內容超詳盡，能不能多放一些美食推薦？另外照片能再多一些角度嗎？',
-//     create_at: '2025-10-20 09:32',
-//   },
-// ];
 interface Nodes {
   durationMinutes: number;
   GoogleMapPlace: {
@@ -140,12 +61,18 @@ interface ItineraryLisInterface {
   ];
 }
 
+interface PhotoProviderRef {
+  open: (index?: number) => void;
+}
+
 export default function PlacePage() {
   const params = useParams();
   const userId = useSearchParams().get('userId');
   const { pid } = params;
   const [itineraryList, setItineraryList] = useState<ItineraryLisInterface>();
   const [commentLimit, setCommentLimit] = useState<number>(3);
+  const [showAllImage, setShowAllImage] = useState<boolean>(false);
+  const photoProviderRef = useRef<PhotoProviderRef>(null);
   // const [baseTime, setBaseTime] = useState(data.brigade_days[0].start_time);
   const [mapPoint, setMapPoint] = useState({
     latitude: 25.033,
@@ -178,51 +105,83 @@ export default function PlacePage() {
   const toImgUrl = (fileName: string) => {
     return `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/${fileName}`;
   };
+  const [showAll, setShowAll] = useState(false);
+  const btnRef = useRef<HTMLImageElement>(null); //抓img
+  const openAll = () => {
+    photoProviderRef.current?.open(0); // 從第一張開始開啟
+  };
+  useEffect(() => {
+    if (showAll) btnRef.current?.click(); // 為真自動觸發
+  }, [showAll]);
   return (
     <>
       {/* image區 */}
-      <div className="flex gap-4 relative">
-        {images && images?.length >= 4 && (
-          <>
-            <Image
-              width={1000}
-              height={1000}
-              src={toImgUrl(images[0].imageName)}
-              alt=""
-              className="shrink-0 w-[770px] h-[510px]"
-            />
-            <div className="flex flex-col gap-4">
-              <Image
-                width={1000}
-                height={1000}
-                src={toImgUrl(images[1].imageName)}
-                alt=""
-                className="w-[510] h-[250px]"
-              />
-              <div className="flex gap-4">
-                <Image
-                  width={1000}
-                  height={1000}
-                  src={toImgUrl(images[2].imageName)}
-                  alt=""
-                  className="w-[250px] h-[250px]"
-                />
-                <Image
-                  width={1000}
-                  height={1000}
-                  src={toImgUrl(images[3].imageName)}
-                  alt=""
-                  className="w-[250px] h-[250px]"
-                />
-              </div>
-            </div>
-            <button className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer">
-              查看所有照片
-            </button>
-          </>
-        )}
-      </div>
 
+      <PhotoProvider
+        //按下叉叉切換為假隱藏
+        onVisibleChange={(visible: boolean) => {
+          if (!visible) {
+            setShowAll(false);
+          }
+        }}
+      >
+        <div className="flex gap-4 relative relative">
+          {images && images?.length >= 4 && (
+            <>
+              <PhotoView src={toImgUrl(images[0].imageName)}>
+                {/* ref觸發照片輪播用 */}
+                <Image
+                  width={1000}
+                  height={1000}
+                  src={toImgUrl(images[0].imageName)}
+                  alt=""
+                  className="shrink-0 w-[770px] h-[510px]"
+                  ref={btnRef}
+                />
+              </PhotoView>
+              <div className="flex flex-col gap-4">
+                <PhotoView src={toImgUrl(images[1].imageName)}>
+                  <Image
+                    width={1000}
+                    height={1000}
+                    src={toImgUrl(images[1].imageName)}
+                    alt=""
+                    className="w-[510] h-[250px]"
+                  />
+                </PhotoView>
+
+                <div className="flex gap-4">
+                  <PhotoView src={toImgUrl(images[2].imageName)}>
+                    <Image
+                      width={1000}
+                      height={1000}
+                      src={toImgUrl(images[2].imageName)}
+                      alt=""
+                      className="w-[250px] h-[250px]"
+                    />
+                  </PhotoView>
+                  <PhotoView src={toImgUrl(images[3].imageName)}>
+                    <Image
+                      width={1000}
+                      height={1000}
+                      src={toImgUrl(images[3].imageName)}
+                      alt=""
+                      className="w-[250px] h-[250px]"
+                    />
+                  </PhotoView>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowAll(true)}
+                className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
+              >
+                查看所有照片
+              </button>
+            </>
+          )}
+        </div>
+      </PhotoProvider>
       {/* 個人資訊 貼文內容 */}
       <section className="w-full px-[200px]">
         <div className=" flex justify-between">
@@ -251,7 +210,6 @@ export default function PlacePage() {
           </div>
         </div>
       </section>
-
       {/* 揪團標題 文章 */}
       <section className="w-full px-[200px]">
         <h2 className="text-2xl">{itineraryList?.Itineraries?.[0].title}</h2>
@@ -264,7 +222,6 @@ export default function PlacePage() {
         </p>
         <JoinButton className="mx-auto" content="加入我們" />
       </section>
-
       {/* 行程 */}
       <section className="bg-light-gray w-full h-auto py-[64px]">
         <div className="px-[200px] grid grid-cols-2">
@@ -336,9 +293,7 @@ export default function PlacePage() {
           </div>
         </div>
       </section>
-
       {/* </div> */}
-
       {/* 留言區 */}
       <section className=" flex flex-col py-[64px] gap-[24px]">
         <h2 className="text-3xl text-left m-auot">留言區</h2>
