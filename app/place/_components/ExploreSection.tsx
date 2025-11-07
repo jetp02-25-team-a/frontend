@@ -1,26 +1,78 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Grid from './Grid';
-import { places } from '../lib/fixtures';
-// import { toFrontSpot } from '../lib/adapter';
+import { getSpotDetail } from '../lib/singlePlaceAdapter';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUpDown } from '@fortawesome/free-solid-svg-icons';
+
+const API = process.env.NEXT_PUBLIC_API_BASE_URL!;
+
+type Raw = any;
+type Front = {
+  id: number;
+  name: string;
+  address: string;
+  description: string;
+  ratingAvg: number;
+  photos: string[]; // Card 只用到 [0]
+};
+
+function normalize(p: Raw): Front {
+  // Photos 可能是 [] 或 [{url}]；rating.avg 是字串
+  const photos = Array.isArray(p?.Photos)
+    ? p.Photos.map((x: any) => x?.url).filter(Boolean)
+    : Array.isArray(p?.photos)
+      ? p.photos
+          .map((x: any) => (typeof x === 'string' ? x : x?.url))
+          .filter(Boolean)
+      : [];
+
+  const ratingAvg = Number(p?.rating?.avg ?? p?.avgScore ?? 0);
+
+  return {
+    id: p?.id ?? p?.place_id,
+    name: p?.name ?? '',
+    address: p?.address ?? p?.region ?? '',
+    description: p?.introduce ?? p?.description ?? '',
+    ratingAvg: Number.isFinite(ratingAvg) ? ratingAvg : 0,
+    photos,
+  };
+}
 
 export default function ExploreSection() {
-  // 狀態：目前選中的類型與排序方式
   const [activeTab, setActiveTab] = useState<'spot' | 'food'>('spot');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // 經 adapter 轉換資料格式（算好 ratingAvg）
-  // const data = useMemo(() => {
-  //   const converted = places
-  //     .filter((p) => p.type === activeTab)
-  //     .map(toFrontSpot)
-  //     .sort((a, b) =>
-  //       sortOrder === 'desc'
-  //         ? b.ratingAvg - a.ratingAvg
-  //         : a.ratingAvg - b.ratingAvg
-  //     );
-  //   return converted;
-  // }, [activeTab, sortOrder]);
+  // 串接後端 API
+  async function fetchPlaces() {
+    setLoading(true);
+    try {
+      const url = `${API}/api/place?type=${activeTab}&sort=${
+        sortOrder === 'desc' ? 'rank_desc' : 'rank_asc'
+      }&limit=12&page=1`;
+      const res = await fetch(url, { cache: 'no-store' });
+      const json = await res.json();
+
+      const rows: Raw[] = Array.isArray(json?.data) ? json.data : [];
+      const mapped = rows.map(normalize).filter((x) => x.id != null);
+
+      // 去重避免 key 撞
+      const dedup = Array.from(new Map(mapped.map((x) => [x.id, x])).values());
+      setData(dedup);
+
+      // 只看一次樣本
+      if (dedup.length) console.log('sample for Card:', dedup[0]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // 每次切換 tab 或排序時重新抓
+  useEffect(() => {
+    fetchPlaces();
+  }, [activeTab, sortOrder]);
 
   return (
     <section className="max-w-6xl mx-auto px-4 mb-12">
@@ -54,20 +106,19 @@ export default function ExploreSection() {
           <label htmlFor="sort" className="text-sm text-gray-700">
             排序：
           </label>
-          <select
+          <button
             id="sort"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
             className="border rounded-md px-3 py-1.5 text-sm focus:outline-none"
           >
-            <option value="desc">星等：高 → 低</option>
-            <option value="asc">星等：低 → 高</option>
-          </select>
+            <FontAwesomeIcon icon={faUpDown} />
+          </button>
         </div>
       </div>
 
       {/* Grid 卡片 */}
-      {/* <Grid data={data} /> */}
+      <Grid data={data} />
     </section>
   );
 }
