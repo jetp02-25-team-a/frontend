@@ -1,7 +1,7 @@
 'use client';
 import InfoButton from '../_components/InfoButton';
 import JoinButton from '@/components/ui/join-button';
-import { useAuth } from '@/hooks/use-Auth';
+import { addTimeWrap } from '../../utils';
 import { useEffect, useState, useRef } from 'react';
 import Map from '../_components/GoogleMap';
 import MessageBox from '../_components/MessageBox';
@@ -141,6 +141,14 @@ export default function PlacePage() {
       console.log(err);
     }
   };
+  const [showAll, setShowAll] = useState(false);
+  const btnRef = useRef<HTMLImageElement>(null); //抓img
+  const openAll = () => {
+    photoProviderRef.current?.open(0); // 從第一張開始開啟
+  };
+  useEffect(() => {
+    if (showAll) btnRef.current?.click(); // 為真自動觸發
+  }, [showAll]);
   return (
     <>
       {/* image區 */}
