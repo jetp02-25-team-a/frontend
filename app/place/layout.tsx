@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '@/styles/globals.css';
-import '@/app/place/lib/fontawesome';
-import '@fortawesome/fontawesome-svg-core/styles.css';
-import FontawesomeProvider from '@/app/place/_components/FontawesomeProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,7 +26,6 @@ export default function RootLayout({
     <section
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-      <FontawesomeProvider />
       {children}
     </section>
   );
