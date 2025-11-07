@@ -21,7 +21,7 @@ const jakarta = Plus_Jakarta_Sans({
 export default function Home() {
   return (
     <>
-      {/* 建立個人行程 */}
+      {/* 建立個人行程 */}=
       <div className=" w-full h-[600px] flex justify-center mt-[60px]">
         {/* 輸入文字區 */}
         <div className="flex flex-col gap-6">

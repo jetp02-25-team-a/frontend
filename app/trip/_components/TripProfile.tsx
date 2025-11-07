@@ -1,13 +1,14 @@
 interface TripProfileProps {
   name: string;
+  avatar?: string;
 }
 
-export default function TripProfile({ name }: TripProfileProps) {
+export default function TripProfile({ name, avatar }: TripProfileProps) {
   return (
     <div className="text-center">
       <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-lg mb-4">
         <img
-          src="/avatar.png"
+          src={avatar || '/avatar.png'}
           alt="User"
           className="object-cover w-full h-full"
         />

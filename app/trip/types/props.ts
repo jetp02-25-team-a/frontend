@@ -1,6 +1,7 @@
 // types/props.ts
 
 export interface TripCardProps {
+  id: number;
   title: string;
   area: string;
   date: string;
