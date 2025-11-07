@@ -69,7 +69,7 @@ export default function Navbar() {
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
-              href="/articles"
+              href="/article"
               className={`px-[15px] ${pathname === '/articles' ? 'text-white' : ''}`}
             >
               旅行筆記

@@ -1,22 +1,86 @@
 'use client';
 
-export default function ArticleForm() {
-  return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      {/* <h1 className="text-2xl font-bold mb-6">Write Travel Article</h1> */}
+import React from 'react';
 
-      {/* Konten akan ditambahkan di sini */}
-      {/* <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12">
-          <p className="text-gray-500">
-            Halaman ini masih kosong. Silakan tambahkan komponen form atau
-            konten lainnya.
-    //       </p>
-    //     </div> */}
+interface DetailFormProps {
+  article: {
+    title?: string;
+    location?: string;
+    content?: string;
+    photos?: string | string[];
+  };
+}
+
+export default function DetailForm({ article }: DetailFormProps) {
+  const photoUrl = Array.isArray(article.photos)
+    ? article.photos[0]
+    : article.photos;
+
+  return (
+    <div className="relative bg-white shadow-lg rounded-2xl p-6 overflow-hidden">
+      {/* 🔸 Gambar di kanan atas */}
+      {/* {http://localhost:3005/api/9840962b-43fb-4690-bf35-b3dbfefa12ed.jpg} && ( */}
+      <div className="absolute top-4 right-4 w-32 h-32">
+        <img
+          src={
+            'http://localhost:3005/api/9840962b-43fb-4690-bf35-b3dbfefa12ed.jpg'
+          }
+          alt={article.title || 'Article Photo'}
+          className="w-full h-full object-cover rounded-lg shadow-md border"
+        />
+      </div>
+
+      {/* 🔹 Konten artikel */}
+      <div className="pr-40">
+        {' '}
+        {/* beri ruang untuk gambar kanan */}
+        <h2 className="text-2xl font-bold mb-2">{article.title}</h2>
+        <p className="text-gray-500 mb-4">📍 {article.location}</p>
+        <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+          {article.content}
+        </p>
+      </div>
     </div>
-    // </div>
   );
 }
+
+// 'use client';
+
+// export default function DetailForms() {
+//   return (
+//     <div className="max-w-4xl mx-auto px-4 py-10">
+//       <h1 className="text-2xl font-bold mb-6">Write Travel Article</h1>
+//       <div className="grid grid-cols-12 gap-6">
+//         <div className="col-span-12">
+//           <p className="text-gray-500">
+//             Halaman ini masih kosong. Silakan tambahkan komponen form atau
+//             konten lainnya.
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// 'use client';
+
+// export default function ArticleForm() {
+//   return (
+//     <div className="max-w-4xl mx-auto px-4 py-10">
+//       {/* <h1 className="text-2xl font-bold mb-6">Write Travel Article</h1>
+
+//       {/* Konten akan ditambahkan di sini */}
+//       <div className="grid grid-cols-12 gap-6">
+//         <div className="col-span-12">
+//           <p className="text-gray-500">
+//             Halaman ini masih kosong. Silakan tambahkan komponen form atau
+//             konten lainnya.
+//            </p>
+//     /    </div>
+//     </div>
+//      </div>
+//   );
+// }
 
 // 'use client';
 // import { useState } from 'react';
