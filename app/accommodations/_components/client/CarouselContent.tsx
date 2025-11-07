@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 
-import { CardData } from '../../_types';
+import { AccDataCard, CardData } from '../../_types';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import ComponentsAccCard from './AccCard';
 
 export interface CarouselContentProps {
   title: string;
-  data: CardData[];
+  data: AccDataCard[];
 }
 
 type FavoriteState = Map<number, boolean>;
@@ -28,7 +28,7 @@ export default function CarouselContent({ title, data }: CarouselContentProps) {
     const initialFavorites = new Map<number, boolean>();
     data.forEach((card) => {
       // 🚨 這裡應該使用 SC 傳遞下來的初始收藏狀態，但為了簡潔，暫時設為 false
-      initialFavorites.set(card.id, card.isFavorite);
+      initialFavorites.set(card.id, false);
     });
     setFavorites(initialFavorites);
   }, [data]); // 依賴於 data 確保在數據變化時重新初始化
@@ -72,11 +72,12 @@ export default function CarouselContent({ title, data }: CarouselContentProps) {
   const cards = data.map((card) => (
     <div key={card.id} className="shrink-0">
       <ComponentsAccCard
-        imageUrl={card.imageUrl}
-        imageAlt={card.imageAlt}
-        rating={card.rating}
+        id={card.id}
+        imageUrl={card.mainImage}
+        imageAlt={card.name}
+        rating={card.averageRating}
         name={card.name}
-        location={card.location}
+        location={card.city}
         // 傳遞狀態和事件處理函式
         isFavorite={favorites.get(card.id) || false}
         onToggleFavorite={() => handleToggleFavorite(card.id)}
