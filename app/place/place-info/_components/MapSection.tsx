@@ -12,14 +12,17 @@ const LeafletMap = dynamic(() => import('./MapSectionClient'), {
   ),
 });
 
-export default function MapSectionWrapper() {
+export default function MapSectionWrapper({ placeId }: { placeId: number }) {
   return (
     <Suspense
       fallback={
         <div className="w-full h-[360px] bg-neutral-200 animate-pulse rounded-xl" />
       }
     >
-      <LeafletMap />
+      <LeafletMap
+        placeId={placeId}
+        apiBase={process.env.NEXT_PUBLIC_API_BASE_URL || ''}
+      />
     </Suspense>
   );
 }

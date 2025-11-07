@@ -1,4 +1,9 @@
 // components/spot/MetaPanel.tsx
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faClock } from '@fortawesome/free-solid-svg-icons';
+import { faPhone } from '@fortawesome/free-solid-svg-icons';
+
 export default function MetaPanel({ spot }: { spot: any }) {
   const contact = spot.contact;
   const address = spot.address;
@@ -75,11 +80,11 @@ export default function MetaPanel({ spot }: { spot: any }) {
       <div className="flex-1">
         <ul className="space-y-2">
           <li className="flex items-center gap-2">
-            <PinIcon />
+            <FontAwesomeIcon icon={faLocationDot} />
             <span className="mt-0.5 text-amber-700">{address}</span>
           </li>
           <li className="flex items-center gap-2">
-            <PhoneIcon />
+            <FontAwesomeIcon icon={faPhone} />
             <span className="mt-0.5 text-amber-700">{contact}</span>
           </li>
         </ul>
@@ -88,7 +93,7 @@ export default function MetaPanel({ spot }: { spot: any }) {
       {/* 右：營業時間 */}
       <div className="flex-1">
         <ul className="space-y-1.5 text-sm">
-          <ClockIcon />
+          <FontAwesomeIcon icon={faClock} />
           {hours.map((h, i) => (
             <li key={i} className="flex gap-3 mt-0.5 text-[16px]">
               <span>{h}</span>
