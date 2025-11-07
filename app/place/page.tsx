@@ -6,7 +6,7 @@ import ExploreSection from './_components/ExploreSection';
 
 export default function HomePage() {
   return (
-    <main className="bg-[#FAE4B5] min-h-screen">
+    <main className=" min-h-screen">
       {/* Hero 幻燈片 */}
       <HeroSlider />
 
