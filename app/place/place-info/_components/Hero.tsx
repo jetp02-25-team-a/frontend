@@ -86,13 +86,12 @@ export default function Hero({
   }
   return (
     <section>
-      {/* <img
-        src={spot.heroPhoto}
-        className="w-full h-72 md:h-96 object-cover rounded-2xl"
-      /> */}
       <div className="flex items-stretch">
         <div className="flex-1 h-full">
-          <img src={photos[idx]} className="w-full rounded-xl" />
+          <img
+            src={photos[idx]}
+            className="w-full h-80 md:h-96 object-cover rounded-xl"
+          />
         </div>
         <div className="flex-1 flex flex-col pl-2 items-start justify-between gap-1">
           <div className="flex">
