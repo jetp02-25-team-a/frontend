@@ -4,6 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
+import { faMapPin } from '@fortawesome/free-solid-svg-icons';
 
 type Place = {
   id: number;
@@ -18,31 +21,33 @@ type Place = {
 };
 
 // ---- 輔助：讓地圖飛到中心 ----
-function FlyTo({ lat, lng }: { lat: number; lng: number }) {
+function FlyTo({ center }: { center: [number, number] }) {
   const map = useMap();
   useEffect(() => {
-    map.setView([lat, lng], 15, { animate: true });
-  }, [lat, lng, map]);
+    map.flyTo(center, 15, { duration: 0.6 });
+    // 防止容器尺寸變化造成地圖瓦片錯位
+    setTimeout(() => map.invalidateSize(), 0);
+  }, [center, map]);
   return null;
 }
 
 // ---- 地圖置中按鈕 ----
-function CenterButton({ lat, lng }: { lat: number; lng: number }) {
+function CenterButton({ center }: { center: [number, number] }) {
   const map = useMap();
   return (
     <button
-      onClick={() => map.flyTo([lat, lng], 15, { duration: 0.8 })}
+      onClick={() => map.flyTo(center, map.getZoom(), { duration: 0.4 })}
       title="回到地圖中心"
       className="absolute bottom-4 right-4 z-[999] w-10 h-10 rounded-full bg-white border shadow-md hover:bg-neutral-100"
     >
-      ⟳
+      <FontAwesomeIcon icon={faRotateRight} />
     </button>
   );
 }
 
 export default function MapSectionClient({
-  placeId = 350,
-  apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || '',
+  placeId,
+  apiBase,
 }: {
   placeId?: number;
   apiBase?: string;
@@ -96,7 +101,14 @@ export default function MapSectionClient({
   }, [placeId, apiBase]);
 
   useEffect(() => {
-    if (place && markerRef.current) markerRef.current.openPopup();
+    if (place && markerRef.current) {
+      try {
+        // ts-expect-error: react-leaflet v4 型別差異
+        const m: L.Marker | undefined =
+          markerRef.current?.leafletElement || markerRef.current;
+        m?.openPopup();
+      } catch {}
+    }
   }, [place]);
 
   if (!place?.latitude || !place?.longitude) {
@@ -105,25 +117,24 @@ export default function MapSectionClient({
     );
   }
 
-  const lat = place.latitude;
-  const lng = place.longitude;
+  const center: [number, number] = [place.latitude, place.longitude];
   const hero = place.photos?.[0]?.url;
 
   return (
     <section className="rounded-2xl border p-3 w-full relative">
       <div className="w-full h-[360px] rounded-xl overflow-hidden relative">
         <MapContainer
-          center={[lat, lng]}
+          center={center}
           zoom={15}
           scrollWheelZoom
           className="w-full h-full"
           attributionControl={false}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <FlyTo lat={lat} lng={lng} />
+          <FlyTo center={center} />
 
           <Marker
-            position={[lat, lng]}
+            position={center}
             icon={pinIcon}
             ref={(ref) => {
               // ts-ignore
@@ -171,7 +182,7 @@ export default function MapSectionClient({
                 ) : null}
                 <div className="mt-3 flex items-center justify-end gap-2">
                   <a
-                    href={`https://www.google.com/maps?q=${lat},${lng}`}
+                    href={`https://www.google.com/maps?q=${center[0]},${center[1]}`}
                     target="_blank"
                     rel="noreferrer"
                     className="text-xs px-2.5 py-1.5 rounded-md bg-neutral-900 text-white hover:bg-neutral-800"
@@ -183,7 +194,7 @@ export default function MapSectionClient({
             </Popup>
           </Marker>
 
-          <CenterButton lat={lat} lng={lng} />
+          <CenterButton center={center} />
         </MapContainer>
       </div>
     </section>

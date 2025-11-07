@@ -39,7 +39,7 @@ export default async function SpotPage({
               <MetaPanel spot={spot} />
             </div>
           </div>
-          <MapSection />
+          <MapSection placeId={placeId} />
           {/* ✅ 改成由 Client 包裹控制送出/Modal/灰階 */}
           <SpotReviewsPanel
             placeId={placeId}
