@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@import "leaflet/dist/leaflet.css";
+
 .customize_shadow {
   @apply shadow-[4px_4px_10px_rgba(0,0,0,0.20)];
 }
