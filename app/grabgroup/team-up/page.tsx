@@ -5,11 +5,14 @@ import TourCard from './_components/tour-card';
 import { useFetch } from '../../../hooks/useFetch';
 import AreaButton from './_components/area-button';
 import { ItineraryAreaCard } from '../_types/itineraryTypes';
+import { useRouter } from 'next/navigation';
 export default function TeamUpPage() {
   const [area, setArea] = useState('新北市');
   const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/area?area=${area}`;
   const { data, loading, error, refetch } = useFetch(url);
   const [cards, setCards] = useState<ItineraryAreaCard[]>();
+
+  const router = useRouter();
 
   useEffect(() => {
     refetch();
@@ -19,8 +22,6 @@ export default function TeamUpPage() {
   }, [data]);
   return (
     <>
-      <h1 className="text-4xl text-center">{area}</h1>
-      <div className="bg-gray-200 h-0.5 w-full"> </div>
       <div className=" flex flex-col gap-[30px]">{/* 顯示不同區域 */}</div>
       <div className="w-full flex justify-center gap-[50px]">
         <AreaButton
@@ -54,6 +55,8 @@ export default function TeamUpPage() {
           onClick={() => setArea('高雄市')}
         />
       </div>
+      <h1 className="text-4xl text-center">{area}</h1>
+      <div className="bg-gray-200 h-0.5 w-full"> </div>
       <div className="flex flex-wrap gap-x-[25px] gap-y-[60px] justify-center">
         {cards?.map((card: any, i: number) => {
           return (
@@ -64,6 +67,11 @@ export default function TeamUpPage() {
               avatar="https://randomuser.me/api/portraits/women/20.jpg"
               user_name={card.User.nickname}
               image="https://www.travel.taipei/image/216608/?r=1625036397904"
+              onClick={() =>
+                router.push(
+                  `/grabgroup/team-up-info/${card.id}?userId=${card.User.id}`
+                )
+              }
             />
           );
         })}

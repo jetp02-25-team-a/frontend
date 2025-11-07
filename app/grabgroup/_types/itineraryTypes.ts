@@ -37,6 +37,7 @@ export interface ItineraryContextType {
 }
 
 export interface ItineraryAreaCard {
+  id: number;
   title: string;
   figure: number;
   User: {
