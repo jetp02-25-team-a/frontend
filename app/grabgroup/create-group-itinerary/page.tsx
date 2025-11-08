@@ -1,15 +1,25 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '../_components/Button';
 import DatePicker from './_components/date-picker';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { faSleigh } from '@fortawesome/free-solid-svg-icons';
+import { useFetch } from '@/hooks/useFetch';
+import Image from 'next/image';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 const user_friends = [
   { id: 1, avatar: '/avatar.png' },
   { id: 2, avatar: '/avatar.png' },
   { id: 3, avatar: '/avatar.png' },
 ];
+interface User {
+  avatar?: string;
+  id: number;
+  nickname: string;
+}
 
 export default function CreateGroupItineraryPage() {
   const pathname = usePathname();
@@ -21,8 +31,22 @@ export default function CreateGroupItineraryPage() {
   const people = searchParams.get('people');
 
   const [itineraryTitle, setItineraryTitle] = useState<string>('');
+  const [showFriends, setShowFriends] = useState<boolean>(false);
   const [peopleMax, setPeopleMax] = useState<number>(people ? +people : 0);
 
+  const getFirendsUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships`;
+  const { data, loading, error, refetch } = useFetch(getFirendsUrl);
+  const [friendData, setFriendDate] = useState<User[]>();
+
+  useEffect(() => {
+    if (showFriends) refetch();
+  }, [showFriends]);
+
+  useEffect(() => {
+    if (data && data.success) setFriendDate(data.data);
+  }, [data]);
+
+  const backend = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
   return (
     <main className="w-full flex flex-col items-center py-16 gap-[30px]">
       <h1 className="text-4xl text-center">行程頁面</h1>
@@ -72,15 +96,18 @@ export default function CreateGroupItineraryPage() {
               setPeopleMax(+e.target.value);
             }}
           />
-          <div className="w-full flex justify-end gap-[8px]">
+          <div className="w-full flex justify-end gap-2 relative">
             {/* 使用者的好友 */}
             <div className=" flex items-end gap-[30px]">
               <div className="flex">
                 {user_friends.map((v, i) => {
                   return (
-                    <img
+                    <Image
                       key={i}
+                      width={77}
+                      height={77}
                       src={v.avatar}
+                      alt=""
                       className="w-[50px] h-[50px] object-cover border-2 border-white rounded-full -ml-5"
                     />
                   );
@@ -88,7 +115,44 @@ export default function CreateGroupItineraryPage() {
               </div>
             </div>
 
-            <Button content="邀請好友" />
+            <Button
+              content="邀請好友"
+              onClick={() => setShowFriends(!showFriends)}
+            />
+            {/* //取得所有好友 且發送邀請訊息 */}
+
+            {showFriends && friendData && (
+              <div className=" absolute bg-white border-2 border-gray-200 rounded-2xl p-5 flex flex-col gap-4">
+                <div className="flex">
+                  <p>邀請你的好友們</p>
+                  <FontAwesomeIcon
+                    icon={faXmark}
+                    className="ml-auto"
+                    onClick={() => setShowFriends(!showFriends)}
+                  />
+                </div>
+
+                {friendData.map((friend: User, index: number) => {
+                  return (
+                    <div key={index} className="gap-2 flex items-center">
+                      <Image
+                        width={77}
+                        height={77}
+                        src={
+                          friend.avatar
+                            ? `${backend}/images/${friend.avatar}`
+                            : '/avatar.png'
+                        }
+                        alt=""
+                        className="w-[50px] h-[50px] object-cover border-2 border-white rounded-full shrink"
+                      />
+                      <p className="mr-5">{friend.nickname}</p>
+                      <Button content="邀請" onClick={() => {}} />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col items-center">
