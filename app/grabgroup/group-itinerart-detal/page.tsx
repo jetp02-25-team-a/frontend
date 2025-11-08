@@ -27,6 +27,7 @@ import { debounce } from 'lodash';
 
 import { addDays, addMinutes } from 'date-fns';
 import { ItineraryEditor } from '../_components/ItineraryEditor';
+import { useSearchParams } from 'next/navigation';
 
 export interface mapPoint {
   latitude: number; //預設台北101
@@ -34,6 +35,8 @@ export interface mapPoint {
 }
 
 export default function GroupItineraryDetalPage() {
+  const params = useSearchParams().get('itineraryId');
+  const itineraryId = params;
   //處理滑動
   const scrollRef = useRef<HTMLDivElement>(null);
   const scroll = (direction: 'pre' | 'next') => {
@@ -56,7 +59,6 @@ export default function GroupItineraryDetalPage() {
 
   const { itineraryData, setItineraryData } = useItinerary(); //公共
 
-  const itineraryId = 22;
   const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/detail?itineraryId=${itineraryId}`;
   const { data, loading, error, refetch } = useFetch(url);
 

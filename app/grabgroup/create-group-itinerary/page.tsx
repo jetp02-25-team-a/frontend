@@ -9,6 +9,7 @@ import { useFetch } from '@/hooks/useFetch';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { application } from 'express';
 
 const user_friends = [
   { id: 1, avatar: '/avatar.png' },
@@ -34,6 +35,11 @@ export default function CreateGroupItineraryPage() {
   //上一頁來的參數
   const destination = searchParams.get('destination');
 
+  const token = localStorage.getItem('BackpackUserInfo');
+  let newToken: string;
+  if (token) {
+    newToken = 'Bearer ' + JSON.parse(token).token;
+  }
   useEffect(() => {
     //設定開始時間
     const startDate = searchParams.get('startDate')?.split('T')[0];
@@ -57,6 +63,7 @@ export default function CreateGroupItineraryPage() {
   const people = searchParams.get('people');
 
   const [itineraryTitle, setItineraryTitle] = useState<string>('');
+  const [startTime, setStartTime] = useState<string>('');
   const [showFriends, setShowFriends] = useState<boolean>(false);
   const [peopleMax, setPeopleMax] = useState<number>(people ? +people : 0);
 
@@ -104,7 +111,7 @@ export default function CreateGroupItineraryPage() {
             </p>
           </div>
 
-          <label htmlFor="">制定活動名稱</label>
+          <label htmlFor="">制定活動名稱:</label>
           <input
             type="text"
             placeholder="輸入"
@@ -112,15 +119,23 @@ export default function CreateGroupItineraryPage() {
             value={itineraryTitle}
             onChange={(e) => setItineraryTitle(e.target.value)}
           />
-          <label htmlFor="">參加人數上限</label>
+          <label htmlFor="">參加人數上限:</label>
           <input
             type="number"
             max={8}
-            className="border-1 border-gray-300 w-full rounded-sm px-[12px] py-[4px]"
+            className="border border-gray-300 w-full rounded-sm px-3 py-1"
             value={peopleMax}
             onChange={(e) => {
               setPeopleMax(+e.target.value);
             }}
+          />
+          <label htmlFor="">每日開始時間：</label>
+          <input
+            type="time"
+            placeholder="輸入"
+            className="border border-gray-300 w-full rounded-sm px-3 py-1"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
           />
           <div className="w-full flex justify-end gap-2 relative">
             {/* 使用者的好友 */}
@@ -190,9 +205,40 @@ export default function CreateGroupItineraryPage() {
           <div className="flex justify-center gap-[21px]">
             <Button content="回上一步" onClick={() => router.back()} />
 
-            <Link href="/grabgroup/group-itinerart-detal">
-              <Button content="下一步" />
-            </Link>
+            <Button
+              content="下一步"
+              onClick={async () => {
+                const data = {
+                  title: itineraryTitle,
+                  area: '台北市',
+                  startDay: time?.startDate || '',
+                  endDay: time?.endDate || '',
+                  startTime: startTime,
+                  figure: peopleMax,
+                };
+                const url = `${backend}/api/itineraries/create-itinerary`;
+
+                try {
+                  const result = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: newToken,
+                    },
+                    body: JSON.stringify(data),
+                  }).then((r) => r.json());
+                  //需要拿到建立的行程id
+                  if (result) {
+                    console.log('result', result);
+                    router.push(
+                      `/grabgroup/group-itinerart-detal?itineraryId=${result.itineraryId}`
+                    );
+                  }
+                } catch (err) {
+                  console.log(err);
+                }
+              }}
+            />
           </div>
         </div>
       </div>
