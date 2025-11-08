@@ -21,13 +21,39 @@ interface User {
   nickname: string;
 }
 
+interface Time {
+  startDate?: string;
+  endDate?: string;
+}
+
 export default function CreateGroupItineraryPage() {
+  const [time, setTime] = useState<Time>();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   //上一頁來的參數
   const destination = searchParams.get('destination');
-  const startDate = searchParams.get('startDate');
+
+  useEffect(() => {
+    //設定開始時間
+    const startDate = searchParams.get('startDate')?.split('T')[0];
+    if (startDate) {
+      setTime((prev) => ({ ...(prev || {}), startDate: startDate }));
+    }
+  }, []);
+
+  //處理回傳的值
+  const handleDateChange = (dates: {
+    startDate: string | null;
+    endDate: string | null;
+  }) => {
+    console.log('子元件回傳的日期:', dates);
+    setTime({
+      startDate: dates.startDate ?? '',
+      endDate: dates.endDate ?? '',
+    });
+  };
+
   const people = searchParams.get('people');
 
   const [itineraryTitle, setItineraryTitle] = useState<string>('');
@@ -52,9 +78,9 @@ export default function CreateGroupItineraryPage() {
       <h1 className="text-4xl text-center">行程頁面</h1>
 
       <p>目的地：{destination}</p>
-      <p>
+      {/* <p>
         開始時間：{startDate ? new Date(startDate).toLocaleString() : '未選擇'}
-      </p>
+      </p> */}
       <p>目前人數：{people}</p>
 
       <div className="w-[920px]">
@@ -120,7 +146,6 @@ export default function CreateGroupItineraryPage() {
               onClick={() => setShowFriends(!showFriends)}
             />
             {/* //取得所有好友 且發送邀請訊息 */}
-
             {showFriends && friendData && (
               <div className=" absolute bg-white border-2 border-gray-200 rounded-2xl p-5 flex flex-col gap-4">
                 <div className="flex">
@@ -157,7 +182,10 @@ export default function CreateGroupItineraryPage() {
 
           <div className="flex flex-col items-center">
             <label htmlFor="">活動時間</label>
-            <DatePicker initialDates={startDate ? [startDate] : []} />
+            <DatePicker
+              initialDates={time?.startDate ? [time.startDate] : []}
+              onChange={handleDateChange}
+            />
           </div>
           <div className="flex justify-center gap-[21px]">
             <Button content="回上一步" onClick={() => router.back()} />
