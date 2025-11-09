@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import Button from './../_components/Button';
 import { ItineraryContext } from '@/hooks/use-itinerart';
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   ItineraryContextType,
   ItineraryData,
@@ -20,6 +21,8 @@ export default function GroupItineraryDetalPage({
   const [itineraryData, setItineraryData] = useState<ItineraryData[] | null>(
     null
   );
+  const params = useSearchParams().get('itineraryId');
+  const itineraryId = params;
 
   return (
     <ItineraryContext.Provider value={{ itineraryData, setItineraryData }}>
@@ -33,7 +36,14 @@ export default function GroupItineraryDetalPage({
 
         <div className="flex gap-x-[21px] justify-center w-full">
           <Button content="回上一頁" onClick={() => router.back()} />
-          <Button content="下一頁" />
+          <Button
+            content="下一頁"
+            onClick={() =>
+              router.push(
+                `/grabgroup/team-up-edit-article?itineraryId=${itineraryId}`
+              )
+            }
+          />
         </div>
         {children}
       </div>

@@ -80,7 +80,6 @@ export default function ChatBox({
 
   useEffect(() => {
     if (data?.data) setAllMessage(data.data);
-    console.log('data is change');
   }, [data]);
 
   //訊息有變動會把訊息會顯示在底部
@@ -90,7 +89,7 @@ export default function ChatBox({
     }
   }, [allMessage]);
 
-  //1.確保訊息清空後再發送 2渲染畫面
+  //1.確保訊息有清空 2渲染畫面
   useEffect(() => {
     refetch();
   }, [message]);

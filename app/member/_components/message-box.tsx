@@ -7,21 +7,42 @@ interface MessageBoxProps {
   image: string | null;
   content: string | null;
   time: string | null;
+  isRead?: boolean;
   onClick: () => void;
+  userId: number;
+  receiverId?: number;
+  senderId?: number;
 }
 export default function MessageBox({
   title,
   image,
   content,
   time,
+  isRead,
   onClick,
+  userId,
+  receiverId,
+  senderId,
 }: MessageBoxProps) {
+  console.log(
+    '當前使用者id:',
+    userId,
+    '///接受者id:',
+    receiverId,
+    '////發送者:id',
+    senderId
+  );
   return (
     <div
       onClick={onClick}
       className="w-full h-20 flex border-b-2 border-gray-600 bg-white px-2.5 py-2 gap-2"
     >
-      <div className="shrink-0 w-2.5 h-2.5 bg-[#61FF8B] rounded-full"></div>
+      {/* 綠色球 如果沒有為假就是沒有讀 翻轉做判斷*/}
+      {/* 發送者如果不是我 就會顯示綠球 */}
+      {senderId !== userId && !isRead && (
+        <div className="shrink-0 w-2.5 h-2.5 bg-[#61FF8B] rounded-full"></div>
+      )}
+
       {image ? (
         <Image
           width={64}

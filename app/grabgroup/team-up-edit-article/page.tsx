@@ -1,50 +1,87 @@
 'use client';
-import { useEffect, useState } from 'react';
-import SimpleMDE from 'react-simplemde-editor';
+import { useEffect, useState, useRef } from 'react';
+// import SimpleMDE from 'react-simplemde-editor';
 import 'easymde/dist/easymde.min.css';
+import { useSearchParams, useRouter } from 'next/navigation';
+import RegularButton from '@/components/ui/regular-button';
+import MDEditor from '@uiw/react-md-editor';
+import { commands } from '@uiw/react-md-editor';
+import { useAuth } from '@/hooks/use-Auth';
+
+// import { title } from 'process';
+// import dynamic from 'next/dynamic';
+// const SimpleMDE = dynamic(() => import('react-simplemde-editor'), {
+//   ssr: false,
+// });
 
 export default function TeamUpEditArticlePage() {
-  const [value, setValue] = useState('## 你好，Markdown！');
+  const [value, setValue] = useState('## 你好，開始編輯你的內文！'); // 文章內文
+  const router = useRouter();
+  const params = useSearchParams().get('itineraryId');
+  const itineraryId = params;
+  const { user, isReady } = useAuth();
 
-  const options = {
-    spellChecker: false, // 關掉拼字檢查
-    placeholder: '開始寫文章吧...',
-    autosave: {
-      enabled: true,
-      delay: 1000,
-      uniqueId: 'my-article',
-    },
-    status: false, // 不顯示底部狀態列
-    toolbar: [
-      'bold',
-      'italic',
-      'heading',
-      '|',
-      'quote',
-      'unordered-list',
-      'ordered-list',
-      // '|',
-      // 'link',
-      // 'image',
-      // '|',
-      // {
-      //   name: 'custom',
-      //   action: () => alert('你按了自訂按鈕 ✨'),
-      //   className: 'fa fa-star',
-      //   title: '自訂功能',
-      // },
-      '|',
-      'preview',
-      'side-by-side',
-      'fullscreen',
-      // '|',
-      // 'guide',
-    ] as any,
+  const handleSendArticle = async (
+    itineraryId: number,
+    content: string,
+    title?: string
+  ) => {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/create-article`;
+    const data = {
+      itineraryId: itineraryId,
+      title: title ?? '',
+      content: content,
+    };
+    try {
+      const result = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (result.ok) {
+        router.push(`/grabgroup/team-up-info-tmp/${itineraryId}`);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
+
   return (
     <>
       <h1>edit page</h1>
-      <SimpleMDE value={value} onChange={setValue} options={options} />
+
+      <MDEditor
+        value={value}
+        onChange={(val) => setValue(val || '')}
+        preview="edit" //  單視窗模式
+        visibleDragbar={true}
+        spellCheck={false}
+        hideToolbar={false}
+        commands={[
+          commands.bold,
+          commands.italic,
+          commands.title,
+          commands.divider,
+
+          commands.orderedListCommand,
+          commands.divider,
+          commands.code,
+          commands.quote,
+        ]}
+        extraCommands={[]}
+      />
+
+      <RegularButton
+        content="送出"
+        onClick={() => {
+          console.log('按下', itineraryId);
+
+          if (itineraryId) handleSendArticle(+itineraryId, value);
+        }}
+      />
       <pre>{value}</pre>
     </>
   );

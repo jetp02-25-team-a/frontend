@@ -29,7 +29,12 @@ interface RoomData {
   roomName: string;
 }
 interface RoomMessage {
-  LatestMessage: string;
+  LatestMessage: {
+    content: string;
+    isRead: boolean;
+    senderId: number;
+    receiverId: number;
+  };
   roomData: RoomData;
 }
 interface friendData {
@@ -39,21 +44,31 @@ interface friendData {
 }
 
 interface PersonMessage {
-  LatestMessage: string;
+  LatestMessage: {
+    content: string;
+    isRead: boolean;
+    senderId: number;
+    receiverId: number;
+  };
   friendData: friendData;
 }
 
 export default function UserInfoPage() {
   const [openChats, setOpenChats] = useState<ChatInterface[]>([]); //所有聊天室資訊 小視窗
+  //分romms 跟 all_friends
   const [contact, setContact] = useState<any>({
     allRoomsLatestMessages: [],
     allFriendLatestMessage: [],
   }); //通訊錄所有使用者
   const { user, isReady } = useAuth(); //使用者資訊
-  //搜索有好有房間最新訊息
+  //搜索有好朋友房間最新訊息
   const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships/allmessage`;
   //取得後放入state
   const { data, loading, error } = useFetch(url);
+  //有訊息印出東西
+  useEffect(() => {
+    console.log('contact=>', contact);
+  }, [contact]);
 
   //打印出來
   useEffect(() => {
@@ -126,13 +141,14 @@ export default function UserInfoPage() {
                 user_name: null,
                 user_id: null,
                 image: null,
-                content: message.LatestMessage ?? null,
+                content: message.LatestMessage?.content ?? null,
                 time: new Date().toISOString(), // 或 null
                 room_name: message.roomData.roomName,
                 room_id: message.roomData.id,
               };
               return (
                 <MessageBox
+                  userId={user ? user.id : 0}
                   key={index}
                   title={message.roomData.roomName}
                   content={
@@ -155,7 +171,7 @@ export default function UserInfoPage() {
                 user_name: message.friendData.nickname,
                 user_id: message.friendData.id,
                 image: message.friendData.avatar,
-                content: message.LatestMessage ?? null,
+                content: message.LatestMessage?.content ?? null,
                 time: new Date().toISOString(), // 或 null
                 room_name: null,
                 room_id: null,
@@ -163,6 +179,10 @@ export default function UserInfoPage() {
               return (
                 <MessageBox
                   key={index}
+                  userId={user ? user.id : 0}
+                  receiverId={message.LatestMessage?.receiverId}
+                  senderId={message.LatestMessage?.senderId}
+                  isRead={message.LatestMessage?.isRead}
                   title={message.friendData.nickname}
                   content={
                     message.LatestMessage
