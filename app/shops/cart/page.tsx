@@ -5,6 +5,7 @@ import { useAuth, useAuthRequired } from '../../../hooks/use-Auth';
 import { useCart } from '../../../hooks/use-Cart';
 import { API_SERVER } from '../../config/api-path';
 import { number } from 'zod';
+import CartCard from '../_components/cartCard';
 
 interface ProductVariants {
   id: number;
@@ -72,6 +73,8 @@ export default function CartPage() {
   }, [cart.items]);
   const isCartEmpty = !cart.items || cart.items.length === 0;
 
+  console.log(items);
+
   return (
     <>
       {isCartEmpty ? (
@@ -111,37 +114,48 @@ export default function CartPage() {
             }
 
             // 3. 渲染列表
+            // return (
+            //   <li key={cartItem.variant_id}>
+            //     產品名: {productDetail.productName}
+            //     變體: {variantDetail.variantName}
+            //     單價: ${variantDetail.price}
+            //     數量:
+            //     <button
+            //       onClick={() => removeFromCart(cartItem.variant_id, 1)}
+            //       disabled={cartItem.amount <= 1}
+            //     >
+            //       -
+            //     </button>
+            //     {cartItem.amount}
+            //     <button
+            //       onClick={() => addToCart(cartItem.id, cartItem.variant_id)}
+            //     >
+            //       +
+            //     </button>
+            //     {/* 總計價格 */}
+            //     小計: ${variantDetail.price * cartItem.amount}
+            //     {/* 移除所有 */}
+            //     <button onClick={() => removeFromCart(cartItem.variant_id)}>
+            //       移除所有
+            //     </button>
+            //   </li>
+            // );
             return (
-              <li key={cartItem.variant_id}>
-                產品名: {productDetail.productName}
-                變體: {variantDetail.variantName}
-                單價: ${variantDetail.price}
-                數量:
-                <button
-                  onClick={() => removeFromCart(cartItem.variant_id, 1)}
-                  disabled={cartItem.amount <= 1}
-                >
-                  -
-                </button>
-                {cartItem.amount}
-                <button
-                  onClick={() => addToCart(cartItem.id, cartItem.variant_id)}
-                >
-                  +
-                </button>
-                {/* 總計價格 */}
-                小計: ${variantDetail.price * cartItem.amount}
-                {/* 顯示移除按鈕 (移除所有數量) */}
-                <button onClick={() => removeFromCart(cartItem.variant_id)}>
-                  移除所有
-                </button>
-              </li>
+              <CartCard
+                key={cartItem.variant_id}
+                productName={productDetail.productName}
+                variantName={variantDetail.variantName}
+                variantID={cartItem.variant_id}
+                price={variantDetail.price}
+                amount={cartItem.amount}
+                picURL={productDetail.ProductPics[0].src}
+              />
             );
           })}
         </ul>
       )}
 
-      {/* 清空購物車按鈕，只有購物車非空時才顯示 (可選) */}
+      {/* 清空購物車*/}
       {!isCartEmpty && <button onClick={clearCart}>清空購物車</button>}
     </>
   );
