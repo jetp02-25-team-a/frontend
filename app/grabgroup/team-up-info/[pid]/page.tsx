@@ -1,7 +1,7 @@
 'use client';
 import InfoButton from '../_components/InfoButton';
 import JoinButton from '@/components/ui/join-button';
-import { addTimeWrap } from '../../utils';
+import { useAuth } from '@/hooks/use-Auth';
 import { useEffect, useState, useRef } from 'react';
 import Map from '../_components/GoogleMap';
 import MessageBox from '../_components/MessageBox';
@@ -37,6 +37,7 @@ interface Comments {
 }
 
 interface ItineraryLisInterface {
+  id: number;
   fullName: string;
   nickname: string;
   Itineraries: [
@@ -66,6 +67,7 @@ interface PhotoProviderRef {
 }
 
 export default function PlacePage() {
+  const { user, isReady } = useAuth();
   const params = useParams();
   const userId = useSearchParams().get('userId');
   const { pid } = params;
@@ -113,6 +115,32 @@ export default function PlacePage() {
   useEffect(() => {
     if (showAll) btnRef.current?.click(); // 為真自動觸發
   }, [showAll]);
+  //pid
+  const handleInvite = async (userId: number, itineraryId: number) => {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/invite`;
+    // const { itineraryId, senderId, receiverId } = req.body;
+
+    if (!user) return;
+    const data = {
+      itineraryId: itineraryId,
+      senderId: userId,
+      receiverId: itineraryList?.id,
+    };
+
+    try {
+      const result = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (result.ok) console.log('邀約發送');
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <>
       {/* image區 */}
@@ -220,10 +248,16 @@ export default function PlacePage() {
         <p className="text-base">
           {itineraryList?.Itineraries?.[0]?.Article?.content}
         </p>
-        <JoinButton className="mx-auto" content="加入我們" />
+        <JoinButton
+          className="mx-auto"
+          content="加入我們"
+          onClick={() => {
+            if (user) handleInvite(user?.id, Number(pid));
+          }}
+        />
       </section>
       {/* 行程 */}
-      <section className="bg-light-gray w-full h-auto py-[64px]">
+      <section className="bg-light-gray w-full h-auto py-16">
         <div className="px-[200px] grid grid-cols-2">
           {/* 行程區 */}
           <div className="overflow-auto">
