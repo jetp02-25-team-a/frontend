@@ -55,9 +55,95 @@ interface PersonMessage {
   friendData: friendData;
 }
 
+// interface InviteMessage {
+//   id: number;
+//   itineraryId: number;
+//   senderId: number;
+//   receiverId: number;
+//   status: number;
+//   createdAt: string;
+//   updatedAt: string;
+//   itinerary: {
+//     userId: number;
+//     title: string;
+//   };
+//   sender: {
+//     id: number;
+//     nickname: string;
+//     fullName: string;
+//     avatar: string | null;
+//   };
+
+// }
+
+interface InviteMessage {
+  received: [
+    {
+      id: number;
+      itineraryId: number;
+      senderId: number;
+      receiverId: number;
+      status: number;
+      createdAt: string;
+      updatedAt: string;
+      itinerary: {
+        userId: number;
+        title: string;
+      };
+      sender: {
+        id: number;
+        nickname: string;
+        fullName: string;
+        avatar: null;
+      };
+    },
+    {
+      id: number;
+      itineraryId: number;
+      senderId: number;
+      receiverId: number;
+      status: number;
+      createdAt: string;
+      updatedAt: string;
+      itinerary: {
+        userId: number;
+        title: string;
+      };
+      sender: {
+        id: number;
+        nickname: string;
+        fullName: string;
+        avatar: null;
+      };
+    },
+  ];
+  sent: [
+    {
+      id: number;
+      itineraryId: number;
+      senderId: number;
+      receiverId: number;
+      status: number;
+      createdAt: string;
+      updatedAt: string;
+      itinerary: {
+        userId: number;
+        title: string;
+      };
+      receiver: {
+        id: number;
+        nickname: string;
+        fullName: string;
+        avatar: string;
+      };
+    },
+  ];
+}
+
 export default function UserInfoPage() {
   const [openChats, setOpenChats] = useState<ChatInterface[]>([]); //所有聊天室資訊 小視窗
   const [options, setOptions] = useState<string>('通知');
+  const [allInviteMessage, setAllInviteMessage] = useState<InviteMessage>();
   //分romms 跟 all_friends
   const [contact, setContact] = useState<any>({
     allRoomsLatestMessages: [],
@@ -96,6 +182,31 @@ export default function UserInfoPage() {
     else setOpenChats((prev) => [...prev, newChat]);
   };
 
+  //取得所有行程邀請訊息
+  const getALlInviteMessageUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/all-invite/${user?.id}`;
+
+  const handelAllInviteMessage = async () => {
+    console.log('dwon');
+    try {
+      const reult = await fetch(getALlInviteMessageUrl);
+      if (reult.ok) {
+        const r = await reult.json();
+
+        setAllInviteMessage(r.data);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  //一開啟網頁就抓取資料
+  useEffect(() => {
+    if (user?.id) handelAllInviteMessage();
+  }, [user]);
+
+  useEffect(() => {
+    console.log('setAllInviteMessage==>', allInviteMessage);
+  }, [allInviteMessage]);
+
   return (
     <>
       <div className="grid grid-cols-[80%_20%]">
@@ -125,7 +236,10 @@ export default function UserInfoPage() {
                 <ListButton
                   name="通知"
                   active={true}
-                  onClick={() => setOptions('通知')}
+                  onClick={() => {
+                    setOptions('通知');
+                    handelAllInviteMessage(); //按下後刷新
+                  }}
                 />
               </div>
               <div className=" px-5 pb-6 rounded-b-3xl bg-white ">
@@ -136,11 +250,33 @@ export default function UserInfoPage() {
                   {options === '好友' && <>好友區</>}
                   {options === '通知' && (
                     <>
-                      {Array(5)
-                        .fill(0)
-                        .map((e: any, i: number) => {
+                      {/* 接收 */}
+                      {allInviteMessage &&
+                        allInviteMessage.received.map((e: any, i: number) => {
                           return (
-                            <Checklist key={i} title="xxxxxx" type="agree" />
+                            <Checklist
+                              key={i}
+                              title={`申請加入${e.itinerary.title}`}
+                              snederName={e.sender.nickname}
+                              senderAvatar={e.sender.avatar}
+                              invitationId={e.id}
+                              refresh={handelAllInviteMessage}
+                              type="agree"
+                            />
+                          );
+                        })}
+                      {/* 送出的請求 */}
+                      {allInviteMessage &&
+                        allInviteMessage.sent.map((e: any, i: number) => {
+                          return (
+                            <Checklist
+                              key={i}
+                              title={`等待${e.itinerary.title} 加入中...`}
+                              snederName={e.receiver.nickname}
+                              senderAvatar={e.receiver.avatar}
+                              refresh={handelAllInviteMessage}
+                              type="agree"
+                            />
                           );
                         })}
                     </>
