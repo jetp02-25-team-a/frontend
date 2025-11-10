@@ -25,7 +25,7 @@ export default function ReviewArticlePage() {
   const pid = searchParams.get('id');
 
   const [article, setArticle] = useState<Article>({
-    userId: '',
+    // userId: '',
     title: 'Cannot find Article',
     location: '',
     Content: '',

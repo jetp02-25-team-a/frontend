@@ -100,7 +100,7 @@ export default function ArticleForm() {
       {/* /> */}
       <button
         type="submit"
-        className="bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600"
+        className="bg-amber-700 text-white py-2 px-4 rounded hover:bg-orange-600"
       >
         Send Article 送出文章
       </button>
