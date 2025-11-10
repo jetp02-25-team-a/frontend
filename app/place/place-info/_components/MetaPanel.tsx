@@ -77,14 +77,20 @@ export default function MetaPanel({ spot }: { spot: any }) {
   return (
     <section className="flex rounded-2xl border p-4 space-y-3">
       {/* 中：聯絡/地址 */}
-      <div className="flex-1">
+      <div className="flex-1 mr-2">
         <ul className="space-y-2">
           <li className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faLocationDot} />
+            <FontAwesomeIcon
+              icon={faLocationDot}
+              className="text-red-600 text-[20px]"
+            />
             <span className="mt-0.5 text-amber-700">{address}</span>
           </li>
           <li className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faPhone} />
+            <FontAwesomeIcon
+              icon={faPhone}
+              className="text-green-400 text-[20px]"
+            />
             <span className="mt-0.5 text-amber-700">{contact}</span>
           </li>
         </ul>
@@ -93,7 +99,10 @@ export default function MetaPanel({ spot }: { spot: any }) {
       {/* 右：營業時間 */}
       <div className="flex-1">
         <ul className="space-y-1.5 text-sm">
-          <FontAwesomeIcon icon={faClock} />
+          <FontAwesomeIcon
+            icon={faClock}
+            className="text-blue-400 text-[20px]"
+          />
           {hours.map((h, i) => (
             <li key={i} className="flex gap-3 mt-0.5 text-[16px]">
               <span>{h}</span>
