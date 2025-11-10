@@ -32,7 +32,8 @@ export default function ArticleForm() {
     console.log('✅ Article saved:', data);
     alert('Article submitted successfully!');
     console.log(data.post.id);
-    router.push(`http://localhost:3001/article/review?id=${data.post.id}`);
+    //redirect to frontend path
+    router.push(`http://localhost:3000/article/review?id=${data.post.id}`);
   };
 
   return (

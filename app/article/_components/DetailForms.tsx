@@ -22,9 +22,7 @@ export default function DetailForm({ article }: DetailFormProps) {
       {/* {http://localhost:3005/api/9840962b-43fb-4690-bf35-b3dbfefa12ed.jpg} && ( */}
       <div className="absolute top-4 right-4 w-32 h-32">
         <img
-          src={
-            'http://localhost:3005/api/9840962b-43fb-4690-bf35-b3dbfefa12ed.jpg'
-          }
+          src={`http://localhost:3005${photoUrl}`}
           alt={article.title || 'Article Photo'}
           className="w-full h-full object-cover rounded-lg shadow-md border"
         />

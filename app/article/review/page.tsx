@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import SidebarAction from '../_components/SidebarActions';
 import DetailForm from '../_components/DetailForms';
 import MessageBoard from '../_components/MessageBoard';
 import StatusDisplay from '../_components/StatusDisplay';
 import { API_SERVER } from '@/app/config/api-path';
+import Link from 'next/link';
 
 interface Article {
   id?: string;
@@ -15,10 +16,12 @@ interface Article {
   location: string;
   Content: string;
   photos: string | string[];
+  likes?: number;
 }
 
 export default function ReviewArticlePage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const pid = searchParams.get('id');
 
   const [article, setArticle] = useState<Article>({
@@ -27,9 +30,11 @@ export default function ReviewArticlePage() {
     location: '',
     Content: '',
     photos: '',
+    likes: 0,
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isLiking, setIsLiking] = useState(false);
 
   // --- 🔹 Fetch Data ---
   const getArticle = async (articleId: string) => {
@@ -41,7 +46,6 @@ export default function ReviewArticlePage() {
       }
 
       const resData = await res.json();
-
       if (resData && resData.id) {
         setArticle(resData);
       } else {
@@ -63,39 +67,211 @@ export default function ReviewArticlePage() {
     }
   }, [pid]);
 
-  // --- 🔹 Render Status ---
-  if (isLoading) {
-    return <StatusDisplay message="Loading article details..." />;
-  }
+  // --- 🔹 Handlers ---
+  const handleDelete = async () => {
+    if (!article.id) return;
+    const confirmDelete = confirm(
+      'Are you sure you want to delete this article?'
+    );
+    if (!confirmDelete) return;
 
-  if (!pid) {
-    return <StatusDisplay message="Cannot find article ID." />;
-  }
+    try {
+      const res = await fetch(`${API_SERVER}/article/${article.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete article');
+      }
+
+      alert('Article deleted successfully.');
+      router.push('/article/list'); // redirect ke daftar artikel
+    } catch (err) {
+      console.error('Delete Error:', err);
+      alert('Failed to delete article.');
+    }
+  };
+
+  const handleLike = async () => {
+    if (!article.id) return;
+    if (isLiking) return;
+
+    setIsLiking(true);
+    try {
+      const res = await fetch(`${API_SERVER}/article/${article.id}/like`, {
+        method: 'POST',
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to like article');
+      }
+
+      setArticle((prev) => ({
+        ...prev,
+        likes: (prev.likes || 0) + 1,
+      }));
+    } catch (err) {
+      console.error('Like Error:', err);
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
+  // --- 🔹 Render Status ---
+  if (isLoading) return <StatusDisplay message="Loading article details..." />;
+  if (!pid) return <StatusDisplay message="Cannot find article ID." />;
 
   // --- 🔹 Render Layout ---
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4 flex flex-col md:flex-row gap-8">
+    <div className="relative max-w-7xl mx-auto py-10 px-4 flex flex-col md:flex-row gap-8">
       {/* 🔸 Sidebar di sebelah kiri */}
       <aside className="w-full md:w-80 flex-shrink-0 pt-10 border-r border-gray-200 md:pr-6">
         <SidebarAction />
       </aside>
 
       {/* 🔹 Konten utama */}
-      <main className="flex-grow max-w-4xl">
-        <h1 className="text-3xl font-extrabold text-gray-800 mb-6">
+      <main className="relative flex-grow max-w-4xl bg-white rounded-2xl shadow-md p-6 md:p-10">
+        {/* 🔹 Floating Action Bar */}
+        <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
+          <Link
+            href={`/article/edit?id=${article.id}`}
+            className="bg-amber-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-200 hover:scale-105"
+          >
+            ✏️ Edit
+          </Link>
+
+          <button
+            onClick={handleDelete}
+            className="bg-amber-700 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-200 hover:scale-105"
+          >
+            🗑️ Delete
+          </button>
+
+          <button
+            onClick={handleLike}
+            disabled={isLiking}
+            className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-200 hover:scale-105 disabled:opacity-50"
+          >
+            ❤️ {isLiking ? 'Liking...' : `Like (${article.likes || 0})`}
+          </button>
+        </div>
+
+        {/* 🔹 Judul Artikel */}
+        <h1 className="text-3xl font-extrabold text-gray-800 mb-6 text-center md:text-left">
           Travelling Article
         </h1>
 
+        {/* 🔹 Detail Artikel */}
         <DetailForm article={article} />
 
         {/* 🔸 Message Board */}
-        <div className="mt-8">
+        <div className="mt-10">
           <MessageBoard articleId={article.id} />
         </div>
       </main>
     </div>
   );
 }
+
+//📁 /app/article/review/page.tsx
+// 'use client';
+
+// import React, { useEffect, useState } from 'react';
+// import { useSearchParams } from 'next/navigation';
+// import SidebarAction from '../_components/SidebarActions';
+// import DetailForm from '../_components/DetailForms';
+// import MessageBoard from '../_components/MessageBoard';
+// import StatusDisplay from '../_components/StatusDisplay';
+// import { API_SERVER } from '@/app/config/api-path';
+
+// interface Article {
+//   id?: string;
+//   userId: string;
+//   title: string;
+//   location: string;
+//   Content: string;
+//   photos: string | string[];
+// }
+
+// export default function ReviewArticlePage() {
+//   const searchParams = useSearchParams();
+//   const pid = searchParams.get('id');
+
+//   const [article, setArticle] = useState<Article>({
+//     userId: '',
+//     title: 'Cannot find Article',
+//     location: '',
+//     Content: '',
+//     photos: '',
+//   });
+
+//   const [isLoading, setIsLoading] = useState(true);
+
+//   // --- 🔹 Fetch Data ---
+//   const getArticle = async (articleId: string) => {
+//     const URL = `${API_SERVER}/article/${articleId}`;
+//     try {
+//       const res = await fetch(URL);
+//       if (!res.ok) {
+//         throw new Error(`Failed to fetch article: ${res.status}`);
+//       }
+
+//       const resData = await res.json();
+
+//       if (resData && resData.id) {
+//         setArticle(resData);
+//       } else {
+//         throw new Error('Article data is empty or malformed.');
+//       }
+//     } catch (error) {
+//       console.error('Fetch Error:', error);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   // --- 🔹 Lifecycle Hook ---
+//   useEffect(() => {
+//     if (pid) {
+//       getArticle(pid);
+//     } else {
+//       setIsLoading(false);
+//     }
+//   }, [pid]);
+
+//   // --- 🔹 Render Status ---
+//   if (isLoading) {
+//     return <StatusDisplay message="Loading article details..." />;
+//   }
+
+//   if (!pid) {
+//     return <StatusDisplay message="Cannot find article ID." />;
+//   }
+
+//   // --- 🔹 Render Layout ---
+//   return (
+//     <div className="max-w-7xl mx-auto py-10 px-4 flex flex-col md:flex-row gap-8">
+//       {/* 🔸 Sidebar di sebelah kiri */}
+//       <aside className="w-full md:w-80 flex-shrink-0 pt-10 border-r border-gray-200 md:pr-6">
+//         <SidebarAction />
+//       </aside>
+
+//       {/* 🔹 Konten utama */}
+//       <main className="flex-grow max-w-4xl">
+//         <h1 className="text-3xl font-extrabold text-gray-800 mb-6">
+//           Travelling Article
+//         </h1>
+
+//         <DetailForm article={article} />
+
+//         {/* 🔸 Message Board */}
+//         <div className="mt-8">
+//           <MessageBoard articleId={article.id} />
+//         </div>
+//       </main>
+//     </div>
+//   );
+// }
 
 // // 📁 /app/article/review/page.tsx
 // 'use client';
