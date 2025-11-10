@@ -68,7 +68,7 @@ export default function TeamUpPage() {
               user_name={card.User.nickname}
               image={
                 card.Images?.[0]
-                  ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/${card.Images?.[0].imageName}`
+                  ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/itineraries_photo/${card.Images?.[0].imageName}`
                   : '/istockphoto-1209191587-612x612.jpg'
               }
               onClick={() =>

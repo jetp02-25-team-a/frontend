@@ -242,7 +242,7 @@ export default function GroupItineraryDetalPage() {
                         onClick={() => {
                           // if (day.id) setCurrentDayIndex(day.id);
                           setCurrentDayIndex(index);
-                          console.log('day_index', index);
+
                           setIsIframeVisible(true);
                         }}
                       />
