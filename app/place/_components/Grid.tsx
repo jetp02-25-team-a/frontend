@@ -10,7 +10,7 @@ export default function Grid({ data }: { data: any[] }) {
   const PAGE_SIZE = 12;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+    <div className="grid grid-cols-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 ">
       {data.map((p, idx) => {
         const key =
           p?.id ?? p?.place_id ?? `${p?.type ?? 'x'}-${p?.name ?? 'n'}-${idx}`;

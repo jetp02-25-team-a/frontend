@@ -19,9 +19,9 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
     <>
       <Link
         href={`place/place-info/${spot?.id}`}
-        className="w-full rounded-2xl customize_shadow bg-white overflow-hidden group"
+        className="w-full bg-white overflow-hidden group "
       >
-        <div className="w-full h-[240px] object-cover overflow-hidden">
+        <div className="w-full h-[240px] rounded-t-2xl object-cover overflow-hidden ">
           <img
             src={cover}
             alt={name}
@@ -31,7 +31,7 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
             }
           ></img>
         </div>
-        <div className="w-full flex flex-col p-[12px] gap-[10px] ">
+        <div className="w-full flex flex-col p-[12px] shadow-[0_4px_10px_rgba(0,0,0,0.4)] rounded-b-2xl">
           <div className="flex justify-start items-end gap-[10px]">
             <div>
               <p className="text-[16px]">{name}</p>

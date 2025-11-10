@@ -150,7 +150,7 @@ export default function ExploreSection() {
   const toggleSort = () => setSortOrder((s) => (s === 'desc' ? 'asc' : 'desc'));
 
   return (
-    <section className="max-w-6xl mx-auto px-4 mb-12">
+    <section className="max-w-[1600px] mx-auto px-4 mb-12">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
