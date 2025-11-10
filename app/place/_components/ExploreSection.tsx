@@ -1,12 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Grid from './Grid';
-import { getSpotDetail } from '../lib/singlePlaceAdapter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowDownShortWide,
   faArrowUpShortWide,
-  faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL!;
@@ -18,11 +16,10 @@ type Front = {
   address: string;
   description: string;
   ratingAvg: number;
-  photos: string[]; // Card 只用到 [0]
+  photos: string[];
 };
 
 function normalize(p: Raw): Front {
-  // Photos 可能是 [] 或 [{url}]；rating.avg 是字串
   const photos = Array.isArray(p?.Photos)
     ? p.Photos.map((x: any) => x?.url).filter(Boolean)
     : Array.isArray(p?.photos)
@@ -30,9 +27,7 @@ function normalize(p: Raw): Front {
           .map((x: any) => (typeof x === 'string' ? x : x?.url))
           .filter(Boolean)
       : [];
-
   const ratingAvg = Number(p?.rating?.avg ?? p?.avgScore ?? 0);
-
   return {
     id: p?.id ?? p?.place_id,
     name: p?.name ?? '',
@@ -46,43 +41,117 @@ function normalize(p: Raw): Front {
 export default function ExploreSection() {
   const [activeTab, setActiveTab] = useState<'spot' | 'food'>('spot');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
 
-  // 串接後端 API
-  async function fetchPlaces() {
+  const [data, setData] = useState<Front[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(12);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const requestedPagesRef = useRef<Set<number>>(new Set());
+
+  const buildUrl = (p: number) =>
+    `${API}/api/place?type=${activeTab}&sort=${
+      sortOrder === 'desc' ? 'rank_desc' : 'rank_asc'
+    }&limit=${limit}&page=${p}`;
+
+  async function fetchPage(p: number) {
+    if (loading) return;
+
+    // 👇 若這一頁請過了就不要再打
+    if (requestedPagesRef.current.has(p)) return;
+    requestedPagesRef.current.add(p);
+
     setLoading(true);
+    setError(null);
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
-      const url = `${API}/api/place?type=${activeTab}&sort=${
-        sortOrder === 'desc' ? 'rank_desc' : 'rank_asc'
-      }&limit=12&page=1`;
-      const res = await fetch(url, { cache: 'no-store' });
+      const res = await fetch(buildUrl(p), {
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
 
       const rows: Raw[] = Array.isArray(json?.data) ? json.data : [];
       const mapped = rows.map(normalize).filter((x) => x.id != null);
 
-      // 去重避免 key 撞
-      const dedup = Array.from(new Map(mapped.map((x) => [x.id, x])).values());
-      setData(dedup);
+      // 追加並去重，同時計算本次新增數
+      setData((prev) => {
+        const before = new Map(prev.map((x) => [x.id, x]));
+        const sizeBefore = before.size;
 
-      // 只看一次樣本
-      if (dedup.length) console.log('sample for Card:', dedup[0]);
+        for (const item of mapped) before.set(item.id, item);
+
+        const afterArr = Array.from(before.values());
+        const addedCount = afterArr.length - sizeBefore;
+
+        // 👇 用「新增數」判斷是否還有下一頁
+        //    如果本次完全沒有新增，就算 mapped==limit 也該停下來
+        setHasMore(addedCount > 0);
+
+        return afterArr;
+      });
+    } catch (e: any) {
+      if (e?.name !== 'AbortError') {
+        setError('載入失敗，請稍後再試');
+      }
     } finally {
       setLoading(false);
     }
   }
 
-  // 每次切換 tab 或排序時重新抓
+  // 切換 Tab / 排序時重置分頁與資料
   useEffect(() => {
-    fetchPlaces();
+    setData([]);
+    setPage(1);
+    setHasMore(true);
+    setError(null);
+    // 👇 重置已請求紀錄
+    requestedPagesRef.current = new Set();
+    // 👇 也取消尚未完成的請求
+    abortRef.current?.abort();
   }, [activeTab, sortOrder]);
+
+  // 首頁＆每次 page 變更就抓資料
+  useEffect(() => {
+    if (hasMore) fetchPage(page);
+  }, [page, hasMore]);
+
+  // IntersectionObserver：載入時暫停觀察，載完再觀察
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && !loading && hasMore) {
+          setPage((p) => p + 1);
+        }
+      },
+      { root: null, rootMargin: '200px', threshold: 0 }
+    );
+
+    // 初始觀察
+    if (!loading) io.observe(el);
+
+    return () => io.disconnect();
+  }, [loading, hasMore, activeTab, sortOrder]);
 
   const toggleSort = () => setSortOrder((s) => (s === 'desc' ? 'asc' : 'desc'));
 
   return (
     <section className="max-w-6xl mx-auto px-4 mb-12">
-      {/* Header 區塊 */}
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
           <button
@@ -107,7 +176,7 @@ export default function ExploreSection() {
           </button>
         </div>
 
-        {/* 排序選單 */}
+        {/* 排序 */}
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-700">排序：</span>
           <button
@@ -137,8 +206,37 @@ export default function ExploreSection() {
         </div>
       </div>
 
-      {/* Grid 卡片 */}
+      {/* Cards */}
       <Grid data={data} />
+
+      {/* 狀態/載入更多 */}
+      {error && (
+        <div className="mt-4 text-center text-sm text-red-500">{error}</div>
+      )}
+
+      <div ref={sentinelRef} className="h-10" />
+
+      {loading && (
+        <div className="mt-4 text-center text-sm text-gray-500">載入中…</div>
+      )}
+
+      {!hasMore && data.length > 0 && (
+        <div className="mt-4 text-center text-xs text-gray-400">
+          — 沒有更多了 —
+        </div>
+      )}
+
+      {/* 後備按鈕（如果瀏覽器不支援 IO 或想手動載入） */}
+      {!loading && hasMore && (
+        <div className="mt-3 flex justify-center">
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            className="px-4 py-2 border rounded-md text-sm hover:bg-gray-50"
+          >
+            載入更多
+          </button>
+        </div>
+      )}
     </section>
   );
 }
