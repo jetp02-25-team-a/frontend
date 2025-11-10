@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { AccDataCard, CardData } from '../../_types';
+import { AccDataCard } from '../../_types';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import ComponentsAccCard from './AccCard';
 
