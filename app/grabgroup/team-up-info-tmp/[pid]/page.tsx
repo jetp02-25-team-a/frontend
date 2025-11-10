@@ -89,10 +89,10 @@ export default function PlacePage() {
   }, [pid]);
 
   useEffect(() => {
-    console.log('data change=>', data);
     if (data?.success) {
       setItineraryList(data.data[0]);
     }
+    console.log('data===M>', itineraryList);
   }, [data]);
 
   function changeTime(time: string) {
@@ -105,7 +105,7 @@ export default function PlacePage() {
   const images = itineraryList?.Itineraries?.[0].Images;
   const comments = itineraryList?.Itineraries?.[0].ItineraryComments;
   const toImgUrl = (fileName: string) => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/${fileName}`;
+    return `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/itineraries_photo/${fileName}`;
   };
   const [showAll, setShowAll] = useState(false);
   const btnRef = useRef<HTMLImageElement>(null); //抓img
