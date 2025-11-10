@@ -1,4 +1,3 @@
-// 📁 /app/article/review/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -6,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import SidebarAction from '../_components/SidebarActions';
 import DetailForm from '../_components/DetailForms';
 import MessageBoard from '../_components/MessageBoard';
-import StatusDisplay from '../_components/StatusDisplay'; // <--- DI-IMPORT DARI FILE BARU
+import StatusDisplay from '../_components/StatusDisplay';
 import { API_SERVER } from '@/app/config/api-path';
 
 interface Article {
@@ -32,53 +31,56 @@ export default function ReviewArticlePage() {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- Fungsi Fetch Data ---
+  // --- 🔹 Fetch Data ---
   const getArticle = async (articleId: string) => {
     const URL = `${API_SERVER}/article/${articleId}`;
     try {
       const res = await fetch(URL);
-
       if (!res.ok) {
         throw new Error(`Failed to fetch article: ${res.status}`);
       }
 
       const resData = await res.json();
 
-      if (resData.id) {
+      if (resData && resData.id) {
         setArticle(resData);
       } else {
         throw new Error('Article data is empty or malformed.');
       }
-    } catch (e) {
-      console.error('Fetch Error:', e);
+    } catch (error) {
+      console.error('Fetch Error:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- Lifecycle Hook ---
+  // --- 🔹 Lifecycle Hook ---
   useEffect(() => {
     if (pid) {
       getArticle(pid);
     } else {
-      // Penting: Hentikan loading jika ID hilang
       setIsLoading(false);
     }
   }, [pid]);
 
-  // --- Render Status ---
+  // --- 🔹 Render Status ---
   if (isLoading) {
-    return <StatusDisplay message="Detail Article..." />;
+    return <StatusDisplay message="Loading article details..." />;
   }
 
   if (!pid) {
-    return <StatusDisplay message="Cannot find ID Article. " />;
+    return <StatusDisplay message="Cannot find article ID." />;
   }
 
-  // --- Render Halaman Utama ---
+  // --- 🔹 Render Layout ---
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4 flex gap-8">
-      {/* 🔹 Konten Utama */}
+    <div className="max-w-7xl mx-auto py-10 px-4 flex flex-col md:flex-row gap-8">
+      {/* 🔸 Sidebar di sebelah kiri */}
+      <aside className="w-full md:w-80 flex-shrink-0 pt-10 border-r border-gray-200 md:pr-6">
+        <SidebarAction />
+      </aside>
+
+      {/* 🔹 Konten utama */}
       <main className="flex-grow max-w-4xl">
         <h1 className="text-3xl font-extrabold text-gray-800 mb-6">
           Travelling Article
@@ -86,19 +88,117 @@ export default function ReviewArticlePage() {
 
         <DetailForm article={article} />
 
-        {/* Bagian Papan Pesan */}
+        {/* 🔸 Message Board */}
         <div className="mt-8">
           <MessageBoard articleId={article.id} />
         </div>
       </main>
-
-      {/* 🔸 Sidebar */}
-      <aside className="w-80 flex-shrink-0 pt-10">
-        <SidebarAction />
-      </aside>
     </div>
   );
 }
+
+// // 📁 /app/article/review/page.tsx
+// 'use client';
+
+// import React, { useEffect, useState } from 'react';
+// import SidebarAction from '../_components/SidebarActions';
+// import { useSearchParams } from 'next/navigation';
+
+// import DetailForm from '../_components/DetailForms';
+// import MessageBoard from '../_components/MessageBoard';
+// import StatusDisplay from '../_components/StatusDisplay'; // <--- DI-IMPORT DARI FILE BARU
+// import { API_SERVER } from '@/app/config/api-path';
+
+// interface Article {
+//   id?: string;
+//   userId: string;
+//   title: string;
+//   location: string;
+//   Content: string;
+//   photos: string | string[];
+// }
+
+// export default function ReviewArticlePage() {
+//   const searchParams = useSearchParams();
+//   const pid = searchParams.get('id');
+
+//   const [article, setArticle] = useState<Article>({
+//     userId: '',
+//     title: 'Cannot find Article',
+//     location: '',
+//     Content: '',
+//     photos: '',
+//   });
+
+//   const [isLoading, setIsLoading] = useState(true);
+
+//   // --- Fungsi Fetch Data ---
+//   const getArticle = async (articleId: string) => {
+//     const URL = `${API_SERVER}/article/${articleId}`;
+//     try {
+//       const res = await fetch(URL);
+
+//       if (!res.ok) {
+//         throw new Error(`Failed to fetch article: ${res.status}`);
+//       }
+
+//       const resData = await res.json();
+
+//       if (resData.id) {
+//         setArticle(resData);
+//       } else {
+//         throw new Error('Article data is empty or malformed.');
+//       }
+//     } catch (e) {
+//       console.error('Fetch Error:', e);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   // --- Lifecycle Hook ---
+//   useEffect(() => {
+//     if (pid) {
+//       getArticle(pid);
+//     } else {
+//       // Penting: Hentikan loading jika ID hilang
+//       setIsLoading(false);
+//     }
+//   }, [pid]);
+
+//   // --- Render Status ---
+//   if (isLoading) {
+//     return <StatusDisplay message="Detail Article..." />;
+//   }
+
+//   if (!pid) {
+//     return <StatusDisplay message="Cannot find ID Article. " />;
+//   }
+
+//   // --- Render Halaman Utama ---
+//   return (
+//     <div className="max-w-7xl mx-auto py-10 px-4 flex gap-8">
+//       {/* 🔹 Konten Utama */}
+//       <main className="flex-grow max-w-4xl">
+//         <h1 className="text-3xl font-extrabold text-gray-800 mb-6">
+//           Travelling Article
+//         </h1>
+
+//         <DetailForm article={article} />
+
+//         {/* Bagian Papan Pesan */}
+//         <div className="mt-8">
+//           <MessageBoard articleId={article.id} />
+//         </div>
+//       </main>
+
+//       {/* 🔸 Sidebar */}
+//       <aside className="w-80 flex-shrink-0 pt-10">
+//         <SidebarAction />
+//       </aside>
+//     </div>
+//   );
+// }
 
 // 'use client';
 
