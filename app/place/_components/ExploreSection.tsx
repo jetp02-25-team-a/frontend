@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react';
 import Grid from './Grid';
 import { getSpotDetail } from '../lib/singlePlaceAdapter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpDown } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowDownShortWide,
+  faArrowUpShortWide,
+  faMagnifyingGlass,
+} from '@fortawesome/free-solid-svg-icons';
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
@@ -74,6 +78,8 @@ export default function ExploreSection() {
     fetchPlaces();
   }, [activeTab, sortOrder]);
 
+  const toggleSort = () => setSortOrder((s) => (s === 'desc' ? 'asc' : 'desc'));
+
   return (
     <section className="max-w-6xl mx-auto px-4 mb-12">
       {/* Header 區塊 */}
@@ -81,7 +87,7 @@ export default function ExploreSection() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab('spot')}
-            className={`px-4 py-1.5 rounded-full text-sm transition ${
+            className={`px-4 py-1.5 rounded-full text-sm transition hover:cursor-pointer ${
               activeTab === 'spot'
                 ? 'bg-yellow-500 text-white shadow'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -91,7 +97,7 @@ export default function ExploreSection() {
           </button>
           <button
             onClick={() => setActiveTab('food')}
-            className={`px-4 py-1.5 rounded-full text-sm transition ${
+            className={`px-4 py-1.5 rounded-full text-sm transition hover:cursor-pointer ${
               activeTab === 'food'
                 ? 'bg-yellow-500 text-white shadow'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -103,16 +109,30 @@ export default function ExploreSection() {
 
         {/* 排序選單 */}
         <div className="flex items-center gap-2">
-          <label htmlFor="sort" className="text-sm text-gray-700">
-            排序：
-          </label>
+          <span className="text-sm text-gray-700">排序：</span>
           <button
-            id="sort"
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-            className="border rounded-md px-3 py-1.5 text-sm focus:outline-none"
+            onClick={toggleSort}
+            className="flex items-center gap-2 border rounded-md px-3 py-1.5 text-sm hover:bg-gray-50 focus:outline-none hover:cursor-pointer"
+            title={sortOrder === 'desc' ? '星等：高 → 低' : '星等：低 → 高'}
+            aria-label="切換星等排序"
           >
-            <FontAwesomeIcon icon={faUpDown} />
+            {sortOrder === 'desc' ? (
+              <>
+                <FontAwesomeIcon
+                  icon={faArrowDownShortWide}
+                  className="text-yellow-500"
+                />
+                高→低
+              </>
+            ) : (
+              <>
+                <FontAwesomeIcon
+                  icon={faArrowUpShortWide}
+                  className="text-yellow-500"
+                />
+                低→高
+              </>
+            )}
           </button>
         </div>
       </div>
