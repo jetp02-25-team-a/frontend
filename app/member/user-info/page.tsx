@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 //引入hooks(自定義)
 import { useFetch } from '@/hooks/useFetch';
 import { useAuth } from '../../../hooks/use-Auth';
+import ListButton from './_components/list-button';
+import Checklist from './_components/checklist';
 
 const friend_data = [
   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
@@ -55,6 +57,7 @@ interface PersonMessage {
 
 export default function UserInfoPage() {
   const [openChats, setOpenChats] = useState<ChatInterface[]>([]); //所有聊天室資訊 小視窗
+  const [options, setOptions] = useState<string>('通知');
   //分romms 跟 all_friends
   const [contact, setContact] = useState<any>({
     allRoomsLatestMessages: [],
@@ -96,12 +99,57 @@ export default function UserInfoPage() {
   return (
     <>
       <div className="grid grid-cols-[80%_20%]">
+        {/* 個人資訊區 */}
         <div className="bg-light-orange relative">
-          登入id：{user?.id}
-          <hr />
-          登入email：{user?.email}
-          <hr />
-          登入nickname：{user?.nickname}
+          <div className="flex flex-col items-center py-16">
+            {/* 個人資訊區 */}
+            <div>pppppp</div>
+            {/* btns */}
+            <div className="w-[900px]">
+              <div className="flex">
+                <ListButton
+                  name="發文"
+                  active={false}
+                  onClick={() => setOptions('發文')}
+                />
+                <ListButton
+                  name="收藏景點"
+                  active={false}
+                  onClick={() => setOptions('收藏景點')}
+                />
+                <ListButton
+                  name="好友"
+                  active={false}
+                  onClick={() => setOptions('好友')}
+                />
+                <ListButton
+                  name="通知"
+                  active={true}
+                  onClick={() => setOptions('通知')}
+                />
+              </div>
+              <div className=" px-5 pb-6 rounded-b-3xl bg-white ">
+                {/* 顯示區域 */}
+                <div>
+                  {options === '發文' && <>發表文章</>}
+                  {options === '收藏景點' && <>收藏景點</>}
+                  {options === '好友' && <>好友區</>}
+                  {options === '通知' && (
+                    <>
+                      {Array(5)
+                        .fill(0)
+                        .map((e: any, i: number) => {
+                          return (
+                            <Checklist key={i} title="xxxxxx" type="agree" />
+                          );
+                        })}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          {/*  */}
           <div className="absolute right-0 bottom-0 flex gap-2.5 items-end">
             {openChats.map((chatroom, index) => {
               return (

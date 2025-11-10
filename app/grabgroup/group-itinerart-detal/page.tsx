@@ -161,7 +161,7 @@ export default function GroupItineraryDetalPage() {
                   ).toISOString(); // 加一天
                 //創建新天的資料
                 const newDay = {
-                  itineraryId: itineraryId,
+                  itineraryId: Number(itineraryId),
                   dayDate: dayString,
                   startTime: lastDay?.startTime ?? '2025-11-06T08:53:23.234Z',
                   Nodes: [],
