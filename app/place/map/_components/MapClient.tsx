@@ -92,6 +92,7 @@ export default function MapClient() {
   const router = useRouter();
 
   // ✅ 改：分別從 URL 取 address / region（保留 q 作為相容備援）
+  const type = sp.get('type')?.trim() || '';
   const address = sp.get('address')?.trim() || '';
   const region = sp.get('region')?.trim() || '';
   const legacyQ = sp.get('q')?.trim() || '';
@@ -104,7 +105,7 @@ export default function MapClient() {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -116,7 +117,7 @@ export default function MapClient() {
     setPage(1);
     setHasMore(false);
     setErr(null);
-  }, [address, region, legacyQ]);
+  }, [type, address, region, legacyQ]);
 
   // 抓一頁
   async function fetchPage(nextPage: number) {
@@ -127,6 +128,7 @@ export default function MapClient() {
 
       const params = new URLSearchParams();
       // ✅ 依照實際輸入帶參數；若只有舊版 q，就帶 q（相容模式）
+      if (type) params.set('type', type);
       if (address) params.set('address', address);
       if (region) params.set('region', region);
       if (!address && !region && legacyQ) params.set('q', legacyQ);
@@ -147,6 +149,20 @@ export default function MapClient() {
       setPlaces((prev) => (nextPage === 1 ? data : [...prev, ...data]));
       setHasMore(data.length === PAGE_SIZE);
       setPage(nextPage);
+
+      if (nextPage === 1 && data.length > 0) {
+        const map = mapRef.current;
+        if (map) {
+          const pts = data.map((p) => [p.latitude, p.longitude]) as [
+            number,
+            number,
+          ][];
+          const bounds = L.latLngBounds(
+            pts.map(([lat, lng]) => L.latLng(lat, lng))
+          );
+          map.fitBounds(bounds.pad(0.2));
+        }
+      }
     } catch (e: any) {
       setErr(e?.message || '搜尋失敗');
     } finally {
@@ -160,7 +176,7 @@ export default function MapClient() {
     if (!hasQuery) return; // 無條件就顯示預設中心
     fetchPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasQuery, address, region, legacyQ]);
+  }, [type, hasQuery, address, region, legacyQ]);
 
   // infinite scroll：觀察尾端 sentinel
   useEffect(() => {
@@ -243,7 +259,6 @@ export default function MapClient() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <ZoomControl position="topright" />
 
         {places.map((p) => (
           <Marker

@@ -16,6 +16,7 @@ export default function SearchBar({
   const [region, setRegion] = useState('');
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [type, setType] = useState<'spot' | 'food' | ''>('');
   const router = useRouter();
 
   function go() {
@@ -23,6 +24,11 @@ export default function SearchBar({
 
     const a = address.trim();
     const r = region.trim();
+
+    const params = new URLSearchParams();
+
+    // type 篩選上去
+    if (type) params.set('type', type);
 
     // 1) 兩欄皆空：導到 /map（預設中心）
     if (!a && !r) {
@@ -32,7 +38,7 @@ export default function SearchBar({
     }
 
     // 2) 其一有值：導到 /map?q=...
-    const params = new URLSearchParams();
+
     if (a) params.set('address', a);
     if (r) params.set('region', r);
 
@@ -50,8 +56,23 @@ export default function SearchBar({
   return (
     <section className="max-w-2xl mx-auto mt-8 mb-6 px-4 text-center">
       <div className="border-2 border-[#D9D9D9] bg-white rounded-full h-[64px] customize_shadow flex items-center justify-between pl-[20px] pr-[10px] py-[10px]">
+        {/* 🔹 分類選單 (spot / food) */}
+        <div className="flex items-center gap-2">
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value as 'spot' | 'food' | '')}
+            disabled={loading}
+            className="focus:outline-none bg-transparent text-sm text-gray-700"
+          >
+            <option value="">全部類別</option>
+            <option value="spot">景點</option>
+            <option value="food">美食</option>
+          </select>
+        </div>
+
         {/* 縣市（address） */}
-        <div className="flex items-center w-[200px] justify-between">
+        <div className="flex items-center w-[200px] justify-between gap-[10px]">
+          <div className="customize_gray h-[20px] w-[2px] " />
           <input
             type="text"
             value={address}
