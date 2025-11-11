@@ -3,6 +3,13 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useFetch } from '../_lib/_hooks';
+import {
+  useFavorites,
+  useGeolocation,
+  useInfiniteScroll,
+} from '../_lib/_hooks';
+
+import { API_SERVER } from '@/config/api-path';
 
 import AccCard from '../_components/client/AccCard';
 import Section from '../_components/server/Section';
@@ -27,51 +34,35 @@ export default function SearchPage() {
 
   // 用 useFetch 抓搜尋結果
   const { data, loading, error } = useFetch<SearchResponse>(
-    `http://localhost:3005/api/m3/accommodations/search?${query}`,
+    `${API_SERVER}/m3/accommodations/search?${query}`,
     { withAuth: false } // 搜尋 API 不需要 token
   );
+
+  // 收藏邏輯
+  const { favorites, toggleFavorite } = useFavorites(items);
+
+  // 監聽搜尋參數變化，直接清空 items
+  useEffect(() => {
+    setItems([]);
+    setCursor(null);
+  }, [params]);
 
   // 每次 data 更新 → append 到 items
   useEffect(() => {
     if (data?.data) {
-      setItems((prev) => (cursor ? [...prev, ...data.data] : data.data));
+      setItems((prev) => [...prev, ...data.data]);
     }
   }, [data]);
 
-  // IntersectionObserver → 觸發下一頁
-  useEffect(() => {
-    if (!sentinelRef.current) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && data?.meta.hasNextPage && !loading) {
-          setCursor(data.meta.endCursor); // 🔑 用 endCursor 當下一頁 cursor
-        }
-      },
-      { rootMargin: '200px' }
-    );
-    observer.observe(sentinelRef.current);
-    return () => observer.disconnect();
-  }, [data, loading]);
-
-  // 取得定位（可用在地圖）
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
-    null
-  );
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setCoords({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          });
-        },
-        (err) => {
-          console.error('定位失敗:', err);
-        }
-      );
+  // Infinite Scroll Hook
+  useInfiniteScroll(sentinelRef, !!data?.meta.hasNextPage, loading, () => {
+    if (data?.meta.endCursor) {
+      setCursor(data.meta.endCursor); // 🔑 用 endCursor 當下一頁 cursor
     }
-  }, []);
+  });
+
+  // Geolocation Hook
+  const coords = useGeolocation();
 
   return (
     <>
@@ -84,26 +75,31 @@ export default function SearchPage() {
       <Section>
         <div className="flex w-full">
           {/* 左欄：卡片列表 */}
-          <div className="flex-1 max-w-[900px] p-4 overflow-y-auto">
+          <div className="flex-1 max-w-[900px] p-4">
             <div className="flex flex-wrap gap-6">
-              {items.map((item, index) => (
+              {items.map((item) => (
                 <AccCard
-                  key={`${item.id}-${index}`}
+                  key={item.id}
                   id={item.id}
                   imageUrl={item.mainImage}
                   imageAlt={item.name}
                   rating={item.averageRating}
                   name={item.name}
                   location={item.city}
-                  isFavorite={false}
-                  onToggleFavorite={() => {}}
+                  isFavorite={favorites.get(item.id) || false}
+                  onToggleFavorite={() => toggleFavorite(item.id)}
                 />
               ))}
             </div>
 
             {/* 載入中 / 無更多 / sentinel */}
             <div className="mt-6 flex justify-center">
-              {loading && <div className="text-sm text-gray-500">載入中…</div>}
+              {loading && (
+                <div className="text-sm text-gray-500 flex items-center gap-2">
+                  <span className="loader border-2 border-gray-300 rounded-full w-4 h-4 animate-spin" />
+                  載入中…
+                </div>
+              )}
               {error && (
                 <div className="text-sm text-red-500">
                   錯誤: {error.message}
@@ -122,7 +118,13 @@ export default function SearchPage() {
           <div className="flex-1 border-gray-300">
             <div className="sticky top-0 h-screen">
               <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-2xl">
-                <span className="text-gray-500">地圖互動區</span>
+                {coords ? (
+                  <span className="text-gray-500">
+                    目前定位：{coords.lat}, {coords.lng}
+                  </span>
+                ) : (
+                  <span className="text-gray-500">地圖互動區</span>
+                )}
               </div>
             </div>
           </div>
