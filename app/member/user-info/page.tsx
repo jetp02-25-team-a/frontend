@@ -271,11 +271,11 @@ export default function UserInfoPage() {
                           return (
                             <Checklist
                               key={i}
-                              title={`等待${e.itinerary.title} 加入中...`}
+                              title={`申請${e.itinerary.title}`}
                               snederName={e.receiver.nickname}
                               senderAvatar={e.receiver.avatar}
                               refresh={handelAllInviteMessage}
-                              type="agree"
+                              type="answer"
                             />
                           );
                         })}

@@ -65,7 +65,8 @@ export default function Checklist({
       </div>
       <h2 className="text-2xl">{title}</h2>
       {type === 'answer' && (
-        <InfoButton button_name="已加入團隊" state="solid" />
+        // <InfoButton button_name="已加入團隊" state="solid" />
+        <p className="text-gray-400">等待中....</p>
       )}
       {type === 'agree' && (
         <div className="flex gap-2.5">
