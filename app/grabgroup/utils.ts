@@ -1,6 +1,6 @@
 export function numberToChinese(num: number) {
-  const ch = ['一', '二', '三', '四', '五', '六', '七'];
-  if (num < 1 || num > 7) throw new Error('只接受 1~7 的數字');
+  const ch = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  if (num < 1 || num > 9) throw new Error('只接受 1~7 的數字');
   return ch[num - 1];
 }
 

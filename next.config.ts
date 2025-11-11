@@ -29,6 +29,17 @@ const nextConfig: NextConfig = {
         port: '3005',
         pathname: '/**',
       },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'maps.googleapis.com' },
+      { protocol: 'https', hostname: 'lh4.googleusercontent.com' },
+      { protocol: 'https', hostname: 'lh5.googleusercontent.com' },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3005', // 要與實際圖片的 port 一致
+        pathname: '/images/**',
+      },
     ],
   },
   devIndicators: false,

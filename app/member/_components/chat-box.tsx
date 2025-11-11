@@ -52,8 +52,8 @@ export default function ChatBox({
   const [message, setMessage] = useState<string>(''); //發送的訊息textarea內容
   // const [socket, setSocket] = useState<any>(null);
 
-  const textAreaRef = useRef<HTMLTextAreaElement>(null); //dom
-  const messagesRef = useRef<HTMLDivElement>(null); //dom
+  // const textAreaRef = useRef<HTMLTextAreaElement>(null); //dom
+  const messagesRef = useRef<HTMLDivElement>(null); //dom訊息卷軸
   const { user, login, logout, getAuthHeader, isReady } = useAuth();
 
   const { socket } = useSocket();
@@ -73,36 +73,6 @@ export default function ChatBox({
     };
   }, [socket, roomId, userId]);
 
-  // useEffect(() => {
-  //   const API_URL = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
-  //   const socket = io(API_URL, { withCredentials: true });
-  //   setSocket(socket); //把我創建的socket 放到react state 中 讓function 外面的可以使用
-
-  //   //自動連線訊息
-  //   socket.on('connect', () => {
-  //     console.log('已連線:', socket.id);
-  //   });
-  //   if (roomId) {
-  //     //發送房間號碼
-  //     socket.emit('joinRoomId', roomId);
-  //   }
-  //   if (userId) {
-  //     //發送對方id
-  //     socket.emit('friendID', userId);
-  //   }
-
-  //   // const content = '這是自己以外都可以看到的訊息';
-
-  //   //收到訊息時運作
-  //   // socket.on('public', (msg) => {
-  //   //   console.log('後台來的訊息:', msg);
-  //   // });
-
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [roomId]);
-
   //開啟時讀取所有歷史訊息
   const roomUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/chat/allmessage?roomId=${roomId}`;
   const receiverUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/chat/allmessage?receiverId=${userId}`;
@@ -119,18 +89,34 @@ export default function ChatBox({
     }
   }, [allMessage]);
 
+  //1.確保訊息有清空 2渲染畫面
+  useEffect(() => {
+    refetch();
+  }, [message]);
+
   //發送訊息
   const sendMessage = (msg: string) => {
     if (!socket || msg.length < 1) return; //輸入為空
+    // setMessage(''); //清空輸入欄位state
+    // console.log('現在的message', message);
     socket.emit(
       'chat',
       roomId
-        ? { providerId: user?.id, roomId: roomId, content: msg }
-        : { providerId: user?.id, acceptId: userId, content: msg }
-    ); // 發送給後端 判斷是room還是單人
-    setMessage(''); //清空輸入欄位state
-    if (textAreaRef.current) textAreaRef.current.value = ''; //清空輸入欄位
-    refetch();
+        ? { providerId: user?.id, roomId: roomId, content: msg } // 發送給後端 判斷是room還是單人
+        : { providerId: user?.id, acceptId: userId, content: msg },
+      (response: { success: boolean; message?: string }) => {
+        // 伺服器確認已收到
+        if (response.success) {
+          console.log('訊息已成功送出');
+          setMessage(''); //清空輸入欄位state
+        } else {
+          console.error('訊息送出失敗：', response.message);
+        }
+      }
+    );
+    // setMessage(''); //清空輸入欄位state
+    // if (textAreaRef.current) textAreaRef.current.value = ''; //清空輸入欄位
+    // setTimeout(() => refetch(), 200);//延遲發送
   };
 
   return (
@@ -210,13 +196,13 @@ export default function ChatBox({
               placeholder="輸入訊息"
               className="border border-gray-400 rounded-xl px-2 py-[5px] w-full resize-none"
               rows={1}
-              ref={textAreaRef}
+              // ref={textAreaRef}
+              value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   sendMessage(message);
-                  setMessage('');
                 }
               }}
             />

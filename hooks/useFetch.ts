@@ -6,7 +6,7 @@ interface UseFetchOptions {
   headers?: Record<string, string>;
 }
 
-export function useFetch<T = any>(url: string, options: UseFetchOptions = {}) {
+export function useFetch<T = any>(url?: string, options: UseFetchOptions = {}) {
   const { method = 'GET', body = null, headers = {} } = options;
 
   const [data, setData] = useState<T | null>(null);
@@ -15,6 +15,7 @@ export function useFetch<T = any>(url: string, options: UseFetchOptions = {}) {
 
   const fetchData = async () => {
     setLoading(true);
+    if (!url) return;
     try {
       const token = localStorage.getItem('BackpackUserInfo');
       let newToken;

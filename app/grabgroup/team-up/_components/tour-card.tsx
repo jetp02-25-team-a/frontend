@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface TourCardProps {
   title: string;
@@ -6,6 +6,7 @@ interface TourCardProps {
   avatar: string;
   user_name: string;
   image: string;
+  onClick: () => void;
 }
 
 export default function TourCard({
@@ -14,10 +15,14 @@ export default function TourCard({
   avatar,
   user_name,
   image,
+  onClick,
 }: TourCardProps) {
   return (
     <>
-      <div className="w-[303px] rounded-2xl customize_shadow bg-white overflow-hidden group">
+      <div
+        className="w-[303px] rounded-2xl customize_shadow bg-white overflow-hidden group"
+        onClick={onClick}
+      >
         <div className="w-full h-[259px] object-cover overflow-hidden">
           <img
             src={image}
@@ -33,10 +38,10 @@ export default function TourCard({
             />
             <div>
               <p className="text-base">{user_name}</p>
-              <p className="text-2xl">{title}</p>
+              <p className="text-2xl">{`${title?.length > 7 ? title.slice(0, 7) + '..' : title}`}</p>
             </div>
           </div>
-          <p className="text-sm">{description.slice(0, 100)}</p>
+          <p className="text-sm">{description?.slice(0, 100)}</p>
         </div>
       </div>
     </>

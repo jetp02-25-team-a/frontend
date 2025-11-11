@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/use-Auth';
 import JoinButton from '../components/ui/join-button';
 import { Roboto } from 'next/font/google';
+import Link from 'next/link';
 const roboto = Roboto({
   subsets: ['latin'],
   weight: ['400', '700'],
@@ -20,7 +21,9 @@ export default function Home() {
             <h1 className={`${roboto.className} text-[36px] font-bold`}>
               想揪團？直接邀請好友一起參加
             </h1>
-            <JoinButton content="加入我們" />
+            <Link href="/grabgroup/team-up">
+              <JoinButton content="加入我們" />
+            </Link>
           </div>
           <p>
             不必再用紙筆或聊天室零散討論，只要在線上就能即時編輯旅遊行程，把景點、美食、交通一次排好

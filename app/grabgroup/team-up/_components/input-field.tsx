@@ -15,16 +15,24 @@ export default function InputField() {
         <div className="flex items-center w-[200px] justify-between">
           <p className="text-gray-500 shrink-0">目的地:</p>
           <input
+            list="area"
             type="text"
-            placeholder="＃台北"
+            placeholder="＃台北市"
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
           />
+          <datalist id="area">
+            <option value="台北市"></option>
+            <option value="新北市"></option>
+            <option value="桃園市"></option>
+            <option value="台中市"></option>
+            <option value="高雄市"></option>
+          </datalist>
         </div>
         {/*  */}
         <div className="flex items-center w-[200px] gap-[10px]">
           <div className="customize_gray h-5 w-0.5 shrink-0"></div>
-          <p className="text-gray-500 shrink-0">目的地:</p>
+          <p className="text-gray-500 shrink-0">出發時間:</p>
           <DatePicker
             selected={startDate}
             onChange={(date) => setStartDate(date)}
