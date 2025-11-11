@@ -10,6 +10,10 @@ import ListButton from './_components/list-button';
 import Checklist from './_components/checklist';
 import ContactList from './_components/contactlist';
 import OpenChatWindows from './_components/open-chat-windows';
+import UserCard from '../_components/user-card';
+import { ApiResponse } from '../_interfaces/userData';
+import { API_SERVER } from '../../config/api-path';
+import { IMAGE_PATH } from '../../config/image-path';
 
 const friend_data = [
   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
@@ -142,10 +146,24 @@ interface InviteMessage {
   ];
 }
 
+const userDataInit: ApiResponse = {
+  success: false,
+  data: {
+    id: 0,
+    email: '',
+    nickname: null,
+    fullName: null,
+    avatar: null,
+    description: null,
+    point: 0,
+  },
+};
+
 export default function UserInfoPage() {
   const [openChats, setOpenChats] = useState<ChatInterface[]>([]); //所有聊天室資訊 小視窗
   const [options, setOptions] = useState<string>('通知');
   const [allInviteMessage, setAllInviteMessage] = useState<InviteMessage>();
+
   //分romms 跟 all_friends
   const [contact, setContact] = useState<any>({
     allRoomsLatestMessages: [],
@@ -160,6 +178,19 @@ export default function UserInfoPage() {
   useEffect(() => {
     console.log('contact=>', contact);
   }, [contact]);
+
+  //使用者資料
+  const [userData, setUserData] = useState(userDataInit);
+  //資料拿取
+  const getUserData = async () => {
+    const response = await fetch(`${API_SERVER}/user/${user.id}`);
+    const data = await response.json();
+    setUserData(data);
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, [user.id]);
 
   //打印出來
   useEffect(() => {
@@ -210,7 +241,17 @@ export default function UserInfoPage() {
         <div className="bg-light-orange relative">
           <div className="flex flex-col items-center py-16">
             {/* 個人資訊區 */}
-            <div>pppppp</div>
+            <UserCard
+              avatar={
+                userData.data?.avatar
+                  ? `${IMAGE_PATH}${userData.data.avatar}`
+                  : '/avatar_default.png'
+              }
+              name={userData.data?.nickname || '尚未設定暱稱'}
+              description={userData.data?.description || '向別人介紹你自己!'}
+              id={user.id}
+            />
+
             {/* btns */}
             <div className="w-[900px]">
               <div className="flex">

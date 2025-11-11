@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/use-Auth';
+import { useAuth, useAuthRequired } from '../../hooks/use-Auth';
 import { API_SERVER } from '../config/api-path';
 import { ApiResponse } from './_interfaces/userData';
 import { IMAGE_PATH } from '../config/image-path';
@@ -21,6 +21,7 @@ const userDataInit: ApiResponse = {
 };
 
 export default function M6Page() {
+  useAuthRequired();
   const { user } = useAuth();
   const [userData, setUserData] = useState(userDataInit);
 
