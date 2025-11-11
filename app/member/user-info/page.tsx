@@ -31,57 +31,6 @@ interface ChatInterface {
   room_id: number | null;
 }
 
-// interface RoomData {
-//   createdAt: string;
-//   id: number;
-//   roomName: string;
-// }
-// interface RoomMessage {
-//   LatestMessage: {
-//     content: string;
-//     isRead: boolean;
-//     senderId: number;
-//     receiverId: number;
-//   };
-//   roomData: RoomData;
-// }
-// interface friendData {
-//   avatar: string | null;
-//   id: number;
-//   nickname: string;
-// }
-
-// interface PersonMessage {
-//   LatestMessage: {
-//     content: string;
-//     isRead: boolean;
-//     senderId: number;
-//     receiverId: number;
-//   };
-//   friendData: friendData;
-// }
-
-// interface InviteMessage {
-//   id: number;
-//   itineraryId: number;
-//   senderId: number;
-//   receiverId: number;
-//   status: number;
-//   createdAt: string;
-//   updatedAt: string;
-//   itinerary: {
-//     userId: number;
-//     title: string;
-//   };
-//   sender: {
-//     id: number;
-//     nickname: string;
-//     fullName: string;
-//     avatar: string | null;
-//   };
-
-// }
-
 interface InviteMessage {
   received: [
     {
@@ -192,7 +141,7 @@ export default function UserInfoPage() {
     getUserData();
   }, [user.id]);
 
-  //打印出來
+  //有資料設定contact
   useEffect(() => {
     if (data) {
       setContact(data.data);
@@ -213,7 +162,6 @@ export default function UserInfoPage() {
   const getALlInviteMessageUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/all-invite/${user?.id}`;
 
   const handelAllInviteMessage = async () => {
-    console.log('dwon');
     try {
       const reult = await fetch(getALlInviteMessageUrl);
       if (reult.ok) {
@@ -230,9 +178,9 @@ export default function UserInfoPage() {
     if (user?.id) handelAllInviteMessage();
   }, [user]);
 
-  useEffect(() => {
-    console.log('setAllInviteMessage==>', allInviteMessage);
-  }, [allInviteMessage]);
+  // useEffect(() => {
+  //   console.log('setAllInviteMessage==>', allInviteMessage);
+  // }, [allInviteMessage]);
 
   return (
     <>
