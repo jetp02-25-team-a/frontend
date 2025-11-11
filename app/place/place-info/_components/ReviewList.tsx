@@ -1,6 +1,12 @@
 'use client';
 import { useState } from 'react';
 import { updateComment, deleteComment } from '@/app/place/lib/commentAdaptor';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faStar as faStarSolid,
+  faStarHalfStroke,
+} from '@fortawesome/free-solid-svg-icons';
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
 type ReviewItem = {
   id: number;
@@ -39,12 +45,37 @@ export default function ReviewList({
     onChanged?.();
   }
 
+  // ✅ 小工具：用 FontAwesome 顯示星等
+  function renderStars(score?: number | null) {
+    const avg = Math.max(0, Math.min(5, Number(score) || 0));
+    const rounded = Math.round(avg * 2) / 2; // 支援半星
+    return (
+      <div className="flex items-center gap-0.5 text-amber-500">
+        {Array.from({ length: 5 }).map((_, i) => {
+          const index = i + 1;
+          const icon =
+            rounded >= index
+              ? faStarSolid
+              : rounded >= index - 0.5
+                ? faStarHalfStroke
+                : faStarRegular;
+          return (
+            <FontAwesomeIcon
+              key={i}
+              icon={icon}
+              className="w-5 h-5 text-amber-500"
+            />
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <section className="space-y-3 w-[60%]">
       {reviews.map((r) => {
         const uid = typeof currentUserId === 'number' ? currentUserId : NaN;
         const isMine = Number(r.userId) === uid;
-        // const isMine = true;
         const inEdit = editingId === r.id;
         return (
           <article key={r.id} className="rounded-2xl border p-4 bg-white">
@@ -64,21 +95,7 @@ export default function ReviewList({
                   .replace(' ', '　')}
               </div>
               <div className="ml-auto flex items-center mt-1 space-x-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <svg
-                    key={i}
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill={i < (r.score ?? 0) ? '#f59e0b' : '#e5e7eb'}
-                    className="w-5 h-5"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 1.5l2.472 5.009 5.528.804-4 3.898.944 5.507L10 14.773l-4.944 2.945.944-5.507-4-3.898 5.528-.804L10 1.5z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                ))}
+                {renderStars(r.score)}
               </div>
               {/* 只有自己的留言才顯示編輯/刪除 */}
               {isMine && !inEdit && (

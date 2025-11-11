@@ -25,10 +25,6 @@ export default function ReviewComposer({
     e.preventDefault();
     if (!content.trim()) return;
 
-    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
-      alert('請選擇 1～5 顆星的評分');
-      return;
-    }
     setLoading(true);
     try {
       await createOrUpsertRank(placeId, rating);

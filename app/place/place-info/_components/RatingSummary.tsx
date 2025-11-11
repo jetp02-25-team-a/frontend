@@ -1,4 +1,10 @@
-// components/spot/RatingSummary.tsx
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faStar as faStarSolid,
+  faStarHalfStroke,
+} from '@fortawesome/free-solid-svg-icons';
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+
 type ReviewItem = {
   id: number;
   userId: number;
@@ -32,6 +38,8 @@ function buildRatingSummary(reviews: ReviewItem[]) {
 
 export default function RatingSummary({ reviews }: { reviews: ReviewItem[] }) {
   const { avg, count, dist } = buildRatingSummary(reviews);
+  const rounded = Math.round(avg * 2) / 2;
+
   return (
     <section className="rounded-2xl border p-4">
       <div className="flex items-center gap-6">
@@ -44,26 +52,33 @@ export default function RatingSummary({ reviews }: { reviews: ReviewItem[] }) {
           >
             {Array.from({ length: 5 }).map((_, i) => {
               const index = i + 1;
-              const full = avg >= index;
-              const half = avg >= index - 0.5 && avg < index;
+              // 滿星條件：≥ index
+              if (rounded >= index) {
+                return (
+                  <FontAwesomeIcon
+                    key={i}
+                    icon={faStarSolid}
+                    className="h-5 w-5 text-amber-500"
+                  />
+                );
+              }
+              // 半星條件：等於 index - 0.5
+              if (rounded === index - 0.5) {
+                return (
+                  <FontAwesomeIcon
+                    key={i}
+                    icon={faStarHalfStroke}
+                    className="h-5 w-5"
+                  />
+                );
+              }
+              // 否則空星
               return (
-                <svg key={i} viewBox="0 0 20 20" className="w-5 h-5">
-                  <path
-                    fill="#e5e7eb"
-                    d="M10 1.5l2.472 5.009 5.528.804-4 3.898.944 5.507L10 14.773l-4.944 2.945.944-5.507-4-3.898 5.528-.804L10 1.5z"
-                  />
-                  <path
-                    fill="#f59e0b"
-                    d="M10 1.5l2.472 5.009 5.528.804-4 3.898.944 5.507L10 14.773l-4.944 2.945.944-5.507-4-3.898 5.528-.804L10 1.5z"
-                    style={{
-                      clipPath: full
-                        ? 'none'
-                        : half
-                          ? 'inset(0 50% 0 0)'
-                          : 'inset(0 100% 0 0)',
-                    }}
-                  />
-                </svg>
+                <FontAwesomeIcon
+                  key={i}
+                  icon={faStarRegular}
+                  className="h-5 w-5 text-amber-500"
+                />
               );
             })}
           </div>
