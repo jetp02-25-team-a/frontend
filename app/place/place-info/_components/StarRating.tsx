@@ -1,5 +1,11 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faStar as faStarSolid,
+  faStarHalfStroke,
+} from '@fortawesome/free-solid-svg-icons';
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
 type Props = {
   value?: number; // 初始分數 0~5
@@ -87,21 +93,17 @@ export default function StarRatingInput({
               width: size,
               height: size,
               transitionDelay: `${i * 15}ms`,
-            }} // 輕微階梯感
+            }}
           >
-            <svg
-              viewBox="0 0 20 20"
-              width={size}
-              height={size}
-              className={`drop-shadow-[0_0_0_rgba(0,0,0,0.06)] ${scale} transition-transform duration-150`}
-              fill={active ? '#f59e0b' : '#e5e7eb'} // amber-500 / gray-200
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.51L10 14.77 5.06 16.72 6 11.21l-4-3.9 5.53-.8L10 1.5z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <FontAwesomeIcon
+              icon={faStarSolid}
+              className={`${scale} transition-transform duration-150 drop-shadow-[0_0_0_rgba(0,0,0,0.06)]`}
+              style={{
+                width: size,
+                height: size,
+                color: display >= v - 0.25 ? '#f59e0b' : '#f59e0b', // amber-500 / gray-200
+              }}
+            />
           </button>
         );
       })}

@@ -8,13 +8,14 @@ import {
   TileLayer,
   Marker,
   Popup,
-  ZoomControl,
+  useMapEvent,
 } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import Drawer from './Drawer';
+import AddPlaceModal from './AddPlaceModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
+import { faRotateRight, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL;
 // 預設中心（沒輸入時）
@@ -55,18 +56,8 @@ type RawPlace = any;
 
 function normalizePlace(r: RawPlace) {
   // 兼容各種欄位名 + 轉成 number
-  const lat =
-    r.latitude ?? r.lat ?? r._latitude ?? r.y ?? r.Y ?? r.Latitude ?? r.Lat;
-  const lng =
-    r.longitude ??
-    r.lng ??
-    r.long ??
-    r.lon ??
-    r._longitude ??
-    r.x ??
-    r.X ??
-    r.Longitude ??
-    r.Lng;
+  const lat = r.latitude;
+  const lng = r.longitude;
 
   const latitude = typeof lat === 'string' ? parseFloat(lat) : lat;
   const longitude = typeof lng === 'string' ? parseFloat(lng) : lng;
@@ -80,11 +71,24 @@ function normalizePlace(r: RawPlace) {
     contact: r.contact ?? null,
     introduce: r.introduce ?? null,
     Photos: r.Photos ?? r.photos ?? [],
-    ratingAvg: r.ratingAvg ?? r.rating_avg ?? r.avg ?? undefined,
+    ratingAvg: r.rating.avg ?? undefined,
     ratingCount: r.ratingCount ?? r.rating_count ?? r.count ?? undefined,
     latitude,
     longitude,
   } as Place;
+}
+
+function ClickCatcher({
+  enabled,
+  onPicked,
+}: {
+  enabled: boolean;
+  onPicked: (latlng: L.LatLng) => void;
+}) {
+  useMapEvent('click', (e) => {
+    if (enabled) onPicked(e.latlng);
+  });
+  return null;
 }
 
 export default function MapClient() {
@@ -100,6 +104,7 @@ export default function MapClient() {
   const hasQuery = !!(address || region || legacyQ);
 
   const [places, setPlaces] = useState<Place[]>([]);
+  const [drawers, setDrawers] = useState<Place[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -111,9 +116,17 @@ export default function MapClient() {
 
   const mapRef = useRef<L.Map | null>(null);
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [pickMode, setPickMode] = useState(false);
+  const [picked, setPicked] = useState<L.LatLng | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  // ✅ 新增：目前地圖中心，給 Modal「用地圖中心」
+  const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
+
   // 當任一查詢參數變動時重置列表
   useEffect(() => {
     setPlaces([]);
+    setDrawers([]);
     setPage(1);
     setHasMore(false);
     setErr(null);
@@ -141,27 +154,30 @@ export default function MapClient() {
       if (!res.ok) throw new Error('讀取搜尋結果失敗');
       const json = await res.json();
 
+      const all: Place[] = (Array.isArray(json?.data) ? json.data : []).map(
+        normalizePlace
+      );
       const data: Place[] = (Array.isArray(json?.data) ? json.data : [])
         .map(normalizePlace)
         .filter(
           (p) => Number.isFinite(p.latitude) && Number.isFinite(p.longitude)
         );
       setPlaces((prev) => (nextPage === 1 ? data : [...prev, ...data]));
+      setDrawers((prev) => (nextPage === 1 ? all : [...prev, ...all]));
       setHasMore(data.length === PAGE_SIZE);
       setPage(nextPage);
 
-      if (nextPage === 1 && data.length > 0) {
-        const map = mapRef.current;
-        if (map) {
-          const pts = data.map((p) => [p.latitude, p.longitude]) as [
-            number,
-            number,
-          ][];
-          const bounds = L.latLngBounds(
-            pts.map(([lat, lng]) => L.latLng(lat, lng))
-          );
-          map.fitBounds(bounds.pad(0.2));
-        }
+      if (nextPage === 1 && data.length > 0 && mapRef.current) {
+        const pts = data.map((p) => [p.latitude, p.longitude]) as [
+          number,
+          number,
+        ][];
+        const bounds = L.latLngBounds(
+          pts.map(([lat, lng]) => L.latLng(lat, lng))
+        );
+        mapRef.current.fitBounds(bounds.pad(0.2));
+        const c = mapRef.current.getCenter(); // ✅ 同步 center
+        setCenter([c.lat, c.lng]);
       }
     } catch (e: any) {
       setErr(e?.message || '搜尋失敗');
@@ -204,6 +220,13 @@ export default function MapClient() {
     if (window.innerWidth < 640) setDrawerOpen(false);
   }, []);
 
+  // Toast
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(t);
+  }, [toast]);
+
   // 點小卡 / Marker → 詳情
   const [detailOpen, setDetailOpen] = useState(false);
   const [selected, setSelected] = useState<Place | null>(null);
@@ -213,7 +236,6 @@ export default function MapClient() {
   }
 
   // 置中按鈕
-
   function recenter() {
     const map = mapRef.current;
     if (!map) return;
@@ -242,11 +264,33 @@ export default function MapClient() {
     }
   }
 
+  function handleOpenModal() {
+    setModalOpen(true);
+  }
+
+  function handlePickCoordOnce() {
+    setPickMode(true);
+    setToast('請在地圖上點一下要新增的座標');
+  }
+
+  function handlePicked(latlng: L.LatLng) {
+    setPickMode(false);
+    setPicked(latlng);
+    setCenter([latlng.lat, latlng.lng]); // ✅ 取點後同步中心，Modal 可直接點「用地圖中心」
+    setToast(`已選座標：${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`);
+  }
+
   return (
     <div
       className="relative rounded-2xl overflow-hidden bg-amber-50"
       style={{ height: MAP_HEIGHT }}
     >
+      {/* 小提醒 */}
+      {toast && (
+        <div className="pointer-events-none absolute left-1/2 top-3 z-[500] -translate-x-1/2 rounded-md bg-black/70 px-3 py-1 text-sm text-white">
+          {toast}
+        </div>
+      )}
       <MapContainer
         ref={mapRef as any} // ✅ 用 ref 取代 whenCreated
         center={hasQuery ? [25.04, 121.55] : DEFAULT_CENTER}
@@ -259,6 +303,9 @@ export default function MapClient() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        {/* ✅ 一次性取座標 */}
+        <ClickCatcher enabled={pickMode} onPicked={handlePicked} />
 
         {places.map((p) => (
           <Marker
@@ -289,12 +336,56 @@ export default function MapClient() {
         ))}
       </MapContainer>
 
+      {/* Modal */}
+      <AddPlaceModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onPickCoord={handlePickCoordOnce}
+        mapCenter={center}
+        apiBase={API}
+        onCreated={(p) => {
+          setToast('已建立地標！');
+          setPicked(null);
+
+          const normalized = normalizePlace(p);
+
+          // 抽屜：一定加入
+          setDrawers((prev) => [normalized, ...prev]);
+
+          // 地圖：有座標才加入
+          if (
+            Number.isFinite(normalized.latitude) &&
+            Number.isFinite(normalized.longitude)
+          ) {
+            setPlaces((prev) => [normalized, ...prev]);
+            if (mapRef.current) {
+              mapRef.current.setView(
+                [normalized.latitude, normalized.longitude],
+                16
+              );
+            }
+          } else {
+          }
+        }}
+      />
+
       <Drawer
         open={drawerOpen}
         onToggle={() => setDrawerOpen((v) => !v)}
-        places={places}
+        places={drawers}
         onCardClick={(p) => openDetail(p)}
       />
+      {/* 新增地標按鈕 */}
+      <div className="pointer-events-auto absolute bottom-20 right-4 z-[5000] flex gap-2">
+        <button
+          onClick={handleOpenModal}
+          className="pointer-events-auto w-11 h-11 rounded-full bg-white border border-gray-300
+               shadow-lg flex items-center justify-center hover:bg-gray-100 transition mb-[16px] hover:cursor-pointer"
+          title="新增地標"
+        >
+          <FontAwesomeIcon icon={faPlus} className="hover:cursor-pointer" />
+        </button>
+      </div>
       {/* 回到置中按鈕 */}
       <div
         className="absolute bottom-4 right-4 z-[5000] pointer-events-none" // ⬅️ 這層防止被地圖吃掉
@@ -304,7 +395,7 @@ export default function MapClient() {
             recenter();
           }}
           className="pointer-events-auto w-11 h-11 rounded-full bg-white border border-gray-300
-               shadow-lg flex items-center justify-center hover:bg-gray-100 transition mb-[16px]"
+               shadow-lg flex items-center justify-center hover:bg-gray-100 transition mb-[16px] hover:cursor-pointer"
           title={hasQuery ? '回到搜尋範圍' : '回到預設中心'}
         >
           <FontAwesomeIcon
