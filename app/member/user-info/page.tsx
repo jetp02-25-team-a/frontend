@@ -8,6 +8,8 @@ import { useFetch } from '@/hooks/useFetch';
 import { useAuth } from '../../../hooks/use-Auth';
 import ListButton from './_components/list-button';
 import Checklist from './_components/checklist';
+import ContactList from './_components/contactlist';
+import OpenChatWindows from './_components/open-chat-windows';
 
 const friend_data = [
   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
@@ -25,35 +27,35 @@ interface ChatInterface {
   room_id: number | null;
 }
 
-interface RoomData {
-  createdAt: string;
-  id: number;
-  roomName: string;
-}
-interface RoomMessage {
-  LatestMessage: {
-    content: string;
-    isRead: boolean;
-    senderId: number;
-    receiverId: number;
-  };
-  roomData: RoomData;
-}
-interface friendData {
-  avatar: string | null;
-  id: number;
-  nickname: string;
-}
+// interface RoomData {
+//   createdAt: string;
+//   id: number;
+//   roomName: string;
+// }
+// interface RoomMessage {
+//   LatestMessage: {
+//     content: string;
+//     isRead: boolean;
+//     senderId: number;
+//     receiverId: number;
+//   };
+//   roomData: RoomData;
+// }
+// interface friendData {
+//   avatar: string | null;
+//   id: number;
+//   nickname: string;
+// }
 
-interface PersonMessage {
-  LatestMessage: {
-    content: string;
-    isRead: boolean;
-    senderId: number;
-    receiverId: number;
-  };
-  friendData: friendData;
-}
+// interface PersonMessage {
+//   LatestMessage: {
+//     content: string;
+//     isRead: boolean;
+//     senderId: number;
+//     receiverId: number;
+//   };
+//   friendData: friendData;
+// }
 
 // interface InviteMessage {
 //   id: number;
@@ -165,12 +167,6 @@ export default function UserInfoPage() {
       setContact(data.data);
     }
   }, [data]);
-
-  //關閉聊天室
-  const closeChat = (index: number) => {
-    const nextChats = openChats.filter((room) => room !== openChats[index]);
-    setOpenChats(nextChats);
-  };
 
   //卻認是否存在於小視窗清單中
   const existChat = (chatsList: ChatInterface[], newChat: ChatInterface) => {
@@ -285,21 +281,8 @@ export default function UserInfoPage() {
               </div>
             </div>
           </div>
-          {/*  */}
-          <div className="absolute right-0 bottom-0 flex gap-2.5 items-end">
-            {openChats.map((chatroom, index) => {
-              return (
-                <ChatBox
-                  key={index}
-                  roomId={chatroom.room_id}
-                  roomTitle={chatroom.room_name}
-                  userId={chatroom.user_id}
-                  userNickname={chatroom.user_name}
-                  onClose={() => closeChat(index)}
-                />
-              );
-            })}
-          </div>
+          {/* 訊息視窗區  */}
+          <OpenChatWindows openChats={openChats} setOpenChats={setOpenChats} />
         </div>
         <div className="bg-gray-300">
           <div className="p-2.5 space-y-2.5">
@@ -318,72 +301,13 @@ export default function UserInfoPage() {
           <h4 className="text-center text-[24px] py-2.5 border-b-2 border-gray-600 bg-white">
             聯絡人
           </h4>
-          {/* 1.團體 */}
-          {contact.allRoomsLatestMessages.map(
-            (message: RoomMessage, index: number) => {
-              const newChat = {
-                user_name: null,
-                user_id: null,
-                image: null,
-                content: message.LatestMessage?.content ?? null,
-                time: new Date().toISOString(), // 或 null
-                room_name: message.roomData.roomName,
-                room_id: message.roomData.id,
-              };
-              return (
-                <MessageBox
-                  userId={user ? user.id : 0}
-                  key={index}
-                  title={message.roomData.roomName}
-                  content={
-                    message.LatestMessage
-                      ? message.LatestMessage.content
-                      : '還沒有訊息'
-                  }
-                  image={'/place-default_avatar.jpg'}
-                  time={null}
-                  // time={message.time}
-                  onClick={() => existChat(openChats, newChat)}
-                />
-              );
-            }
-          )}
-          {/* 2.個人 */}
-          {contact.allFriendLatestMessage.map(
-            (message: PersonMessage, index: number) => {
-              const newChat = {
-                user_name: message.friendData.nickname,
-                user_id: message.friendData.id,
-                image: message.friendData.avatar,
-                content: message.LatestMessage?.content ?? null,
-                time: new Date().toISOString(), // 或 null
-                room_name: null,
-                room_id: null,
-              };
-              return (
-                <MessageBox
-                  key={index}
-                  userId={user ? user.id : 0}
-                  receiverId={message.LatestMessage?.receiverId}
-                  senderId={message.LatestMessage?.senderId}
-                  isRead={message.LatestMessage?.isRead}
-                  title={message.friendData.nickname}
-                  content={
-                    message.LatestMessage
-                      ? message.LatestMessage.content
-                      : '還沒有訊息'
-                  }
-                  image={
-                    message.friendData.avatar
-                      ? message.friendData.avatar
-                      : '/avatar_default.png'
-                  }
-                  time={null}
-                  onClick={() => existChat(openChats, newChat)}
-                />
-              );
-            }
-          )}
+          {/* 所有聯絡人區 */}
+          <ContactList
+            contact={contact}
+            userId={user ? user.id : 0}
+            openChats={openChats}
+            onOpenChat={(newChat) => existChat(openChats, newChat)}
+          />
         </div>
       </div>
     </>
