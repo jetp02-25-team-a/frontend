@@ -7,6 +7,8 @@ import DetailForm from '../_components/DetailForms';
 import MessageBoard from '../_components/MessageBoard';
 import StatusDisplay from '../_components/StatusDisplay';
 import { API_SERVER } from '@/app/config/api-path';
+import { useAuth } from '../../../hooks/use-Auth';
+
 import Link from 'next/link';
 
 interface Article {
@@ -23,9 +25,9 @@ export default function ReviewArticlePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pid = searchParams.get('id');
-
+  const { user, getAuthHeader } = useAuth();
   const [article, setArticle] = useState<Article>({
-    // userId: '',
+     userId: '',
     title: 'Cannot find Article',
     location: '',
     Content: '',
@@ -77,6 +79,9 @@ export default function ReviewArticlePage() {
 
     try {
       const res = await fetch(`${API_SERVER}/article/${article.id}`, {
+        headers: {
+          ...getAuthHeader(),
+        },
         method: 'DELETE',
       });
 

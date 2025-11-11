@@ -7,6 +7,7 @@ import SidebarAction from '../_components/SidebarActions';
 import DetailForm from '../_components/DetailForms';
 import MessageBoard from '../_components/MessageBoard';
 import StatusDisplay from '../_components/StatusDisplay';
+import { useAuth } from '../../../hooks/use-Auth';
 import { API_SERVER } from '@/app/config/api-path';
 import Link from 'next/link';
 
@@ -19,8 +20,8 @@ interface ArticleFormData {
 }
 
 interface Article {
-  // id?: string;
-  // userId: string;
+  id?: string;
+  userId: string;
   title: string;
   location: string;
   content: string;
@@ -47,9 +48,10 @@ export default function ArticleForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pid = searchParams.get('id');
+  const { user, getAuthHeader } = useAuth();
 
   const [article, setArticle] = useState<Article>({
-    // userId: '',
+    userId: '',
     title: 'Cannot find Article',
     location: '',
     content: '',
@@ -141,6 +143,7 @@ export default function ArticleForm() {
     try {
       const form = new FormData();
       // form.append('userId', );
+      form.append('user', user.id);
       form.append('title', article.title);
       form.append('location', article.location);
       form.append('content', article.content);
@@ -149,6 +152,9 @@ export default function ArticleForm() {
 
       const res = await fetch(`http://localhost:3005/api/article/${pid}`, {
         method: 'PUT',
+        headers: {
+          ...getAuthHeader(),
+        },
         body: form,
       });
 

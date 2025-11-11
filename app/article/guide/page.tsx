@@ -1,12 +1,14 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../../../hooks/use-Auth';
 
 export default function ArticleForm() {
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [content, setContent] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const { user, getAuthHeader } = useAuth();
 
   // router
   const router = useRouter();
@@ -16,7 +18,7 @@ export default function ArticleForm() {
 
     const formData = new FormData();
     //fake userId
-    formData.append('userId', '1');
+    // formData.append('userId', user.id);
 
     formData.append('title', title);
     formData.append('locationId', location);
@@ -25,6 +27,9 @@ export default function ArticleForm() {
 
     const res = await fetch('http://localhost:3005/api/article', {
       method: 'POST',
+      headers: {
+        ...getAuthHeader(),
+      },
       body: formData,
     });
 
