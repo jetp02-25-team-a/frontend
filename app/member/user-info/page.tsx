@@ -123,10 +123,6 @@ export default function UserInfoPage() {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships/allmessage`;
   //取得後放入state
   const { data, loading, error } = useFetch(url);
-  //有訊息印出東西
-  useEffect(() => {
-    console.log('contact=>', contact);
-  }, [contact]);
 
   //使用者資料
   const [userData, setUserData] = useState(userDataInit);
@@ -178,26 +174,20 @@ export default function UserInfoPage() {
     if (user?.id) handelAllInviteMessage();
   }, [user]);
 
-  // useEffect(() => {
-  //   console.log('setAllInviteMessage==>', allInviteMessage);
-  // }, [allInviteMessage]);
-
   return (
     <>
       <div className="grid grid-cols-[80%_20%]">
         {/* 個人資訊區 */}
         <div className="bg-light-orange relative">
-          <div className="flex flex-col items-center py-16">
+          <div className="flex flex-col items-center py-16 gap-[30px]">
             {/* 個人資訊區 */}
+
             <UserCard
-              avatar={
-                userData.data?.avatar
-                  ? `${IMAGE_PATH}${userData.data.avatar}`
-                  : '/avatar_default.png'
-              }
-              name={userData.data?.nickname || '尚未設定暱稱'}
+              avatar={user.avatar ? `${user.avatar}` : '/avatar_default.png'}
+              name={user.nickname || '尚未設定暱稱'}
               description={userData.data?.description || '向別人介紹你自己!'}
               id={user.id}
+              state="self"
             />
 
             {/* btns */}

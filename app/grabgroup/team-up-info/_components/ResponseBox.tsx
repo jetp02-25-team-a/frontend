@@ -6,9 +6,13 @@ import { number } from 'framer-motion';
 
 interface ResponseBoxProps {
   itineraryId?: number;
+  onSuccess?: () => void;
 }
 
-export default function ResponseBox({ itineraryId }: ResponseBoxProps) {
+export default function ResponseBox({
+  itineraryId,
+  onSuccess,
+}: ResponseBoxProps) {
   const { user, isReady } = useAuth();
   if (user) console.log('user==>', user.email, user.nickname, user.id);
   const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/create-comment`;
@@ -30,6 +34,7 @@ export default function ResponseBox({ itineraryId }: ResponseBoxProps) {
 
       if (result.ok) {
         setComment('');
+        onSuccess?.();
       }
     } catch (err) {
       console.log(err);

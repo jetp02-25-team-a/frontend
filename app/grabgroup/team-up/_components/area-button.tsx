@@ -18,11 +18,11 @@ export default function AreaButton({
           src={image}
           alt=""
           className={`w-[89px] h-[89px] rounded-full ${
-            active ? "border-2" : ""
+            active ? 'border-2' : ''
           }  border-amber-300`}
           onClick={onClick}
         />
-        <p className="text-lg text-center">{area_name}</p>
+        <p className="text-gray-600 text-center">{area_name}</p>
       </div>
     </>
   );

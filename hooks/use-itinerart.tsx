@@ -12,7 +12,7 @@ import {
   ItineraryData,
   Node,
   StayNode,
-  GoogleMapPlace,
+  Place,
 } from '../app/grabgroup/_types/itineraryTypes';
 
 export const ItineraryContext = createContext<ItineraryContextType | null>(

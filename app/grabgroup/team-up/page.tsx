@@ -38,9 +38,9 @@ export default function TeamUpPage() {
         />
         <AreaButton
           image="/taoyuan.png"
-          area_name="桃園"
-          active={area === '桃園' ? true : false}
-          onClick={() => setArea('桃園')}
+          area_name="桃園市"
+          active={area === '桃園市' ? true : false}
+          onClick={() => setArea('桃園市')}
         />
         <AreaButton
           image="/hsinchu.png"

@@ -1,19 +1,30 @@
 import React from 'react';
 
-export interface GoogleMapPlace {
-  placeId: string;
+// export interface GoogleMapPlace {
+//   placeId: string;
+//   name: string;
+//   formattedAddress: string;
+//   lat: number;
+//   lng: number;
+//   photoReference: string;
+// }
+interface Place {
+  id: number;
   name: string;
-  formattedAddress: string;
+  nameZh: string;
+  addrCity: string;
+  addrDistrict: string;
+  addrFull: string;
   lat: number;
   lng: number;
-  photoReference: string;
+  image: string;
 }
 
 export interface Node {
   id?: number;
   durationMinutes: number;
   placeId?: number;
-  GoogleMapPlace: GoogleMapPlace;
+  Place: Place;
   //                     "GoogleMapPlace": {
 }
 export interface StayNode {

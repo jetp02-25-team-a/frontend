@@ -210,7 +210,7 @@ export default function CreateGroupItineraryPage() {
               onClick={async () => {
                 const data = {
                   title: itineraryTitle,
-                  area: '台北市',
+                  area: destination || '',
                   startDay: time?.startDate || '',
                   endDay: time?.endDate || '',
                   startTime: startTime,

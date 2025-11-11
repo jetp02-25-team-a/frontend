@@ -1,7 +1,7 @@
 'use client';
 import InfoButton from '../_components/InfoButton';
 import JoinButton from '@/components/ui/join-button';
-import { addTimeWrap } from '../../utils';
+import { useAuth } from '@/hooks/use-Auth';
 import { useEffect, useState, useRef } from 'react';
 import Map from '../_components/GoogleMap';
 import MessageBox from '../_components/MessageBox';
@@ -12,6 +12,8 @@ import Image from 'next/image';
 import { addMinutes } from 'date-fns';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
+import Link from 'next/link';
+import Toast from '../_components/Toast';
 
 interface Nodes {
   durationMinutes: number;
@@ -80,6 +82,20 @@ export default function PlacePage() {
     latitude: 25.033,
     longitude: 121.5654,
   });
+  //吐司
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type?: 'success' | 'error';
+  }>({
+    show: false,
+    message: '',
+    type: 'success',
+  });
+
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ show: true, message: msg, type });
+  };
 
   const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/itinerary-list?itineraryId=${pid}&userId=${userId}`;
 
@@ -136,19 +152,11 @@ export default function PlacePage() {
         body: JSON.stringify(data),
       });
 
-      if (result.ok) console.log('邀約發送');
+      if (result.ok) showToast('邀約發送', 'success');
     } catch (err) {
       console.log(err);
     }
   };
-  const [showAll, setShowAll] = useState(false);
-  const btnRef = useRef<HTMLImageElement>(null); //抓img
-  const openAll = () => {
-    photoProviderRef.current?.open(0); // 從第一張開始開啟
-  };
-  useEffect(() => {
-    if (showAll) btnRef.current?.click(); // 為真自動觸發
-  }, [showAll]);
   return (
     <>
       {/* image區 */}
@@ -222,10 +230,12 @@ export default function PlacePage() {
       <section className="w-full px-[200px]">
         <div className=" flex justify-between">
           {/* 團主個人訊息 */}
-          <div className="flex items-center gap-[20px]">
+          <div className="flex items-center gap-5">
             <Image width={77} height={77} src={'/avatar.png'} alt="" />
             <h3 className="text-xl">{itineraryList?.nickname}</h3>
-            <InfoButton button_name="個人檔案" />
+            <Link href={`/member/${itineraryList?.id}`}>
+              <InfoButton button_name="個人檔案" />
+            </Link>
           </div>
           {/* 參與人數 */}
           <div className=" flex items-end gap-[30px]">
@@ -249,7 +259,7 @@ export default function PlacePage() {
       {/* 揪團標題 文章 */}
       <section className="w-full px-[200px]">
         <h2 className="text-2xl">{itineraryList?.Itineraries?.[0].title}</h2>
-        {/* 副標題 */}
+
         <h2 className="text-xl">
           {itineraryList?.Itineraries?.[0].Article.title}
         </h2>
@@ -263,6 +273,14 @@ export default function PlacePage() {
             if (user) handleInvite(user?.id, Number(pid));
           }}
         />
+        {toast.show && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            duration={2000}
+            onClose={() => setToast((prev) => ({ ...prev, show: false }))}
+          />
+        )}
       </section>
       {/* 行程 */}
       <section className="bg-light-gray w-full h-auto py-16">
@@ -294,8 +312,8 @@ export default function PlacePage() {
                                   className="flex gap-[15px] ml-1.5 items-center cursor-pointer"
                                   onClick={() => {
                                     setMapPoint({
-                                      latitude: node.GoogleMapPlace?.lat,
-                                      longitude: node.GoogleMapPlace?.lng,
+                                      latitude: node.Attraction?.lat,
+                                      longitude: node.Attraction?.lng,
                                     });
                                   }}
                                 >
@@ -311,7 +329,7 @@ export default function PlacePage() {
                                           ).toISOString()
                                         )}
                                   </p>
-                                  <p>{node.GoogleMapPlace?.name}</p>
+                                  <p>{node.Attraction?.name}</p>
                                 </div>
 
                                 {nodeIndex === day.Nodes.length - 1 ? (
@@ -337,10 +355,10 @@ export default function PlacePage() {
       </section>
       {/* </div> */}
       {/* 留言區 */}
-      <section className=" flex flex-col py-[64px] gap-[24px]">
+      <section className=" flex flex-col py-16 gap-6">
         <h2 className="text-3xl text-left m-auot">留言區</h2>
 
-        <div className="gap-y-[24px] flex flex-col items-center">
+        <div className="gap-y-6 flex flex-col items-center">
           {comments &&
             comments
               .slice(0, commentLimit)
@@ -366,7 +384,12 @@ export default function PlacePage() {
             ''
           )}
         </div>
-        <ResponseBox itineraryId={Number(pid)} />
+        <ResponseBox
+          itineraryId={Number(pid)}
+          onSuccess={() => {
+            refetch(); //立即重新抓資料，留言區會刷新
+          }}
+        />
       </section>
     </>
   );

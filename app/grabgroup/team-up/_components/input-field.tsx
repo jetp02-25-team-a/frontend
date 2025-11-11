@@ -46,8 +46,8 @@ export default function InputField() {
           />
         </div>
         {/*  */}
-        <div className="flex items-center w-[200px] gap-[10px]">
-          <div className="customize_gray h-[20px] w-[2px]"></div>
+        <div className="flex items-center w-[200px] gap-2.5">
+          <div className="customize_gray h-5 w-0.5"></div>
           <p className="text-gray-500">人數：</p>
           <input
             type="number"
@@ -66,7 +66,7 @@ export default function InputField() {
             },
           }}
         >
-          <button className="bg-amber-400 text-white px-[30px] py-[10px] flex justify-center items-center gap-[10px] rounded-full cursor-pointer">
+          <button className="bg-amber-400 text-white px-[30px] py-2.5 flex justify-center items-center gap-2.5 rounded-full cursor-pointer">
             <FontAwesomeIcon icon={faPlus} />
             新增行程
           </button>
