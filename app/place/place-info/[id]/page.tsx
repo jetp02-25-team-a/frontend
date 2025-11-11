@@ -13,7 +13,7 @@ export default async function SpotPage({
 }) {
   const { id } = await params;
   const placeId = Number(id) || 1;
-  // const data = getSpotDetail(placeId);
+
   const data = await getSpotDetail(placeId); // 與後端串接
 
   // 防呆
