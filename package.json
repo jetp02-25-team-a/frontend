@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -p 3000",
+    "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint"
@@ -35,7 +35,9 @@
     "react-photo-view": "^1.2.7",
     "react-quill-new": "^3.6.0",
     "react-simplemde-editor": "^5.2.0",
+    "react-slick": "^0.31.0",
     "react-time-picker": "^8.0.2",
+    "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.8.1",
     "zod": "^4.1.12"
   },

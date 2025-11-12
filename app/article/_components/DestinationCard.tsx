@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { IMAGE_PATH } from '@/app/config/image-path';
+import { ARTICLE_PHOTOS_PATH } from '@/config/image-path';
 interface DestinationCardProps {
   image?: string;
   title: string;
@@ -17,7 +17,7 @@ export default function DestinationCard({
   title,
   description,
 }: DestinationCardProps) {
-  const url = isValidUrl(image) ? `${IMAGE_PATH}${image}` : '';
+  const url = isValidUrl(image) ? `${ARTICLE_PHOTOS_PATH}${image}` : '';
   return (
     <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all overflow-hidden">
       {isValidUrl(image) ? (
