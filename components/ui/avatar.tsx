@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/use-Auth';
 import { IMAGE_PATH, AVATAR_PATH } from '../../app/config/image-path';
 export default function Avatar() {
   const { user } = useAuth();
-  const userInfoUrl = 'http://localhost:3000/member';
+  const userInfoUrl = 'http://localhost:3000/member/user-info';
   const loginUrl = './member/login';
   return (
     <Link href={user?.email ? userInfoUrl : loginUrl}>

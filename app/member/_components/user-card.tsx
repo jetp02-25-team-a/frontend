@@ -11,7 +11,7 @@ interface ComponentsUserCardProps {
   description: string;
   id: number;
   state: 'self' | 'other';
-  addFriend: (id: number) => void;
+  addFriend?: (id: number) => void;
 }
 
 export default function ComponentsUserCard({
@@ -47,8 +47,7 @@ export default function ComponentsUserCard({
                   content="加好友"
                   mode="solid"
                   onClick={() => {
-                    console.log('down');
-                    addFriend(id);
+                    if (addFriend) addFriend(id);
                   }}
                 />
                 <RegularButton content="追蹤" mode="hollow" />

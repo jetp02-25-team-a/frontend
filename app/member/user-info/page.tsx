@@ -13,7 +13,7 @@ import OpenChatWindows from './_components/open-chat-windows';
 import UserCard from '../_components/user-card';
 import { ApiResponse } from '../_interfaces/userData';
 import { API_SERVER } from '../../config/api-path';
-import { IMAGE_PATH } from '../../config/image-path';
+import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 
 const friend_data = [
   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
@@ -183,7 +183,11 @@ export default function UserInfoPage() {
             {/* 個人資訊區 */}
 
             <UserCard
-              avatar={user.avatar ? `${user.avatar}` : '/avatar_default.png'}
+              avatar={
+                user.avatar
+                  ? `${AVATAR_PATH}/${user.avatar}`
+                  : '/avatar_default.png'
+              }
               name={user.nickname || '尚未設定暱稱'}
               description={userData.data?.description || '向別人介紹你自己!'}
               id={user.id}
