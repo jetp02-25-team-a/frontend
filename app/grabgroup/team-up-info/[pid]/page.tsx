@@ -261,7 +261,7 @@ export default function PlacePage() {
         <h2 className="text-2xl">{itineraryList?.Itineraries?.[0].title}</h2>
 
         <h2 className="text-xl">
-          {itineraryList?.Itineraries?.[0].Article.title}
+          {itineraryList?.Itineraries?.[0].Article?.title}
         </h2>
         <p className="text-base">
           {itineraryList?.Itineraries?.[0]?.Article?.content}

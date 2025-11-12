@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { API_SERVER } from '../../config/api-path';
@@ -124,7 +124,27 @@ export default function UserIdPage() {
             <div>
               {options === '發文' && <>發表文章</>}
               {options === '收藏景點' && <>收藏景點</>}
-              {options === '好友' && <>好友區</>}
+              {options === '好友' && (
+                <>
+                  {userData.FriendshipsFriend.length > 0 &&
+                    userData.FriendshipsFriend.map((f, i) => {
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-center gap-4 p-4 border-b-2 border-gray-400"
+                        >
+                          <Image
+                            src={f.User.avatar || '/avatar_default.png'}
+                            alt=""
+                            width={70}
+                            height={70}
+                          />
+                          <p className="text-gray-600">{f.User.nickname}</p>
+                        </div>
+                      );
+                    })}
+                </>
+              )}
             </div>
           </div>
         </div>

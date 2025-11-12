@@ -222,7 +222,7 @@ export default function UserInfoPage() {
                 <div>
                   {options === '發文' && <>發表文章</>}
                   {options === '收藏景點' && <>收藏景點</>}
-                  {options === '好友' && <>好友區</>}
+                  {options === '好友' && <></>}
                   {options === '通知' && (
                     <>
                       {/* 接收 */}

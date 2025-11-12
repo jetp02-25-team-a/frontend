@@ -53,3 +53,12 @@
 .slick-next:hover:before {
   color: black !important;
 }
+
+/* 更粗的字體視覺效果：在 font-weight 最大(900) 基礎上增加描邊與陰影以營造更粗的外觀 */
+.super-bold {
+  font-weight: 900; /* 已載入 Roboto 900 */
+  -webkit-text-stroke: 0.6px rgba(0, 0, 0, 0.12);
+  text-shadow:
+    0.6px 0 0 rgba(0, 0, 0, 0.04),
+    -0.6px 0 0 rgba(0, 0, 0, 0.04);
+}
