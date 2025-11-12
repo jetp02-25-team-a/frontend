@@ -5,13 +5,14 @@ import Image from 'next/image';
 import ButtonO from './button-orange';
 import RegularButton from '@/components/ui/regular-button';
 import { AVATAR_PATH } from '../../config/image-path';
+import { string } from 'zod';
 
 interface ComponentsUserCardProps {
   avatar: string;
   name: string;
   description: string;
   id: number;
-  state: 'self' | 'other';
+  state: 'self' | 'other' | 'isFriend';
   addFriend?: (id: number) => void;
 }
 
@@ -64,6 +65,12 @@ export default function ComponentsUserCard({
                   }}
                 />
                 <RegularButton content="追蹤" mode="hollow" />
+              </div>
+            )}
+
+            {state === 'isFriend' && (
+              <div className="flex gap-3">
+                <RegularButton content="好友" mode="solid" />
               </div>
             )}
           </div>
