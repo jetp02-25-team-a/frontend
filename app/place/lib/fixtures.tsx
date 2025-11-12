@@ -16,7 +16,7 @@ export const heroImages = [
   },
   {
     id: 4,
-    url: 'https://loremflickr.com/800/600/park,garden,nature?lock=6',
+    url: 'https://loremflickr.com/800/600/landmark,scenery,travel?lock=1',
     caption: '在旅途中相遇，讓故事交織。',
   },
   {
