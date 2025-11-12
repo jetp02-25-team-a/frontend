@@ -20,6 +20,7 @@
     "@react-google-maps/api": "^2.20.7",
     "@uiw/react-markdown-preview": "^5.1.5",
     "@uiw/react-md-editor": "^4.0.8",
+    "axios": "^1.13.2",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.19",
     "easymde": "^2.20.0",
@@ -31,14 +32,12 @@
     "react-datepicker": "^8.8.0",
     "react-dom": "19.1.0",
     "react-icons": "^5.5.0",
-    "react-slick": "^0.31.0",
-    "slick-carousel": "^1.8.1",
-    "socket.io-client": "^4.8.1",
-    "zod": "^4.1.12",
     "react-photo-view": "^1.2.7",
     "react-quill-new": "^3.6.0",
     "react-simplemde-editor": "^5.2.0",
-    "react-time-picker": "^8.0.2"
+    "react-time-picker": "^8.0.2",
+    "socket.io-client": "^4.8.1",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

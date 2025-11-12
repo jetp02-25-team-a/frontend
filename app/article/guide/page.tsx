@@ -70,6 +70,10 @@ export default function ArticleForm() {
         <option value="10">屏東</option>
         <option value="11">金門</option>
         <option value="12">澎湖</option>
+        <option value="13">南投</option>
+        <option value="14">雲林</option>
+        <option value="15">台東</option>
+        <option value="16">花蓮</option>
       </select>
       <textarea
         name="content"

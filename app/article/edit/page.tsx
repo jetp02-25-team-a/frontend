@@ -210,6 +210,30 @@ export default function EditArticlePage() {
     </div>
   );
 }
+const handleLike = async () => {
+  if (!article.id) return;
+  if (isLiking) return;
+
+  setIsLiking(true);
+  try {
+    const res = await fetch(`${API_SERVER}/article/${article.id}/like`, {
+      method: 'POST',
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to like article');
+    }
+
+    setArticle((prev) => ({
+      ...prev,
+      likes: (prev.likes || 0) + 1,
+    }));
+  } catch (err) {
+    console.error('Like Error:', err);
+  } finally {
+    setIsLiking(false);
+  }
+};
 
 // 'use client';
 
