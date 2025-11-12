@@ -43,7 +43,7 @@ export default function InfoArea({
   const defaultStyle = { color: 'bg-white text-gray-800' };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-24 w-full px-16 relative">
+    <div className="flex flex-col lg:flex-row gap-24 w-full px-32 relative">
       {/* 左側資訊區 */}
       <div className="flex-1 flex flex-col gap-10">
         {/* 名稱 + 評分 */}

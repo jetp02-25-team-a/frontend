@@ -17,7 +17,10 @@ export default function GalleryArea({
   return (
     <div className="w-full flex flex-col gap-8">
       {/* 照片展示 */}
-      <GalleryDisplay images={images} className="w-full px-4  aspect-5/2" />
+      <GalleryDisplay
+        images={images}
+        className="w-full px-4 aspect-5/2 select-none"
+      />
 
       {/* 功能列覆蓋在上方 */}
       <div className="w-full">
