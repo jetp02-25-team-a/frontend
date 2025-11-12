@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import Image from 'next/image';
+import { API_SERVER } from '../../config/api-path';
 
 export default function UploadPhotosPage() {
   const searchParams = useSearchParams();
@@ -22,7 +23,7 @@ export default function UploadPhotosPage() {
     updated[index] = previewUrl;
     setImages(updated);
     //
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/upload/${itineraryId}`;
+    const url = `${API_SERVER}/itineraries/upload/${itineraryId}`;
 
     const formData = new FormData();
     formData.append('image', file);

@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import { useState } from 'react';
 import DatePicker from 'react-datepicker';
@@ -11,7 +11,7 @@ export default function InputField() {
   const [people, setPeople] = useState<number>(0); // 人數
   return (
     <>
-      <div className="border-2 border-[#D9D9D9] bg-white rounded-full w-[1048px] h-[64px] customize_shadow flex items-center justify-between px-[26px] py-[20px] ">
+      <div className="border-2 border-[#D9D9D9] bg-white rounded-full w-full max-w-[600px] h-[64px] customize_shadow flex items-center justify-between px-[26px] py-[20px] ">
         <div className="flex items-center w-[200px] justify-between">
           <p className="text-gray-500 shrink-0">目的地:</p>
           <input
@@ -19,6 +19,7 @@ export default function InputField() {
             type="text"
             placeholder="＃台北市"
             value={destination}
+            className="text-sm text-gray-700"
             onChange={(e) => setDestination(e.target.value)}
           />
           <datalist id="area">
@@ -30,7 +31,7 @@ export default function InputField() {
           </datalist>
         </div>
         {/*  */}
-        <div className="flex items-center w-[200px] gap-[10px]">
+        <div className="flex items-center w-[200px] gap-2.5">
           <div className="customize_gray h-5 w-0.5 shrink-0"></div>
           <p className="text-gray-500 shrink-0">出發時間:</p>
           <DatePicker
@@ -42,16 +43,16 @@ export default function InputField() {
             dateFormat="yyyy/MM/dd HH:mm"
             minDate={new Date()}
             // className="border border-gray-400 rounded-lg px-2 py-1"
-            placeholderText="選擇開始日期與時間"
+            placeholderText="出發時間"
           />
         </div>
         {/*  */}
         <div className="flex items-center w-[200px] gap-2.5">
-          <div className="customize_gray h-5 w-0.5"></div>
-          <p className="text-gray-500">人數：</p>
+          <div className="customize_gray h-5 w-0.5 shrink-0"></div>
+          <p className="text-gray-500 shrink-0">人數：</p>
           <input
             type="number"
-            className="w-[72px] text-gray-500"
+            className="w-[72px] text-gray-700 shrink-0"
             value={people}
             onChange={(e) => setPeople(+e.target.value)}
           />
@@ -66,9 +67,8 @@ export default function InputField() {
             },
           }}
         >
-          <button className="bg-amber-400 text-white px-[30px] py-2.5 flex justify-center items-center gap-2.5 rounded-full cursor-pointer">
-            <FontAwesomeIcon icon={faPlus} />
-            新增行程
+          <button className="bg-amber-400 text-white px-3 py-3 flex justify-center items-center gap-2.5 rounded-full cursor-pointer">
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </Link>
       </div>

@@ -1,8 +1,8 @@
 'use client';
 import InfoButton from '../_components/InfoButton';
 import JoinButton from '@/components/ui/join-button';
-import { addTimeWrap } from '../../utils';
-import { useEffect, useState, useRef } from 'react';
+import { useAuth } from '@/hooks/use-Auth';
+import { useEffect, useState } from 'react';
 import Map from '../_components/GoogleMap';
 import MessageBox from '../_components/MessageBox';
 import ResponseBox from '../_components/ResponseBox';
@@ -12,6 +12,10 @@ import Image from 'next/image';
 import { addMinutes } from 'date-fns';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
+import Link from 'next/link';
+import Toast from '../_components/Toast';
+import { AVATAR_PATH, IMAGE_PATH } from '../../../config/image-path';
+import { API_SERVER } from '../../../config/api-path';
 
 interface Nodes {
   durationMinutes: number;
@@ -34,12 +38,18 @@ interface Comments {
   senderId: number;
   content: string;
   updatedAt: string;
+  Sender: {
+    nickname: string;
+    fullName: string;
+    avatar: string;
+  };
 }
 
 interface ItineraryLisInterface {
   id: number;
   fullName: string;
   nickname: string;
+  avatar: string;
   Itineraries: [
     {
       id: number;
@@ -74,20 +84,34 @@ export default function PlacePage() {
   const [itineraryList, setItineraryList] = useState<ItineraryLisInterface>();
   const [commentLimit, setCommentLimit] = useState<number>(3);
   const [showAllImage, setShowAllImage] = useState<boolean>(false);
-  const photoProviderRef = useRef<PhotoProviderRef>(null);
+  // We'll trigger PhotoView by clicking a native <img> via its DOM id to avoid React ref warnings
   // const [baseTime, setBaseTime] = useState(data.brigade_days[0].start_time);
   const [mapPoint, setMapPoint] = useState({
     latitude: 25.033,
     longitude: 121.5654,
   });
+  //吐司
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type?: 'success' | 'error';
+  }>({
+    show: false,
+    message: '',
+    type: 'success',
+  });
 
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/itinerary-list?itineraryId=${pid}&userId=${userId}`;
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ show: true, message: msg, type });
+  };
 
-  const { data, loading, error, refetch } = useFetch(url);
+  const url = `${API_SERVER}/itineraries/itinerary-list?itineraryId=${pid}&userId=${userId}`;
+
+  const { data, refetch } = useFetch(url);
 
   useEffect(() => {
     refetch();
-  }, [pid]);
+  }, [pid, refetch]);
 
   useEffect(() => {
     if (data?.success) {
@@ -105,19 +129,22 @@ export default function PlacePage() {
   const images = itineraryList?.Itineraries?.[0].Images;
   const comments = itineraryList?.Itineraries?.[0].ItineraryComments;
   const toImgUrl = (fileName: string) => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/itineraries_photo/${fileName}`;
+    return `${IMAGE_PATH}/itineraries_photo/${fileName}`;
   };
-  const [showAll, setShowAll] = useState(false);
-  const btnRef = useRef<HTMLImageElement>(null); //抓img
   const openAll = () => {
-    photoProviderRef.current?.open(0); // 從第一張開始開啟
+    const el = document.getElementById('first-photo-trigger') as HTMLElement | null;
+    if (el) {
+      // dispatch a sequence of events to better trigger 3rd-party listeners
+      ['pointerdown', 'pointerup', 'click'].forEach((type) =>
+        el.dispatchEvent(
+          new MouseEvent(type, { bubbles: true, cancelable: true, view: window })
+        )
+      );
+    }
   };
-  useEffect(() => {
-    if (showAll) btnRef.current?.click(); // 為真自動觸發
-  }, [showAll]);
   //pid
   const handleInvite = async (userId: number, itineraryId: number) => {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/invite`;
+    const url = `${API_SERVER}/itineraries/invite`;
     // const { itineraryId, senderId, receiverId } = req.body;
 
     if (!user) return;
@@ -136,43 +163,26 @@ export default function PlacePage() {
         body: JSON.stringify(data),
       });
 
-      if (result.ok) console.log('邀約發送');
+      if (result.ok) showToast('邀約發送', 'success');
     } catch (err) {
       console.log(err);
     }
   };
-  const [showAll, setShowAll] = useState(false);
-  const btnRef = useRef<HTMLImageElement>(null); //抓img
-  const openAll = () => {
-    photoProviderRef.current?.open(0); // 從第一張開始開啟
-  };
-  useEffect(() => {
-    if (showAll) btnRef.current?.click(); // 為真自動觸發
-  }, [showAll]);
   return (
     <>
       {/* image區 */}
 
-      <PhotoProvider
-        //按下叉叉切換為假隱藏
-        onVisibleChange={(visible: boolean) => {
-          if (!visible) {
-            setShowAll(false);
-          }
-        }}
-      >
-        <div className="flex gap-4 relative relative">
+      <PhotoProvider>
+        <div className="flex gap-4 relative">
           {images && images?.length >= 4 && (
             <>
               <PhotoView src={toImgUrl(images[0].imageName)}>
-                {/* ref觸發照片輪播用 */}
-                <Image
-                  width={1000}
-                  height={1000}
+                {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                <img
+                  id="first-photo-trigger"
                   src={toImgUrl(images[0].imageName)}
                   alt=""
-                  className="shrink-0 w-[770px] h-[510px]"
-                  ref={btnRef}
+                  className="shrink-0 w-[770px] h-[510px] object-cover"
                 />
               </PhotoView>
               <div className="flex flex-col gap-4">
@@ -209,7 +219,7 @@ export default function PlacePage() {
               </div>
 
               <button
-                onClick={() => setShowAll(true)}
+                onClick={openAll}
                 className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
               >
                 查看所有照片
@@ -222,10 +232,30 @@ export default function PlacePage() {
       <section className="w-full px-[200px]">
         <div className=" flex justify-between">
           {/* 團主個人訊息 */}
-          <div className="flex items-center gap-[20px]">
-            <Image width={77} height={77} src={'/avatar.png'} alt="" />
+          <div className="flex items-center gap-5">
+            <div className="w-[77px] h-[77px] shrink-0 relative">
+              <Image
+                fill
+                src={
+                  itineraryList?.avatar
+                    ? `${AVATAR_PATH}${itineraryList?.avatar}`
+                    : '/avatar_default.png'
+                }
+                alt=""
+                className="rounded-full object-cover"
+              />
+            </div>
+            {/* <Image width={77} height={77} src={'/avatar.png'} alt="" /> */}
             <h3 className="text-xl">{itineraryList?.nickname}</h3>
-            <InfoButton button_name="個人檔案" />
+            <Link
+              href={
+                user.id === itineraryList?.id
+                  ? `/member/user-info`
+                  : `/member/${itineraryList?.id}`
+              }
+            >
+              <InfoButton button_name="個人檔案" />
+            </Link>
           </div>
           {/* 參與人數 */}
           <div className=" flex items-end gap-[30px]">
@@ -249,9 +279,9 @@ export default function PlacePage() {
       {/* 揪團標題 文章 */}
       <section className="w-full px-[200px]">
         <h2 className="text-2xl">{itineraryList?.Itineraries?.[0].title}</h2>
-        {/* 副標題 */}
+
         <h2 className="text-xl">
-          {itineraryList?.Itineraries?.[0].Article.title}
+          {itineraryList?.Itineraries?.[0].Article?.title}
         </h2>
         <p className="text-base">
           {itineraryList?.Itineraries?.[0]?.Article?.content}
@@ -263,6 +293,14 @@ export default function PlacePage() {
             if (user) handleInvite(user?.id, Number(pid));
           }}
         />
+        {toast.show && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            duration={2000}
+            onClose={() => setToast((prev) => ({ ...prev, show: false }))}
+          />
+        )}
       </section>
       {/* 行程 */}
       <section className="bg-light-gray w-full h-auto py-16">
@@ -276,7 +314,6 @@ export default function PlacePage() {
               {itineraryList?.Itineraries?.[0]?.Days &&
                 itineraryList?.Itineraries?.[0]?.Days.map(
                   (day: Day, dayIndex: number) => {
-                    const baseTime = day.startTime;
                     return (
                       <div key={dayIndex}>
                         {/* 天數開頭 */}
@@ -294,8 +331,8 @@ export default function PlacePage() {
                                   className="flex gap-[15px] ml-1.5 items-center cursor-pointer"
                                   onClick={() => {
                                     setMapPoint({
-                                      latitude: node.GoogleMapPlace?.lat,
-                                      longitude: node.GoogleMapPlace?.lng,
+                                      latitude: node.Attraction?.lat,
+                                      longitude: node.Attraction?.lng,
                                     });
                                   }}
                                 >
@@ -311,7 +348,7 @@ export default function PlacePage() {
                                           ).toISOString()
                                         )}
                                   </p>
-                                  <p>{node.GoogleMapPlace?.name}</p>
+                                  <p>{node.Attraction?.name}</p>
                                 </div>
 
                                 {nodeIndex === day.Nodes.length - 1 ? (
@@ -337,10 +374,10 @@ export default function PlacePage() {
       </section>
       {/* </div> */}
       {/* 留言區 */}
-      <section className=" flex flex-col py-[64px] gap-[24px]">
+      <section className=" flex flex-col py-16 gap-6">
         <h2 className="text-3xl text-left m-auot">留言區</h2>
 
-        <div className="gap-y-[24px] flex flex-col items-center">
+        <div className="gap-y-6 flex flex-col items-center">
           {comments &&
             comments
               .slice(0, commentLimit)
@@ -348,8 +385,8 @@ export default function PlacePage() {
                 return (
                   <MessageBox
                     key={index}
-                    avatar={`./avatar.png`}
-                    user_name={'王小明'}
+                    avatar={`${AVATAR_PATH}${comment.Sender.avatar}`}
+                    user_name={comment.Sender.nickname}
                     create_at={new Date(comment.updatedAt).toLocaleDateString()}
                     content={comment.content}
                   />
@@ -366,7 +403,12 @@ export default function PlacePage() {
             ''
           )}
         </div>
-        <ResponseBox itineraryId={Number(pid)} />
+        <ResponseBox
+          itineraryId={Number(pid)}
+          onSuccess={() => {
+            refetch(); //立即重新抓資料，留言區會刷新
+          }}
+        />
       </section>
     </>
   );

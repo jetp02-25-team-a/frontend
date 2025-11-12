@@ -13,7 +13,7 @@ import OpenChatWindows from './_components/open-chat-windows';
 import UserCard from '../_components/user-card';
 import { ApiResponse } from '../_interfaces/userData';
 import { API_SERVER } from '../../config/api-path';
-import { IMAGE_PATH } from '../../config/image-path';
+import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 
 const friend_data = [
   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
@@ -30,57 +30,6 @@ interface ChatInterface {
   room_name: string | null;
   room_id: number | null;
 }
-
-// interface RoomData {
-//   createdAt: string;
-//   id: number;
-//   roomName: string;
-// }
-// interface RoomMessage {
-//   LatestMessage: {
-//     content: string;
-//     isRead: boolean;
-//     senderId: number;
-//     receiverId: number;
-//   };
-//   roomData: RoomData;
-// }
-// interface friendData {
-//   avatar: string | null;
-//   id: number;
-//   nickname: string;
-// }
-
-// interface PersonMessage {
-//   LatestMessage: {
-//     content: string;
-//     isRead: boolean;
-//     senderId: number;
-//     receiverId: number;
-//   };
-//   friendData: friendData;
-// }
-
-// interface InviteMessage {
-//   id: number;
-//   itineraryId: number;
-//   senderId: number;
-//   receiverId: number;
-//   status: number;
-//   createdAt: string;
-//   updatedAt: string;
-//   itinerary: {
-//     userId: number;
-//     title: string;
-//   };
-//   sender: {
-//     id: number;
-//     nickname: string;
-//     fullName: string;
-//     avatar: string | null;
-//   };
-
-// }
 
 interface InviteMessage {
   received: [
@@ -171,13 +120,9 @@ export default function UserInfoPage() {
   }); //通訊錄所有使用者
   const { user, isReady } = useAuth(); //使用者資訊
   //搜索有好朋友房間最新訊息
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships/allmessage`;
+  const url = `${API_SERVER}/friendships/allmessage`;
   //取得後放入state
   const { data, loading, error } = useFetch(url);
-  //有訊息印出東西
-  useEffect(() => {
-    console.log('contact=>', contact);
-  }, [contact]);
 
   //使用者資料
   const [userData, setUserData] = useState(userDataInit);
@@ -192,7 +137,7 @@ export default function UserInfoPage() {
     getUserData();
   }, [user.id]);
 
-  //打印出來
+  //有資料設定contact
   useEffect(() => {
     if (data) {
       setContact(data.data);
@@ -210,10 +155,9 @@ export default function UserInfoPage() {
   };
 
   //取得所有行程邀請訊息
-  const getALlInviteMessageUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/all-invite/${user?.id}`;
+  const getALlInviteMessageUrl = `${API_SERVER}/itineraries/all-invite/${user?.id}`;
 
   const handelAllInviteMessage = async () => {
-    console.log('dwon');
     try {
       const reult = await fetch(getALlInviteMessageUrl);
       if (reult.ok) {
@@ -230,26 +174,24 @@ export default function UserInfoPage() {
     if (user?.id) handelAllInviteMessage();
   }, [user]);
 
-  useEffect(() => {
-    console.log('setAllInviteMessage==>', allInviteMessage);
-  }, [allInviteMessage]);
-
   return (
     <>
       <div className="grid grid-cols-[80%_20%]">
         {/* 個人資訊區 */}
         <div className="bg-light-orange relative">
-          <div className="flex flex-col items-center py-16">
+          <div className="flex flex-col items-center py-16 gap-[30px]">
             {/* 個人資訊區 */}
+
             <UserCard
               avatar={
-                userData.data?.avatar
-                  ? `${IMAGE_PATH}${userData.data.avatar}`
+                user.avatar
+                  ? `${AVATAR_PATH}/${user.avatar}`
                   : '/avatar_default.png'
               }
-              name={userData.data?.nickname || '尚未設定暱稱'}
+              name={user.nickname || '尚未設定暱稱'}
               description={userData.data?.description || '向別人介紹你自己!'}
               id={user.id}
+              state="self"
             />
 
             {/* btns */}
@@ -284,7 +226,7 @@ export default function UserInfoPage() {
                 <div>
                   {options === '發文' && <>發表文章</>}
                   {options === '收藏景點' && <>收藏景點</>}
-                  {options === '好友' && <>好友區</>}
+                  {options === '好友' && <></>}
                   {options === '通知' && (
                     <>
                       {/* 接收 */}

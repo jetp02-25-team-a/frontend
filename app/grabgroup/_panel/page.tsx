@@ -8,6 +8,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useFetch } from '../../../hooks/useFetch';
 import { number } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
+import { API_SERVER } from '../../config/api-path';
 
 interface NodeData {
   id: number;
@@ -31,13 +32,12 @@ export default function PanelPage() {
   const [nodes, setNodes] = useState<NodeData[] | undefined>(undefined);
 
   const handleSearch = (keyword: string) => {
-    const finUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/search?place=${keyword}`;
+    const finUrl = `${API_SERVER}/itineraries/search?place=${keyword}`;
     // console.log('url=>', finUrl);
     setUrl(finUrl);
   };
 
   useEffect(() => {
-    console.log('data=>', data);
     if (data && !loading) setNodes(data.data);
   }, [data]);
   // useEffect(() => {

@@ -9,7 +9,6 @@ import {
   ItineraryData,
   Node,
   StayNode,
-  GoogleMapPlace,
 } from '../_types/itineraryTypes';
 
 export default function GroupItineraryDetalPage({
