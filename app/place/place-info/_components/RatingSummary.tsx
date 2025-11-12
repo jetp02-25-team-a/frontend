@@ -68,7 +68,7 @@ export default function RatingSummary({ reviews }: { reviews: ReviewItem[] }) {
                   <FontAwesomeIcon
                     key={i}
                     icon={faStarHalfStroke}
-                    className="h-5 w-5"
+                    className="h-5 w-5  text-amber-500"
                   />
                 );
               }

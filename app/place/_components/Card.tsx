@@ -1,6 +1,12 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faStar as faStarSolid,
+  faStarHalfStroke,
+} from '@fortawesome/free-solid-svg-icons';
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
 export default function Card({ spot, photo }: { spot: any; photo: string }) {
   const name: string = spot?.name ?? '';
@@ -15,6 +21,43 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
     photo ||
     spot?.photos?.[0]?.url ||
     'https://picsum.photos/seed/default/400/300';
+
+  // 小工具：把 0~5 分數轉成 5 顆星
+  function renderStars(avg: number | undefined) {
+    if (avg == null || Number.isNaN(Number(avg))) {
+      return <span className="text-xs text-gray-500">尚無評分</span>;
+    }
+    const score = Math.max(0, Math.min(5, Number(avg)));
+    const full = Math.floor(score);
+    const hasHalf = score - full >= 0.5;
+    const empty = 5 - full - (hasHalf ? 1 : 0);
+    return (
+      <div className="flex items-center gap-1">
+        {Array.from({ length: full }).map((_, i) => (
+          <FontAwesomeIcon
+            key={`f-${i}`}
+            icon={faStarSolid}
+            className="h-4 w-4 text-amber-500"
+          />
+        ))}
+        {hasHalf && (
+          <FontAwesomeIcon
+            icon={faStarHalfStroke}
+            className="h-4 w-4  text-amber-500"
+          />
+        )}
+        {Array.from({ length: empty }).map((_, i) => (
+          <FontAwesomeIcon
+            key={`e-${i}`}
+            icon={faStarRegular}
+            className="h-4 w-4 text-amber-500"
+          />
+        ))}
+        <span className="ml-1 text-xs text-gray-600">{score.toFixed(1)}</span>
+      </div>
+    );
+  }
+
   return (
     <>
       <Link
@@ -38,16 +81,11 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
             </div>
           </div>
           <div className="flex items-center gap-1 mb-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span
-                key={i}
-                className={
-                  i < Math.round(ratingAvg) ? 'text-amber-500' : 'text-gray-300'
-                }
-              >
-                ★
-              </span>
-            ))}
+            <div className="mt-1">
+              {renderStars(
+                typeof ratingAvg === 'string' ? Number(ratingAvg) : ratingAvg
+              )}
+            </div>
             <span className="text-sm text-gray-500 ml-1">
               ({ratingAvg.toFixed(1)})
             </span>

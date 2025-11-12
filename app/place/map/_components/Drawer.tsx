@@ -58,7 +58,10 @@ export default function LeftDrawer({
           />
         ))}
         {hasHalf && (
-          <FontAwesomeIcon icon={faStarHalfStroke} className="h-4 w-4" />
+          <FontAwesomeIcon
+            icon={faStarHalfStroke}
+            className="h-4 w-4  text-amber-500"
+          />
         )}
         {Array.from({ length: empty }).map((_, i) => (
           <FontAwesomeIcon
@@ -122,9 +125,6 @@ export default function LeftDrawer({
             <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-3">
               {places.map((p) => {
                 const href = `/place/place-info/${p.id}`;
-                const cover =
-                  p.Photos?.[0]?.url ??
-                  'https://picsum.photos/seed/drawer/640/360';
 
                 return (
                   <Link

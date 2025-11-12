@@ -19,6 +19,10 @@ type Front = {
   photos: string[];
 };
 
+const cmp = (order: 'asc' | 'desc') => (a: Front, b: Front) =>
+  (order === 'desc' ? b.ratingAvg - a.ratingAvg : a.ratingAvg - b.ratingAvg) ||
+  a.id - b.id; // 次排序：id
+
 function normalize(p: Raw): Front {
   const photos = Array.isArray(p?.Photos)
     ? p.Photos.map((x: any) => x?.url).filter(Boolean)
@@ -27,9 +31,10 @@ function normalize(p: Raw): Front {
           .map((x: any) => (typeof x === 'string' ? x : x?.url))
           .filter(Boolean)
       : [];
-  const ratingAvg = Number(p?.rating?.avg ?? p?.avgScore ?? 0);
+  const avgRaw = p?.rating?.avg ?? p?.avgScore ?? p?.avg_score ?? 0;
+  const ratingAvg = Number(avgRaw);
   return {
-    id: p?.id ?? p?.place_id,
+    id: Number(p?.id ?? p?.place_id), // <- 確保是 number
     name: p?.name ?? '',
     address: p?.address ?? p?.region ?? '',
     description: p?.introduce ?? p?.description ?? '',
@@ -108,8 +113,16 @@ export default function ExploreSection() {
       setLoading(false);
     }
   }
+  // 排序函式
+  const cmp = (order: 'asc' | 'desc') => (a: Front, b: Front) =>
+    (order === 'desc'
+      ? b.ratingAvg - a.ratingAvg
+      : a.ratingAvg - b.ratingAvg) || a.id - b.id;
 
-  // 切換 Tab / 排序時重置分頁與資料
+  // 切換排序按鈕
+  const toggleSort = () => setSortOrder((s) => (s === 'desc' ? 'asc' : 'desc'));
+
+  // 切換 Tab 時重置分頁與資料
   useEffect(() => {
     setData([]);
     setPage(1);
@@ -119,7 +132,12 @@ export default function ExploreSection() {
     requestedPagesRef.current = new Set();
     // 👇 也取消尚未完成的請求
     abortRef.current?.abort();
-  }, [activeTab, sortOrder]);
+  }, [activeTab]);
+
+  // sortOrder 改變時，只重排目前資料（不重抓）
+  useEffect(() => {
+    setData((prev) => [...prev].sort(cmp(sortOrder)));
+  }, [sortOrder]);
 
   // 首頁＆每次 page 變更就抓資料
   useEffect(() => {
@@ -146,8 +164,6 @@ export default function ExploreSection() {
 
     return () => io.disconnect();
   }, [loading, hasMore, activeTab, sortOrder]);
-
-  const toggleSort = () => setSortOrder((s) => (s === 'desc' ? 'asc' : 'desc'));
 
   return (
     <section className="max-w-[1600px] mx-auto px-4 mb-12">
