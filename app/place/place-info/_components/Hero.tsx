@@ -130,7 +130,7 @@ export default function Hero({
                   onClick={() =>
                     setIdx((idx - 1 + photos.length) % photos.length)
                   }
-                  className="m-2 rounded-full bg-white/80 px-2 py-1"
+                  className="m-2 rounded-full bg-white/80 px-2 py-1 hover:cursor-pointer"
                 >
                   ‹
                 </button>
@@ -138,7 +138,7 @@ export default function Hero({
               <div className="absolute inset-y-0 right-0 flex items-center">
                 <button
                   onClick={() => setIdx((idx + 1) % photos.length)}
-                  className="m-2 rounded-full bg-white/80 px-2 py-1"
+                  className="m-2 rounded-full bg-white/80 px-2 py-1 hover:cursor-pointer"
                 >
                   ›
                 </button>

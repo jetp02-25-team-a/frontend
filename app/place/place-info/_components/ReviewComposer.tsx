@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
-import StarRatingInput from './StarRating';
+import StarRating from './StarRating';
 import { createOrUpsertComment } from '@/app/place/lib/commentAdaptor';
 import { createOrUpsertRank } from '../../lib/rankAdaptor';
 
 export type ReviewInput = {
-  placeId: string;
+  placeId: number;
   rating: number;
   content: string;
 };
@@ -20,18 +20,23 @@ export default function ReviewComposer({
   const [content, setContent] = useState('');
   const [rating, setRating] = useState(5); // 先保留 UI；Rank 之後接
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     if (!content.trim()) return;
 
     setLoading(true);
+    setError(null);
     try {
       await createOrUpsertRank(placeId, rating);
       await createOrUpsertComment(placeId, content.trim());
       setContent('');
       setRating(0);
       onCreated?.(); // 讓外層 refresh
+    } catch (err: any) {
+      setError('送出失敗，請稍後再試');
     } finally {
       setLoading(false);
     }
@@ -41,13 +46,18 @@ export default function ReviewComposer({
     <form
       onSubmit={handleSubmit}
       className="w-[60%] max-w-3xl rounded-2xl border p-4"
+      aria-busy={loading}
     >
       <div className="font-semibold mb-3">撰寫評論</div>
 
       {/* 星星評分（動畫點擊式） */}
       <div className="flex items-center gap-3">
         <span className="text-sm text-neutral-600">評分</span>
-        <StarRatingInput value={rating} onChange={setRating} size={24} />
+        <StarRating
+          value={rating}
+          onChange={loading ? undefined : setRating}
+          size={24}
+        />
       </div>
 
       <textarea
@@ -56,8 +66,10 @@ export default function ReviewComposer({
         rows={4}
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        disabled={loading}
       />
 
+      {error && <div className="mt-2 text-sm text-red-500">{error}</div>}
       <div className="mt-3 flex items-center gap-2">
         <button
           type="button"

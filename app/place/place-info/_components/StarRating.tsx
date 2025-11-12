@@ -101,7 +101,7 @@ export default function StarRatingInput({
               style={{
                 width: size,
                 height: size,
-                color: display >= v - 0.25 ? '#f59e0b' : '#f59e0b', // amber-500 / gray-200
+                color: display >= v - 0.25 ? '#f59e0b' : '#EEEEEE', // amber-500 / gray-200
               }}
             />
           </button>

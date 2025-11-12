@@ -71,7 +71,7 @@ function normalizePlace(r: RawPlace) {
     contact: r.contact ?? null,
     introduce: r.introduce ?? null,
     Photos: r.Photos ?? r.photos ?? [],
-    ratingAvg: r.rating.avg ?? undefined,
+    ratingAvg: r.rating?.avg ?? r.ratingAvg ?? r.avg ?? r._avg?.score ?? 0,
     ratingCount: r.ratingCount ?? r.rating_count ?? r.count ?? undefined,
     latitude,
     longitude,
