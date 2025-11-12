@@ -81,18 +81,6 @@ export default function TeamUpPage() {
             />
           );
         })}
-        {/* {itineraryAreaCards?.map((card: Card, index: number) => {
-          return (
-            <TourCard
-              key={index}
-              title={card.title}
-              description="探索台北地標，品味信義區美食。"
-              avatar="https://randomuser.me/api/portraits/women/20.jpg"
-              user_name={card.User.nickname}
-              image="https://www.travel.taipei/image/216608/?r=1625036397904"
-            />
-          );
-        })} */}
       </div>
     </>
   );

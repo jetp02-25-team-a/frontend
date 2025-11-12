@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 interface TourCardProps {
   title: string;
@@ -29,13 +30,17 @@ export default function TourCard({
             className="w-full h-full bg-center bg-cover transition-all  duration-700 ease-in-out group-hover:scale-110"
           ></img>
         </div>
-        <div className="w-full flex flex-col p-[12px] gap-[10px] mt-[-25px]">
-          <div className="flex justify-start items-end gap-[10px]">
-            <img
-              src={avatar}
-              className="rounded-full border-2 border-white w-[73px] h-[73px] z-50"
-              alt=""
-            />
+        <div className="w-full flex flex-col p-3 gap-2.5 mt-[-25px]">
+          <div className="flex justify-start items-end gap-2.5">
+            <div className="w-[73px] h-[73px] rounded-full border-2 border-white  z-50 overflow-hidden relative">
+              <Image
+                fill
+                src={avatar}
+                alt=""
+                className="object-cover bg-center  "
+              />
+            </div>
+
             <div>
               <p className="text-base">{user_name}</p>
               <p className="text-2xl">{`${title?.length > 7 ? title.slice(0, 7) + '..' : title}`}</p>
