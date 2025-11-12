@@ -120,7 +120,7 @@ export default function UserInfoPage() {
   }); //通訊錄所有使用者
   const { user, isReady } = useAuth(); //使用者資訊
   //搜索有好朋友房間最新訊息
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships/allmessage`;
+  const url = `${API_SERVER}/friendships/allmessage`;
   //取得後放入state
   const { data, loading, error } = useFetch(url);
 
@@ -155,7 +155,7 @@ export default function UserInfoPage() {
   };
 
   //取得所有行程邀請訊息
-  const getALlInviteMessageUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/all-invite/${user?.id}`;
+  const getALlInviteMessageUrl = `${API_SERVER}/itineraries/all-invite/${user?.id}`;
 
   const handelAllInviteMessage = async () => {
     try {

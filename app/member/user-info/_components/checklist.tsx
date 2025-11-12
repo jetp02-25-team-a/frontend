@@ -2,6 +2,8 @@
 import Image from 'next/image';
 import InfoButton from './InfoButton';
 import { useAuth } from '@/hooks/use-Auth';
+import { API_SERVER } from '../../../config/api-path';
+import { IMAGE_PATH, AVATAR_PATH } from '../../../config/image-path';
 interface ChecklistProps {
   title: string;
   type: 'agree' | 'answer';
@@ -22,9 +24,7 @@ export default function Checklist({
   const { user, isReady } = useAuth();
 
   const agreeInvite = async (invitationResponse: number) => {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${
-      process.env.NEXT_PUBLIC_BACKEND_API_PORT
-    }/api/itineraries/invite`;
+    const url = `${API_SERVER}/itineraries/invite`;
     const data = {
       invitationId: invitationId,
       userId: user ? user.id : 0,
@@ -48,16 +48,14 @@ export default function Checklist({
     <div className="bg-white flex items-center justify-between px-10 py-5 border-b-2 border-gray-300">
       {/* 團主個人訊息 */}
       <div className="flex items-center gap-5">
-        <Image
-          width={77}
-          height={77}
-          src={
-            senderAvatar
-              ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/${senderAvatar}`
-              : '/avatar.png'
-          }
-          alt=""
-        />
+        <div className="w-[77px] h-[77px] relative shrink-0 overflow-hidden rounded-full">
+          <Image
+            fill
+            src={senderAvatar ? `${AVATAR_PATH}${senderAvatar}` : '/avatar.png'}
+            alt=""
+            className="object-cover"
+          />
+        </div>
         <div>
           <h3 className="text-xl">{snederName}</h3>
           <InfoButton button_name="個人檔案" state="hollow" />

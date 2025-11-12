@@ -85,6 +85,7 @@ export default function TeamUpEditArticlePage() {
 
       <RegularButton
         content="送出"
+        mode="solid"
         onClick={() => {
           console.log('按下', itineraryId);
 

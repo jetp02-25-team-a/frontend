@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface MessageBoxProps {
   avatar?: string;
@@ -19,8 +19,8 @@ export default function MessageBox({
         <div className="flex justify-between">
           <div className="flex items-center gap-[20px]">
             <img
-              src={`./${avatar}`}
-              className="rounded-full w-[40px] h-[40px]"
+              src={avatar ? avatar : '/avatar_default.png'}
+              className="rounded-full w-[40px] h-[40px] object-cover"
               alt=""
             />
             <h2 className="text-xl">{user_name}</h2>

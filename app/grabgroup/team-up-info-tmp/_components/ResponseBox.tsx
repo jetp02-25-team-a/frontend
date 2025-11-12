@@ -3,6 +3,7 @@ import RegularButton from '@/components/ui/regular-button';
 import { use, useState } from 'react';
 import { useAuth } from '@/hooks/use-Auth';
 import { number } from 'framer-motion';
+import { API_SERVER } from '../../../../config/api-path';
 
 interface ResponseBoxProps {
   itineraryId?: number;
@@ -11,7 +12,7 @@ interface ResponseBoxProps {
 export default function ResponseBox({ itineraryId }: ResponseBoxProps) {
   const { user, isReady } = useAuth();
   if (user) console.log('user==>', user.email, user.nickname, user.id);
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/create-comment`;
+  const url = `${API_SERVER}/itineraries/create-comment`;
   const handleSubmit = async (input: string) => {
     if (!user) return;
     const body = {
@@ -55,7 +56,11 @@ export default function ResponseBox({ itineraryId }: ResponseBoxProps) {
           }
         }}
       />
-      <RegularButton content="回應" onClick={() => handleSubmit(comment)} />
+      <RegularButton
+        mode="solid"
+        content="回應"
+        onClick={() => handleSubmit(comment)}
+      />
     </>
   );
 }

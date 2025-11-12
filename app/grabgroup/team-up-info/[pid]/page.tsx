@@ -2,7 +2,7 @@
 import InfoButton from '../_components/InfoButton';
 import JoinButton from '@/components/ui/join-button';
 import { useAuth } from '@/hooks/use-Auth';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Map from '../_components/GoogleMap';
 import MessageBox from '../_components/MessageBox';
 import ResponseBox from '../_components/ResponseBox';
@@ -38,6 +38,11 @@ interface Comments {
   senderId: number;
   content: string;
   updatedAt: string;
+  Sender: {
+    nickname: string;
+    fullName: string;
+    avatar: string;
+  };
 }
 
 interface ItineraryLisInterface {
@@ -79,7 +84,7 @@ export default function PlacePage() {
   const [itineraryList, setItineraryList] = useState<ItineraryLisInterface>();
   const [commentLimit, setCommentLimit] = useState<number>(3);
   const [showAllImage, setShowAllImage] = useState<boolean>(false);
-  const photoProviderRef = useRef<PhotoProviderRef>(null);
+  // We'll trigger PhotoView by clicking a native <img> via its DOM id to avoid React ref warnings
   // const [baseTime, setBaseTime] = useState(data.brigade_days[0].start_time);
   const [mapPoint, setMapPoint] = useState({
     latitude: 25.033,
@@ -102,11 +107,11 @@ export default function PlacePage() {
 
   const url = `${API_SERVER}/itineraries/itinerary-list?itineraryId=${pid}&userId=${userId}`;
 
-  const { data, loading, error, refetch } = useFetch(url);
+  const { data, refetch } = useFetch(url);
 
   useEffect(() => {
     refetch();
-  }, [pid]);
+  }, [pid, refetch]);
 
   useEffect(() => {
     if (data?.success) {
@@ -126,14 +131,17 @@ export default function PlacePage() {
   const toImgUrl = (fileName: string) => {
     return `${IMAGE_PATH}/itineraries_photo/${fileName}`;
   };
-  const [showAll, setShowAll] = useState(false);
-  const btnRef = useRef<HTMLImageElement>(null); //抓img
   const openAll = () => {
-    photoProviderRef.current?.open(0); // 從第一張開始開啟
+    const el = document.getElementById('first-photo-trigger') as HTMLElement | null;
+    if (el) {
+      // dispatch a sequence of events to better trigger 3rd-party listeners
+      ['pointerdown', 'pointerup', 'click'].forEach((type) =>
+        el.dispatchEvent(
+          new MouseEvent(type, { bubbles: true, cancelable: true, view: window })
+        )
+      );
+    }
   };
-  useEffect(() => {
-    if (showAll) btnRef.current?.click(); // 為真自動觸發
-  }, [showAll]);
   //pid
   const handleInvite = async (userId: number, itineraryId: number) => {
     const url = `${API_SERVER}/itineraries/invite`;
@@ -164,26 +172,17 @@ export default function PlacePage() {
     <>
       {/* image區 */}
 
-      <PhotoProvider
-        //按下叉叉切換為假隱藏
-        onVisibleChange={(visible: boolean) => {
-          if (!visible) {
-            setShowAll(false);
-          }
-        }}
-      >
-        <div className="flex gap-4 relative relative">
+      <PhotoProvider>
+        <div className="flex gap-4 relative">
           {images && images?.length >= 4 && (
             <>
               <PhotoView src={toImgUrl(images[0].imageName)}>
-                {/* ref觸發照片輪播用 */}
-                <Image
-                  width={1000}
-                  height={1000}
+                {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                <img
+                  id="first-photo-trigger"
                   src={toImgUrl(images[0].imageName)}
                   alt=""
-                  className="shrink-0 w-[770px] h-[510px]"
-                  ref={btnRef}
+                  className="shrink-0 w-[770px] h-[510px] object-cover"
                 />
               </PhotoView>
               <div className="flex flex-col gap-4">
@@ -220,7 +219,7 @@ export default function PlacePage() {
               </div>
 
               <button
-                onClick={() => setShowAll(true)}
+                onClick={openAll}
                 className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
               >
                 查看所有照片
@@ -248,7 +247,13 @@ export default function PlacePage() {
             </div>
             {/* <Image width={77} height={77} src={'/avatar.png'} alt="" /> */}
             <h3 className="text-xl">{itineraryList?.nickname}</h3>
-            <Link href={`/member/${itineraryList?.id}`}>
+            <Link
+              href={
+                user.id === itineraryList?.id
+                  ? `/member/user-info`
+                  : `/member/${itineraryList?.id}`
+              }
+            >
               <InfoButton button_name="個人檔案" />
             </Link>
           </div>
@@ -309,7 +314,6 @@ export default function PlacePage() {
               {itineraryList?.Itineraries?.[0]?.Days &&
                 itineraryList?.Itineraries?.[0]?.Days.map(
                   (day: Day, dayIndex: number) => {
-                    const baseTime = day.startTime;
                     return (
                       <div key={dayIndex}>
                         {/* 天數開頭 */}
@@ -381,8 +385,8 @@ export default function PlacePage() {
                 return (
                   <MessageBox
                     key={index}
-                    avatar={`./avatar.png`}
-                    user_name={'王小明'}
+                    avatar={`${AVATAR_PATH}${comment.Sender.avatar}`}
+                    user_name={comment.Sender.nickname}
                     create_at={new Date(comment.updatedAt).toLocaleDateString()}
                     content={comment.content}
                   />

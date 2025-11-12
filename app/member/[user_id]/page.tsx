@@ -6,11 +6,11 @@ import { useParams } from 'next/navigation';
 import { API_SERVER } from '../../config/api-path';
 import { ApiResponse } from '../_interfaces/userData';
 import { useRouter } from 'next/navigation';
-import { IMAGE_PATH } from '../../config/image-path';
 import ComponentsUserCard from '../_components/user-card';
 import ListButton from '../user-info/_components/list-button';
 import Checklist from '../user-info/_components/checklist';
 import { useFetch } from '@/hooks/useFetch';
+import { AVATAR_PATH, IMAGE_PATH } from '../../config/image-path';
 
 interface UserALLData {
   id: number;
@@ -41,7 +41,7 @@ const userALLDataDefault: UserALLData = {
 const handleAddFriend = async (id: number) => {
   // 加好友的邏輯（加入授權、錯誤處理與偵錯輸出）
   try {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships/add`;
+    const url = `${API_SERVER}/friendships/add`;
 
     const token = localStorage.getItem('BackpackUserInfo');
     let auth;
@@ -75,7 +75,7 @@ export default function UserIdPage() {
   const [userData, setUserData] = useState<UserALLData>(userALLDataDefault);
 
   const [options, setOptions] = useState<string>('發文');
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships/userinfo?userId=${user_id}`;
+  const url = `${API_SERVER}/friendships/userinfo?userId=${user_id}`;
   const { data, loading, error, refetch } = useFetch(url);
   //資料拿取
   useEffect(() => {
@@ -133,12 +133,18 @@ export default function UserIdPage() {
                           key={i}
                           className="flex items-center gap-4 p-4 border-b-2 border-gray-400"
                         >
-                          <Image
-                            src={f.User.avatar || '/avatar_default.png'}
-                            alt=""
-                            width={70}
-                            height={70}
-                          />
+                          <div className="w-[70px] h-[70px] relative shrink-0">
+                            <Image
+                              src={
+                                f.User.avatar
+                                  ? `${AVATAR_PATH}${f.User.avatar}`
+                                  : '/avatar_default.png'
+                              }
+                              alt=""
+                              fill
+                              className="object-cover rounded"
+                            />
+                          </div>
                           <p className="text-gray-600">{f.User.nickname}</p>
                         </div>
                       );

@@ -5,6 +5,7 @@ import { useFetch } from '../../../../hooks/useFetch';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import { API_SERVER } from '../../../config/api-path';
 
 // import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 // import dayjs, { Dayjs } from 'dayjs';
@@ -35,7 +36,7 @@ export default function KeyWordPage() {
   //1. 有placeId setUrl
   useEffect(() => {
     if (placeId) {
-      const api = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/place?placeId=${placeId}`;
+      const api = `${API_SERVER}/itineraries/place?placeId=${placeId}`;
       setUrl(api);
     }
   }, [placeId]);
@@ -59,7 +60,7 @@ export default function KeyWordPage() {
     googlePlaceId: any
   ) => {
     try {
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/create-node`;
+      const url = `${API_SERVER}/itineraries/create-node`;
       const data = {
         day: day,
         durationMinutes: durationMinutes,
@@ -116,6 +117,7 @@ export default function KeyWordPage() {
 
           <RagularButton
             content="加入行程"
+            mode="solid"
             onClick={() => {
               if (daydata)
                 handelInsertNode(daydata, durationMinutes, placeData.placeId);

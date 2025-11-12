@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { API_SERVER } from '../../../config/api-path';
 
 interface Comment {
   username: string;
@@ -13,7 +14,10 @@ interface CommentSectionProps {
   postId: number; // ID postingan tujuan komentar
 }
 
-export default function CommentSection({ comments, postId }: CommentSectionProps) {
+export default function CommentSection({
+  comments,
+  postId,
+}: CommentSectionProps) {
   const [username, setUsername] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [content, setContent] = useState('');
@@ -32,7 +36,7 @@ export default function CommentSection({ comments, postId }: CommentSectionProps
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/comments`, {
+      const res = await fetch(`${API_SERVER}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -135,24 +139,6 @@ export default function CommentSection({ comments, postId }: CommentSectionProps
     </section>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import React from 'react';
 

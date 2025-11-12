@@ -7,9 +7,10 @@ import AreaButton from './_components/area-button';
 import { ItineraryAreaCard } from '../_types/itineraryTypes';
 import { useRouter } from 'next/navigation';
 import { AVATAR_PATH, IMAGE_PATH } from '../../config/image-path';
+import { API_SERVER } from '../../config/api-path';
 export default function TeamUpPage() {
   const [area, setArea] = useState('新北市');
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/area?area=${area}`;
+  const url = `${API_SERVER}/itineraries/area?area=${area}`;
   const { data, loading, error, refetch } = useFetch(url);
   const [cards, setCards] = useState<ItineraryAreaCard[]>();
 

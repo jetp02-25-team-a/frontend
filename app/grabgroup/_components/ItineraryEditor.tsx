@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useEffect } from 'react';
 import { debounce } from 'lodash';
+import { API_SERVER } from '../../config/api-path';
 
 interface itineraryData {
   itineraryData: any;
@@ -11,14 +12,11 @@ export function ItineraryEditor({ itineraryData }: itineraryData) {
     () =>
       debounce(async (itineraryData) => {
         console.log('發送儲存請求...', itineraryData);
-        await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/save`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ itineraryData }),
-          }
-        );
+        await fetch(`${API_SERVER}/itineraries/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itineraryData }),
+        });
       }, 1500), // 延遲 1.5 秒
     []
   );

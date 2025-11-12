@@ -14,6 +14,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSocket } from '@/hooks/use-Socket';
 import { useAuth } from '../../../hooks/use-Auth';
 import { useFetch } from '../../../hooks/useFetch';
+import { API_SERVER } from '../../config/api-path';
 
 const messages = {
   title: '台北一日遊',
@@ -74,8 +75,8 @@ export default function ChatBox({
   }, [socket, roomId, userId]);
 
   //開啟時讀取所有歷史訊息
-  const roomUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/chat/allmessage?roomId=${roomId}`;
-  const receiverUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/chat/allmessage?receiverId=${userId}`;
+  const roomUrl = `${API_SERVER}/chat/allmessage?roomId=${roomId}`;
+  const receiverUrl = `${API_SERVER}/chat/allmessage?receiverId=${userId}`;
   const { data, refetch } = useFetch(roomId ? roomUrl : receiverUrl);
 
   useEffect(() => {

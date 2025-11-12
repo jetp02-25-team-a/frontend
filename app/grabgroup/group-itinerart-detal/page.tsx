@@ -21,6 +21,7 @@ import Map from '../_components/GoogleMap';
 import { addDays, addMinutes } from 'date-fns';
 import { ItineraryEditor } from '../_components/ItineraryEditor';
 import { useSearchParams } from 'next/navigation';
+import { API_SERVER } from '../../config/api-path';
 
 export interface mapPoint {
   latitude: number; //預設台北101
@@ -52,7 +53,7 @@ export default function GroupItineraryDetalPage() {
 
   const { itineraryData, setItineraryData } = useItinerary(); //公共
 
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/detail?itineraryId=${itineraryId}`;
+  const url = `${API_SERVER}/itineraries/detail?itineraryId=${itineraryId}`;
   const { data, error, refetch } = useFetch(url);
 
   useEffect(() => {
@@ -73,7 +74,6 @@ export default function GroupItineraryDetalPage() {
 
   //公共資料更新後刷新
   useEffect(() => {
-    console.log('itineraryData=>', itineraryData);
     // if (itineraryData) setDays(itineraryData);
     let newItineraryData: ItineraryData[] = [];
     if (itineraryData) {

@@ -1,6 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { formatTime12Hour } from '@/app/grabgroup/utils';
+import { AVATAR_PATH } from '../../../config/image-path';
 
 interface MessageBoxProps {
   title: string | null;
@@ -47,12 +48,22 @@ export default function MessageBox({
         <Image
           width={64}
           height={64}
-          src={image}
+          src={
+            image.startsWith('http') || image.startsWith('/')
+              ? image
+              : `${AVATAR_PATH}${image}`
+          }
           alt=""
-          className="rounded-full"
+          className="rounded-full object-cover"
         />
       ) : (
-        <></>
+        <Image
+          width={64}
+          height={64}
+          src={'/avatar_default.png'}
+          alt=""
+          className="rounded-full object-cover"
+        />
       )}
 
       <div className="m-auto w-full">
