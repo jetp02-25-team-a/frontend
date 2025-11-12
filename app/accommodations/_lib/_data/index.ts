@@ -1,2 +1,1 @@
-export * from './acc_fetcher';
-export * from './mock_fetcher';
+export * from './acc.fetcher';

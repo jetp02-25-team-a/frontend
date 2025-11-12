@@ -2,7 +2,7 @@ import CarouselContent from './_components/client/CarouselContent';
 import SearchBar from './_components/client/Searchbar';
 import Section from './_components/server/Section';
 
-import { fetchAccommodations } from './_lib';
+import { fetchAccommodations } from './_lib/_data';
 
 export default async function AccommodationPage() {
   const [popularData, highRatedData] = await Promise.all([
