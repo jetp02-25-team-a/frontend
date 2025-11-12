@@ -3,7 +3,6 @@ import ReviewArea from '../_components/client/ReviewArea';
 import DescriptionArea from '../_components/server/DescriptionArea';
 import GalleryArea from '../_components/server/GalleryArea';
 import RoomTypesArea from '../_components/server/RoomTypesArea';
-import TitleArea from '../_components/server/TitleArea';
 import Section from '../_components/server/Section';
 import InfoArea from '../_components/server/InfoArea';
 
@@ -12,7 +11,7 @@ interface AIDProps {
 }
 
 export default async function AIDPage({ params }: AIDProps) {
-  const { AID } = params;
+  const { AID } = await Promise.resolve(params);
   const id = +AID || 0;
 
   const mockData = {
@@ -73,6 +72,16 @@ export default async function AIDPage({ params }: AIDProps) {
       { id: 8, name: '浴缸', type: 'Room' },
       { id: 9, name: '咖啡機', type: 'Room' },
       { id: 10, name: '餐廳', type: 'Food' },
+      { id: 11, name: '游泳池', type: 'Spa' },
+      { id: 12, name: '桑拿房', type: 'Spa' },
+      { id: 13, name: '停車場', type: 'Parking' },
+      { id: 14, name: '代客泊車', type: 'Parking' },
+      { id: 15, name: '會議室', type: 'Business' },
+      { id: 16, name: '商務中心', type: 'Business' },
+      { id: 17, name: '酒吧', type: 'Entertainment' },
+      { id: 18, name: '卡拉OK', type: 'Entertainment' },
+      { id: 19, name: '花園', type: 'Outdoor' },
+      { id: 20, name: '露天陽台', type: 'Outdoor' },
     ],
     reviewSummary: {
       averageRating: 4.8,
@@ -134,7 +143,7 @@ export default async function AIDPage({ params }: AIDProps) {
         />
         <hr className="w-full text-cg" />
       </Section>
-      <Section className="bg-lg">
+      <Section className="bg-lgray">
         <InfoArea
           name={mockData.name}
           address={mockData.address}
@@ -152,7 +161,7 @@ export default async function AIDPage({ params }: AIDProps) {
         />
         <hr className="w-full text-cg" />
       </Section>
-      <Section className="bg-lg">
+      <Section className="bg-lgray">
         <RoomTypesArea roomTypes={mockData.roomTypes} />
         <hr className="w-full text-cg" />
       </Section>
@@ -160,7 +169,8 @@ export default async function AIDPage({ params }: AIDProps) {
         <MapArea latitude={mockData.latitude} longitude={mockData.longitude} />
         <hr className="w-full text-cg" />
       </Section>
-      <Section className="bg-lg">
+      <Section className="bg-lgray">
+        <div id="reviewArea" className="scroll-mt-24"></div>
         <ReviewArea accommodationId={id} />
         <hr className="w-full text-cg" />
       </Section>

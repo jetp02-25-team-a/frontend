@@ -66,7 +66,7 @@ export default function SearchPage() {
 
   return (
     <>
-      <Section className="bg-lg">
+      <Section className="bg-lgray">
         <div className="w-full flex justify-center items-center">
           <SearchBar />
         </div>

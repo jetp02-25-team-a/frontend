@@ -14,7 +14,7 @@ export default async function AccommodationPage() {
       <Section>
         <span className="text-[36px]">住的好，才能走得更遠。</span>
         <hr className="w-full text-cg" />
-        <span className="text-cg text-[24px]">
+        <span className="text-cgray text-[24px]">
           輸入您的 目的地，選定 日期，確認
           人數，即刻為您的旅程找到最舒適的「充電站」！
         </span>
@@ -24,7 +24,7 @@ export default async function AccommodationPage() {
       </Section>
 
       {/* 區塊 1: 熱門推薦 - Page SC 將數據傳給 Section SC */}
-      <Section className="bg-lg">
+      <Section className="bg-lgray">
         <CarouselContent title="熱門推薦" data={popularData} />
         <hr className="w-full text-cg" />
       </Section>
