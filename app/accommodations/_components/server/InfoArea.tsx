@@ -1,6 +1,5 @@
 import { FaStar } from 'react-icons/fa6';
 import BookingForm from '../client/BookingForm';
-import Link from 'next/link';
 import ScrollLink from '../client/ScrollLink';
 
 interface Amenity {

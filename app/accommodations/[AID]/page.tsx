@@ -16,41 +16,41 @@ export default async function AIDPage({ params }: AIDProps) {
 
   const mockData = {
     images: [
-      // {
-      //   id: 1,
-      //   url: 'https://picsum.photos/id/684/800/600',
-      //   caption: '自由廣場主圖',
-      //   isPrimary: true,
-      //   sortOrder: 1,
-      // },
-      // {
-      //   id: 2,
-      //   url: 'https://picsum.photos/id/613/800/600',
-      //   caption: '現代建築',
-      //   isPrimary: false,
-      //   sortOrder: 2,
-      // },
-      // {
-      //   id: 3,
-      //   url: 'https://picsum.photos/id/681/800/600',
-      //   caption: '歷史建築',
-      //   isPrimary: false,
-      //   sortOrder: 3,
-      // },
-      // {
-      //   id: 4,
-      //   url: 'https://picsum.photos/id/134/800/600',
-      //   caption: '夜景街道',
-      //   isPrimary: false,
-      //   sortOrder: 4,
-      // },
-      // {
-      //   id: 5,
-      //   url: 'https://picsum.photos/id/1025/800/600',
-      //   caption: '房間內部',
-      //   isPrimary: false,
-      //   sortOrder: 5,
-      // },
+      {
+        id: 1,
+        url: 'https://picsum.photos/id/684/800/600',
+        caption: '自由廣場主圖',
+        isPrimary: true,
+        sortOrder: 1,
+      },
+      {
+        id: 2,
+        url: 'https://picsum.photos/id/613/800/600',
+        caption: '現代建築',
+        isPrimary: false,
+        sortOrder: 2,
+      },
+      {
+        id: 3,
+        url: 'https://picsum.photos/id/681/800/600',
+        caption: '歷史建築',
+        isPrimary: false,
+        sortOrder: 3,
+      },
+      {
+        id: 4,
+        url: 'https://picsum.photos/id/134/800/600',
+        caption: '夜景街道',
+        isPrimary: false,
+        sortOrder: 4,
+      },
+      {
+        id: 5,
+        url: 'https://picsum.photos/id/1025/800/600',
+        caption: '房間內部',
+        isPrimary: false,
+        sortOrder: 5,
+      },
       {
         id: 6,
         url: 'https://picsum.photos/id/1035/800/600',

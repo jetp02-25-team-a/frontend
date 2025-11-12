@@ -3,14 +3,21 @@
 import { useState, useEffect } from 'react';
 import { API_SERVER } from '@/config/api-path';
 import { useAuth } from '@/hooks/use-Auth';
+import { toast } from 'react-hot-toast';
+
 type FavoriteState = Map<number, boolean>;
 
 export function useFavorites(data: { id: number }[]) {
   const { user, getAuthHeader, logout } = useAuth();
   const [favorites, setFavorites] = useState<FavoriteState>(new Map());
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // 初始化收藏狀態
   useEffect(() => {
+    const initial = new Map<number, boolean>();
+    data.forEach((item) => initial.set(item.id, false));
+    setFavorites(initial);
+
     // 只有在 user.id 存在時才執行
     if (!user?.id) {
       setFavorites(new Map()); // 用戶登出時，清空收藏狀態
@@ -22,19 +29,18 @@ export function useFavorites(data: { id: number }[]) {
       });
 
       if (res.status === 401) {
-        // Token 失效，強制登出
+        // Token 失效 → 登出 + 提示登入
+        setShowLoginModal(true);
         logout();
-        return; // 終止後續處理
+        return;
       }
 
       if (!res.ok) {
-        // 其他非 401 的錯誤 (例如 500)，可以在此處加入錯誤訊息提示 (e.g. alert, toast)
-        console.error('Failed to fetch favorites list:', res.status);
-        return; // 終止後續處理
+        toast.error('無法取得收藏清單，請稍後再試');
+        return;
       }
 
       const json = await res.json();
-      console.log(json);
       const initialFavorites = new Map<number, boolean>();
       json.data.forEach((fav: any) => {
         initialFavorites.set(fav.accommodationId, true);
@@ -44,7 +50,7 @@ export function useFavorites(data: { id: number }[]) {
     };
 
     fetchFavorites();
-  }, [user?.id]);
+  }, [user?.id, data]);
 
   // 切換收藏
   const toggleFavorite = async (accId: number) => {
@@ -68,22 +74,30 @@ export function useFavorites(data: { id: number }[]) {
       });
 
       if (res.status === 401) {
+        setFavorites(prevState); // 回滾
+        setShowLoginModal(true); // 顯示登入提示
         logout();
-        // 4. API 失敗時回滾
-        setFavorites(prevState);
+        return;
       }
 
       if (!res.ok) {
-        // 4. API 失敗時回滾
         setFavorites(prevState);
-        console.error('Failed to toggle favorite.');
+        toast.error('收藏失敗，請稍後再試');
       }
     } catch (error) {
       // 4. 網路錯誤時回滾
       setFavorites(prevState);
-      console.error('Network error during toggle.');
+      toast.error('網路錯誤，請稍後再試');
     }
   };
 
-  return { favorites, toggleFavorite };
+  const isFavorite = (id: number) => favorites.get(id) || false;
+
+  return {
+    favorites,
+    toggleFavorite,
+    isFavorite,
+    showLoginModal,
+    setShowLoginModal,
+  };
 }
