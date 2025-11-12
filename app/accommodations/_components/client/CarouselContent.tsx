@@ -1,85 +1,53 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
-import { CardData } from '../../_types';
+import { AccDataCard } from '../../_types';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import ComponentsAccCard from './AccCard';
+import { useFavorites, useCarousel } from '../../_lib/_hooks';
 
 export interface CarouselContentProps {
   title: string;
-  data: CardData[];
+  data: AccDataCard[];
 }
 
-type FavoriteState = Map<number, boolean>;
-
 // 💡 定義卡片寬度常量 (需與 ComponentsAccCard 中的實際寬度一致)
-const CARD_WIDTH = 266; // 您的卡片寬度 w-[266px]
-const GAP_WIDTH = 20; // 您的卡片間距 gap-5 (約 20px)
+const CARD_WIDTH = 266; // 卡片寬度 w-[266px]
+const GAP_WIDTH = 20; // 卡片間距 gap-5 (約 20px)
 const CARD_FULL_SIZE = CARD_WIDTH + GAP_WIDTH;
 
 export default function CarouselContent({ title, data }: CarouselContentProps) {
   // 狀態管理：追蹤每個卡片的收藏狀態
-  const [favorites, setFavorites] = useState<FavoriteState>(new Map());
-  const [currentIndex, setCurrentIndex] = useState(0); // 追蹤當前顯示的第一張卡片索引
+  const { favorites, toggleFavorite } = useFavorites(data);
 
-  // 初始化收藏狀態：確保在數據載入時，狀態被正確初始化
-  useEffect(() => {
-    const initialFavorites = new Map<number, boolean>();
-    data.forEach((card) => {
-      // 🚨 這裡應該使用 SC 傳遞下來的初始收藏狀態，但為了簡潔，暫時設為 false
-      initialFavorites.set(card.id, card.isFavorite);
-    });
-    setFavorites(initialFavorites);
-  }, [data]); // 依賴於 data 確保在數據變化時重新初始化
+  // 捲動邏輯
+  const { moveCarousel, translateX, isAtStart, isAtEnd } = useCarousel(
+    3, // 每次移動幾張
+    data.length,
+    CARD_FULL_SIZE
+  );
 
-  const moveCarousel = (direction: 'left' | 'right') => {
-    const numCards = data.length;
-    // 假設我們每次移動一張卡片
-    const step = 3;
-
-    if (direction === 'right') {
-      // 避免超出最後一張卡片
-      const maxIndex = numCards > 0 ? numCards - 1 : 0;
-      setCurrentIndex((prev) => Math.min(prev + step, maxIndex));
-    } else {
-      // 避免低於第一張卡片
-      setCurrentIndex((prev) => Math.max(prev - step, 0));
-    }
-  };
-
-  const translateX = currentIndex * CARD_FULL_SIZE;
-  const isAtStart = currentIndex === 0;
-  const isAtEnd = currentIndex >= data.length - 1; // 這裡需要更精確的計算，但單卡片移動時這樣足夠
-
-  // 🚨 切換收藏狀態的函式 (移除 useCallback)
-  const handleToggleFavorite = (cardId: number) => {
-    setFavorites((prevFavorites) => {
-      const newFavorites = new Map(prevFavorites);
-      const isCurrentlyFavorite = prevFavorites.get(cardId) || false;
-
-      // 樂觀更新 UI
-      newFavorites.set(cardId, !isCurrentlyFavorite);
-
-      // ⚠️ 這裡應該加入您的 Server Action 呼叫，進行持久化
-      // toggleFavoriteAction(cardId, !isCurrentlyFavorite);
-
-      return newFavorites;
-    });
-  };
+  // 🚨 空資料防護
+  if (!data.length) {
+    return (
+      <div className="w-full p-4">
+        <p className="text-gray-500">目前沒有資料</p>
+      </div>
+    );
+  }
 
   // 卡片渲染邏輯
   const cards = data.map((card) => (
     <div key={card.id} className="shrink-0">
       <ComponentsAccCard
-        imageUrl={card.imageUrl}
-        imageAlt={card.imageAlt}
-        rating={card.rating}
+        id={card.id}
+        imageUrl={card.mainImage}
+        imageAlt={card.name}
+        rating={card.averageRating}
         name={card.name}
-        location={card.location}
+        location={card.city}
         // 傳遞狀態和事件處理函式
         isFavorite={favorites.get(card.id) || false}
-        onToggleFavorite={() => handleToggleFavorite(card.id)}
+        onToggleFavorite={() => toggleFavorite(card.id)}
       />
     </div>
   ));

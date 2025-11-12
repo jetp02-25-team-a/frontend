@@ -1,18 +1,14 @@
 import CarouselContent from './_components/client/CarouselContent';
-import SearchBar4 from './_components/client/Searchbar-4';
+import SearchBar from './_components/client/Searchbar';
 import Section from './_components/server/Section';
 
-import { fetchAccommodationData } from './_lib/data/acc_fetcher';
+import { fetchAccommodations } from './_lib/_data';
 
 export default async function AccommodationPage() {
-  const popularDataPromise = fetchAccommodationData('popular');
-  const highRatedDataPromise = fetchAccommodationData('highRated');
-
   const [popularData, highRatedData] = await Promise.all([
-    popularDataPromise,
-    highRatedDataPromise,
+    fetchAccommodations('popular'),
+    fetchAccommodations('highRated'),
   ]);
-
   return (
     <>
       <Section>
@@ -22,8 +18,8 @@ export default async function AccommodationPage() {
           輸入您的 目的地，選定 日期，確認
           人數，即刻為您的旅程找到最舒適的「充電站」！
         </span>
-        <div className="w-full flex justify-center">
-          <SearchBar4 />
+        <div className="w-full flex justify-center items-center">
+          <SearchBar />
         </div>
       </Section>
 

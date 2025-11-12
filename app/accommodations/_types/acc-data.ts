@@ -1,9 +1,20 @@
-export interface CardData {
+export interface AccDataCard {
   id: number;
-  imageUrl: string;
-  imageAlt: string;
-  rating: number;
   name: string;
-  location: string;
-  isFavorite: boolean;
+  city: string;
+  mainImage: string;
+  averageRating: number | null;
+  latitude: number;
+  longitude: number;
+  countFavorite: number;
 }
+
+export type SearchResponse = {
+  data: AccDataCard[];
+  meta: {
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    startCursor: string;
+    endCursor: string;
+  };
+};

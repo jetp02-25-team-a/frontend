@@ -18,13 +18,15 @@ interface AuthContextType {
   user: User;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  getAuthHeader: () => { Authorization: string };
+  getAuthHeader: () => { Authorization: string } | object;
   isReady: boolean;
+  isAuthenticated: boolean;
 }
 
 //建立context
 const AuthContext = createContext<AuthContextType | null>(null);
 AuthContext.displayName = 'AuthContext';
+
 const storageKey = 'BackpackUserInfo';
 
 //建立Provider元件
@@ -69,7 +71,7 @@ export function AuthProvider({
         return true;
       }
     } catch (e) {
-      return false;
+      console.error('Login failed:', e);
     }
     return false;
   };
@@ -81,6 +83,7 @@ export function AuthProvider({
   };
 
   const getAuthHeader = () => {
+    if (!user?.token) return {};
     return {
       Authorization: `Bearer ${user.token}`,
     };
@@ -88,34 +91,36 @@ export function AuthProvider({
 
   useEffect(() => {
     const str = localStorage.getItem(storageKey);
-    if (str) {
-      try {
-        const authData = JSON.parse(str);
-        if (authData.token) {
-          fetch(`${API_SERVER}/auth`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${authData.token}`,
-            },
-          })
-            .then((r) => r.json())
-            .then((result) => {
-              if (result.user_id) {
-                setUser(authData);
-              } else {
-                logout(); // token 無效時, 登出
-              }
-            })
-            .catch((ex) => {})
-            .finally(() => {
-              setIsReady(true); // 完成初始化
-            });
-        } else {
-          setIsReady(true); // 完成初始化
-        }
-      } catch (ex) {}
-    } else {
-      setIsReady(true); // 完成初始化
+    if (!str) {
+      setIsReady(true);
+      return;
+    }
+    try {
+      const authData: User = JSON.parse(str);
+
+      // 再去後端確認 token
+      fetch(`${API_SERVER}/auth`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${authData.token}` },
+      })
+        .then((r) => {
+          if (r.status === 401) {
+            logout();
+            return null;
+          }
+          return r.json();
+        })
+        .then((result) => {
+          if (result?.user_id) {
+            setUser(authData);
+          } else {
+            logout();
+          }
+        })
+        .catch(() => logout())
+        .finally(() => setIsReady(true));
+    } catch {
+      setIsReady(true);
     }
   }, []);
 
@@ -125,8 +130,9 @@ export function AuthProvider({
         user,
         login,
         logout,
-        isReady,
         getAuthHeader,
+        isReady,
+        isAuthenticated: !!user?.token,
       }}
     >
       {children}
@@ -145,14 +151,14 @@ export const useAuth = () => {
   return context;
 };
 
-// 權限管控的勾子
+// 權限管控 hook：需要登入才能進入的頁面
 export const useAuthRequired = () => {
   const router = useRouter();
-  const { user, isReady } = useAuth();
+  const { isAuthenticated, isReady } = useAuth();
 
   useEffect(() => {
-    if (isReady && !user!.email) {
+    if (isReady && !isAuthenticated) {
       router.push('/member/login');
     }
-  }, [user, isReady]);
+  }, [isAuthenticated, isReady]);
 };
