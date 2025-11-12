@@ -14,6 +14,8 @@ import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import Link from 'next/link';
 import Toast from '../_components/Toast';
+import { AVATAR_PATH, IMAGE_PATH } from '../../../config/image-path';
+import { API_SERVER } from '../../../config/api-path';
 
 interface Nodes {
   durationMinutes: number;
@@ -42,6 +44,7 @@ interface ItineraryLisInterface {
   id: number;
   fullName: string;
   nickname: string;
+  avatar: string;
   Itineraries: [
     {
       id: number;
@@ -97,7 +100,7 @@ export default function PlacePage() {
     setToast({ show: true, message: msg, type });
   };
 
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/itinerary-list?itineraryId=${pid}&userId=${userId}`;
+  const url = `${API_SERVER}/itineraries/itinerary-list?itineraryId=${pid}&userId=${userId}`;
 
   const { data, loading, error, refetch } = useFetch(url);
 
@@ -121,7 +124,7 @@ export default function PlacePage() {
   const images = itineraryList?.Itineraries?.[0].Images;
   const comments = itineraryList?.Itineraries?.[0].ItineraryComments;
   const toImgUrl = (fileName: string) => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/itineraries_photo/${fileName}`;
+    return `${IMAGE_PATH}/itineraries_photo/${fileName}`;
   };
   const [showAll, setShowAll] = useState(false);
   const btnRef = useRef<HTMLImageElement>(null); //抓img
@@ -133,7 +136,7 @@ export default function PlacePage() {
   }, [showAll]);
   //pid
   const handleInvite = async (userId: number, itineraryId: number) => {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/invite`;
+    const url = `${API_SERVER}/itineraries/invite`;
     // const { itineraryId, senderId, receiverId } = req.body;
 
     if (!user) return;
@@ -231,7 +234,19 @@ export default function PlacePage() {
         <div className=" flex justify-between">
           {/* 團主個人訊息 */}
           <div className="flex items-center gap-5">
-            <Image width={77} height={77} src={'/avatar.png'} alt="" />
+            <div className="w-[77px] h-[77px] shrink-0 relative">
+              <Image
+                fill
+                src={
+                  itineraryList?.avatar
+                    ? `${AVATAR_PATH}${itineraryList?.avatar}`
+                    : '/avatar_default.png'
+                }
+                alt=""
+                className="rounded-full object-cover"
+              />
+            </div>
+            {/* <Image width={77} height={77} src={'/avatar.png'} alt="" /> */}
             <h3 className="text-xl">{itineraryList?.nickname}</h3>
             <Link href={`/member/${itineraryList?.id}`}>
               <InfoButton button_name="個人檔案" />

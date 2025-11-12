@@ -6,6 +6,7 @@ import { useFetch } from '../../../hooks/useFetch';
 import AreaButton from './_components/area-button';
 import { ItineraryAreaCard } from '../_types/itineraryTypes';
 import { useRouter } from 'next/navigation';
+import { AVATAR_PATH, IMAGE_PATH } from '../../config/image-path';
 export default function TeamUpPage() {
   const [area, setArea] = useState('新北市');
   const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/area?area=${area}`;
@@ -64,11 +65,11 @@ export default function TeamUpPage() {
               key={i}
               title={card.title}
               description={card.Article?.title}
-              avatar="https://randomuser.me/api/portraits/women/20.jpg"
+              avatar={`${AVATAR_PATH}/${card.User.avatar}`}
               user_name={card.User.nickname}
               image={
                 card.Images?.[0]
-                  ? `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/itineraries_photo/${card.Images?.[0].imageName}`
+                  ? `${IMAGE_PATH}/itineraries_photo/${card.Images?.[0].imageName}`
                   : '/istockphoto-1209191587-612x612.jpg'
               }
               onClick={() =>

@@ -19,7 +19,7 @@ export default function TeamUpInfoPage({
     <>
       <div className="flex flex-col gap-[30px] items-center py-16">
         <h1 className="text-4xl">行程頁面</h1>
-        <div className="bg-gray-200 h-0.5 w-full"> </div>
+        <div className="bg-gray-200 h-0.5 w-full"></div>
         {children}
       </div>
     </>
