@@ -1,6 +1,12 @@
 'use client';
 import ChatBox from '../../_components/chat-box';
 
+interface Member {
+  id: number;
+  nickname: string;
+  avatar: string;
+}
+
 interface ChatInterface {
   user_name: string | null;
   user_id: number | null;
@@ -9,6 +15,7 @@ interface ChatInterface {
   time: string | null;
   room_name: string | null;
   room_id: number | null;
+  members?: Member[]; // 新增成員陣列
 }
 
 export default function OpenChatWindows({
@@ -33,6 +40,7 @@ export default function OpenChatWindows({
             roomTitle={chatroom.room_name}
             userId={chatroom.user_id}
             userNickname={chatroom.user_name}
+            members={chatroom.members}
             onClose={() => closeChat(index)}
           />
         );

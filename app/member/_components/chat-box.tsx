@@ -17,28 +17,19 @@ import { useFetch } from '../../../hooks/useFetch';
 import { API_SERVER } from '../../../config/api-path';
 import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 
-const messages = {
-  title: '台北一日遊',
-  messages: [
-    {
-      id: 1,
-      avatar: 'image.png',
-      content: '?????',
-    },
-    {
-      id: 2,
-      avatar: 'image.png',
-      content: '?????',
-    },
-  ],
-};
+
+interface Member {
+  id: number;
+  nickname: string;
+  avatar: string;
+}
 
 interface ChatBoxProps {
   roomId: number | null; // 新增房間 ID
   roomTitle: string | null;
   userId: number | null;
   userNickname: string | null;
-
+  members?: Member[]; // 新增成員陣列 (群組聊天室用)
   onClose?: () => void;
 }
 
@@ -47,6 +38,7 @@ export default function ChatBox({
   roomTitle,
   userId,
   userNickname,
+  members,
   onClose,
 }: ChatBoxProps) {
   const [isHide, setIsHide] = useState(true);
@@ -156,18 +148,22 @@ export default function ChatBox({
       {isHide && (
         <>
           {/* 所有參與者頭像 */}
-          {roomId && (
+          {roomId && members && (
             <div className="flex items-center justify-between bg-white py-3 px-2">
               <div className="flex gap-2.5">
-                {messages.messages.map((message, index) => {
+                {members.map((member) => {
                   return (
                     <Image
-                      key={index}
+                      key={member.id}
                       width={46}
                       height={46}
-                      src={`/${message.avatar}`}
-                      alt=""
-                      className=" rounded-full w-[46px] h-[46px] "
+                      src={
+                        member.avatar
+                          ? `${AVATAR_PATH}${member.avatar}`
+                          : '/avatar_default.png'
+                      }
+                      alt={member.nickname}
+                      className="rounded-full w-[46px] h-[46px] object-cover"
                     />
                   );
                 })}

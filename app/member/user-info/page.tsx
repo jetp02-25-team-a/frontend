@@ -22,6 +22,12 @@ import FriendRecommend from './_components/friend-recommend';
 // ];
 
 //
+interface Member {
+  id: number;
+  nickname: string;
+  avatar: string;
+}
+
 interface ChatInterface {
   user_name: string | null;
   user_id: number | null;
@@ -30,6 +36,7 @@ interface ChatInterface {
   time: string | null;
   room_name: string | null;
   room_id: number | null;
+  members?: Member[]; // 新增成員陣列
 }
 
 interface InviteMessage {
@@ -141,6 +148,8 @@ export default function UserInfoPage() {
   //有資料設定contact
   useEffect(() => {
     if (data) {
+      console.log('完整的 contact 資料:', data.data);
+      console.log('allRoomsLatestMessages:', data.data.allRoomsLatestMessages);
       setContact(data.data);
     }
   }, [data]);
