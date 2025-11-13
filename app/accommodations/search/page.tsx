@@ -62,7 +62,7 @@ export default function SearchPage() {
   });
 
   // Geolocation Hook
-  const coords = useGeolocation();
+  const { coords, loading: geoLoading, error: geoError } = useGeolocation();
 
   return (
     <>
@@ -118,12 +118,38 @@ export default function SearchPage() {
           <div className="flex-1 border-gray-300">
             <div className="sticky top-0 h-screen">
               <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-2xl">
-                {coords ? (
-                  <span className="text-gray-500">
-                    目前定位：{coords.lat}, {coords.lng}
+                {/* 🌟 1. 處理載入狀態 (Loading) */}
+                {geoLoading && (
+                  <span className="text-gray-500 animate-pulse">
+                    正在取得您的地圖位置...
                   </span>
-                ) : (
-                  <span className="text-gray-500">地圖互動區</span>
+                )}
+
+                {/* 🌟 2. 處理錯誤狀態 (Error) */}
+                {!geoLoading && geoError && (
+                  <span className="text-red-500 text-center p-4">
+                    {/* 顯示更精確的錯誤訊息 */}
+                    定位失敗：
+                    {geoError instanceof GeolocationPositionError
+                      ? geoError.message === 'User denied Geolocation'
+                        ? '您拒絕了定位權限。'
+                        : `錯誤代碼 ${geoError.code}`
+                      : '無法取得位置。'}
+                  </span>
+                )}
+
+                {/* 🌟 3. 處理成功狀態 (Coords available) */}
+                {!geoLoading && !geoError && coords && (
+                  <span className="text-gray-500 text-center">
+                    目前定位：
+                    <br />
+                    緯度: {coords.lat.toFixed(6)}, 經度: {coords.lng.toFixed(6)}
+                  </span>
+                )}
+
+                {/* 🌟 4. 處理預設狀態 (既不載入，也沒錯誤，也沒座標，可能是 Hook 剛初始化) */}
+                {!geoLoading && !geoError && !coords && (
+                  <span className="text-gray-500">地圖互動區 (未設定位置)</span>
                 )}
               </div>
             </div>
