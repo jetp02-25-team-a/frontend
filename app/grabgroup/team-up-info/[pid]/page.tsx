@@ -182,6 +182,80 @@ export default function PlacePage() {
 
       <PhotoProvider>
         <div className="flex gap-4 relative">
+          {images && images?.length === 2 && (
+            <div className="w-[900px] h-[250px] flex gap-4 m-auto">
+              <PhotoView src={toImgUrl(images[0].imageName)}>
+                {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                <img
+                  id="first-photo-trigger"
+                  src={toImgUrl(images[0].imageName)}
+                  alt=""
+                  className="shrink-0 w-full h-full object-cover"
+                />
+              </PhotoView>
+              <PhotoView src={toImgUrl(images[1].imageName)}>
+                {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                <img
+                  src={toImgUrl(images[1].imageName)}
+                  alt=""
+                  className="shrink-0 w-full h-full object-cover"
+                />
+              </PhotoView>
+
+              <button
+                onClick={openAll}
+                className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
+              >
+                查看所有照片
+              </button>
+            </div>
+          )}
+          {images && images?.length === 3 && (
+            <>
+              <PhotoView src={toImgUrl(images[0].imageName)}>
+                {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                <img
+                  id="first-photo-trigger"
+                  src={toImgUrl(images[0].imageName)}
+                  alt=""
+                  className="shrink-0 w-[900px] h-full object-cover"
+                />
+              </PhotoView>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4">
+                  <PhotoView src={toImgUrl(images[1].imageName)}>
+                    <div className="relative w-[300px] h-[295px]">
+                      <Image
+                        fill
+                        sizes="300px"
+                        src={toImgUrl(images[1].imageName)}
+                        alt=""
+                        className="object-cover"
+                      />
+                    </div>
+                  </PhotoView>
+                  <PhotoView src={toImgUrl(images[2].imageName)}>
+                    <div className="relative w-[300px] h-[290px]">
+                      <Image
+                        fill
+                        sizes="300px"
+                        src={toImgUrl(images[2].imageName)}
+                        alt=""
+                        className="object-cover"
+                      />
+                    </div>
+                  </PhotoView>
+                </div>
+              </div>
+
+              <button
+                onClick={openAll}
+                className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
+              >
+                查看所有照片
+              </button>
+            </>
+          )}
           {images && images?.length >= 4 && (
             <>
               <PhotoView src={toImgUrl(images[0].imageName)}>
@@ -190,38 +264,44 @@ export default function PlacePage() {
                   id="first-photo-trigger"
                   src={toImgUrl(images[0].imageName)}
                   alt=""
-                  className="shrink-0 w-[770px] h-[510px] object-cover"
+                  className="shrink-0 w-[770px] h-full object-cover"
                 />
               </PhotoView>
               <div className="flex flex-col gap-4">
                 <PhotoView src={toImgUrl(images[1].imageName)}>
-                  <Image
-                    width={1000}
-                    height={1000}
-                    src={toImgUrl(images[1].imageName)}
-                    alt=""
-                    className="w-[510] h-[250px]"
-                  />
+                  <div className="relative w-[510px] h-[250px]">
+                    <Image
+                      fill
+                      sizes="510px"
+                      src={toImgUrl(images[1].imageName)}
+                      alt=""
+                      className="object-cover"
+                    />
+                  </div>
                 </PhotoView>
 
                 <div className="flex gap-4">
                   <PhotoView src={toImgUrl(images[2].imageName)}>
-                    <Image
-                      width={1000}
-                      height={1000}
-                      src={toImgUrl(images[2].imageName)}
-                      alt=""
-                      className="w-[250px] h-[250px]"
-                    />
+                    <div className="relative w-[250px] h-[250px]">
+                      <Image
+                        fill
+                        sizes="250px"
+                        src={toImgUrl(images[2].imageName)}
+                        alt=""
+                        className="object-cover"
+                      />
+                    </div>
                   </PhotoView>
                   <PhotoView src={toImgUrl(images[3].imageName)}>
-                    <Image
-                      width={1000}
-                      height={1000}
-                      src={toImgUrl(images[3].imageName)}
-                      alt=""
-                      className="w-[250px] h-[250px]"
-                    />
+                    <div className="relative w-[250px] h-[250px]">
+                      <Image
+                        fill
+                        sizes="250px"
+                        src={toImgUrl(images[3].imageName)}
+                        alt=""
+                        className="object-cover"
+                      />
+                    </div>
                   </PhotoView>
                 </div>
               </div>
