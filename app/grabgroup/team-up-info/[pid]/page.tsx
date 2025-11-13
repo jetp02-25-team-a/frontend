@@ -68,6 +68,7 @@ interface ItineraryLisInterface {
         content: string;
         publishedAt: string;
       };
+      UserLinked: [User: { id: number; avatar: string }];
     },
   ];
 }
@@ -111,12 +112,13 @@ export default function PlacePage() {
 
   useEffect(() => {
     refetch();
-  }, [pid, refetch]);
+  }, [pid]);
 
   useEffect(() => {
     if (data?.success) {
       setItineraryList(data.data[0]);
     }
+    console.log('itineraryList=>', itineraryList);
   }, [data]);
 
   function changeTime(time: string) {
@@ -265,19 +267,29 @@ export default function PlacePage() {
           </div>
           {/* 參與人數 */}
           <div className=" flex items-end gap-[30px]">
-            <p className="text-lg">
+            <p className="text-[20px] text-black">
               合計{itineraryList?.Itineraries?.[0]?.figure ?? 1}人
             </p>
             <div className="flex">
-              {/* {data.join_persons.map((v, i) => {
-                return (
-                  <img
-                    key={i}
-                    src={v.avatar}
-                    className="w-[50px] h-[50px] object-cover border-2 border-white rounded-full -ml-5"
-                  />
-                );
-              })} */}
+              {itineraryList &&
+                itineraryList.Itineraries[0].UserLinked?.map(
+                  (userLink: any, i: number) => {
+                    return (
+                      <div
+                        className="w-[50px] h-[50px] border-2 border-white rounded-full -ml-5 relative overflow-hidden"
+                        key={i}
+                      >
+                        <Image
+                          src={`${AVATAR_PATH}${userLink.User.avatar}`}
+                          alt={userLink.User.avatar}
+                          fill
+                          sizes="50px"
+                          className="object-cover rounded-full"
+                        />
+                      </div>
+                    );
+                  }
+                )}
             </div>
           </div>
         </div>
