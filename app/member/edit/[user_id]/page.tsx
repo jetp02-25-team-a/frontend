@@ -26,7 +26,7 @@ type SelectedFile = File | null;
 
 export default function UserIdPage() {
   useAuthRequired();
-  const { user, getAuthHeader } = useAuth();
+  const { user, getAuthHeader, updateUser } = useAuth();
   const { user_id } = useParams();
   const [userData, setUserData] = useState(userDataInit);
   const [selectedFile, setSelectedFile] = useState<SelectedFile>(null);
@@ -93,8 +93,8 @@ export default function UserIdPage() {
         body: formData,
       });
       if (response.ok) {
-        console.log('成功');
-        router.push('/member');
+        updateUser(user.id);
+        router.push('/member/user-info');
       } else {
         console.log('失敗');
       }
