@@ -10,6 +10,8 @@ import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { application } from 'express';
+import { AVATAR_PATH } from '../../config/image-path';
+import { API_SERVER } from '../../config/api-path';
 
 const user_friends = [
   { id: 1, avatar: '/avatar.png' },
@@ -67,7 +69,7 @@ export default function CreateGroupItineraryPage() {
   const [showFriends, setShowFriends] = useState<boolean>(false);
   const [peopleMax, setPeopleMax] = useState<number>(people ? +people : 0);
 
-  const getFirendsUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships`;
+  const getFirendsUrl = `${API_SERVER}/friendships`;
   const { data, loading, error, refetch } = useFetch(getFirendsUrl);
   const [friendData, setFriendDate] = useState<User[]>();
 
@@ -139,27 +141,37 @@ export default function CreateGroupItineraryPage() {
           />
           <div className="w-full flex justify-end gap-2 relative">
             {/* 使用者的好友 */}
-            <div className=" flex items-end gap-[30px]">
-              <div className="flex">
-                {user_friends.map((v, i) => {
-                  return (
-                    <Image
-                      key={i}
-                      width={77}
-                      height={77}
-                      src={v.avatar}
-                      alt=""
-                      className="w-[50px] h-[50px] object-cover border-2 border-white rounded-full -ml-5"
-                    />
-                  );
-                })}
-              </div>
-            </div>
+            {friendData && (
+              <div className="flex gap-3">
+                <div className=" flex items-end gap-[30px]">
+                  <div className="flex">
+                    {/* 最多跑3個好友 */}
+                    {friendData.slice(0, 3).map((friend, i) => {
+                      return (
+                        <Image
+                          key={i}
+                          width={77}
+                          height={77}
+                          src={
+                            friend.avatar
+                              ? `${AVATAR_PATH}${friend.avatar}`
+                              : '/avatar.png'
+                          }
+                          alt=""
+                          className="w-[50px] h-[50px] object-cover border-2 border-white rounded-full -ml-5"
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
 
-            <Button
-              content="邀請好友"
-              onClick={() => setShowFriends(!showFriends)}
-            />
+                <Button
+                  content="邀請好友"
+                  onClick={() => setShowFriends(!showFriends)}
+                />
+              </div>
+            )}
+
             {/* //取得所有好友 且發送邀請訊息 */}
             {showFriends && friendData && (
               <div className=" absolute bg-white border-2 border-gray-200 rounded-2xl p-5 flex flex-col gap-4">
@@ -174,13 +186,16 @@ export default function CreateGroupItineraryPage() {
 
                 {friendData.map((friend: User, index: number) => {
                   return (
-                    <div key={index} className="gap-2 flex items-center">
+                    <div
+                      key={index}
+                      className="gap-2 flex items-center justify-between"
+                    >
                       <Image
                         width={77}
                         height={77}
                         src={
                           friend.avatar
-                            ? `${backend}/images/${friend.avatar}`
+                            ? `${AVATAR_PATH}${friend.avatar}`
                             : '/avatar.png'
                         }
                         alt=""
