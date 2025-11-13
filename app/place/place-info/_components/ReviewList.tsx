@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/use-Auth';
-import { updateComment, deleteReview } from '@/app/place/lib/commentAdaptor';
+import SuccessModal from './SuccessModal';
+import ConfirmModal from './ConfirmModal';
 import StarRating from './StarRating';
+import { updateComment, deleteReview } from '@/app/place/lib/commentAdaptor';
 import { createOrUpsertRank } from '@/app/place/lib/rankAdaptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -39,6 +41,16 @@ export default function ReviewList({
   const [draft, setDraft] = useState('');
   const [rating, setEditScore] = useState<number>(0);
 
+  const [successModal, setSuccessModal] = useState<{
+    title: string;
+    message: string;
+    type: string;
+  } | null>(null);
+
+  const [confirmDelete, setConfirmDelete] = useState<{
+    commentId: number;
+  } | null>(null);
+
   if (!isReady) {
     return null;
   }
@@ -61,13 +73,23 @@ export default function ReviewList({
     ]);
     setEditingId(null);
     onChanged?.();
+    setSuccessModal({
+      title: '編輯成功',
+      message: '已更新你的評論與評分。',
+      type: 'edit',
+    });
   }
 
   async function handleDelete(commentId: number) {
     if (!isLoggedIn) return;
     const uid = Number(user.id);
-    await deleteReview(placeId, commentId, uid); // 👈 一次完成 刪留言＋刪 rank
+    await deleteReview(placeId, commentId, uid);
     onChanged?.();
+    setSuccessModal({
+      title: '刪除成功',
+      message: '已刪除這則評論。',
+      type: 'delete',
+    });
   }
 
   // ✅ 小工具：用 FontAwesome 顯示星等
@@ -145,7 +167,7 @@ export default function ReviewList({
                   {/* 刪除 */}
                   <button
                     className="text-amber-600 hover:text-red-600 hover:cursor-pointer transition"
-                    onClick={() => handleDelete(r.id)}
+                    onClick={() => setConfirmDelete({ commentId: r.id })}
                     title="刪除"
                   >
                     <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
@@ -193,6 +215,28 @@ export default function ReviewList({
           </article>
         );
       })}
+      {/* ✅ 成功訊息 Modal（新增 / 編輯 / 刪除都會用到） */}
+      {successModal && (
+        <SuccessModal
+          title={successModal.title}
+          message={successModal.message}
+          type={successModal.type}
+          onClose={() => setSuccessModal(null)}
+        />
+      )}
+
+      {/* ✅ 刪除前確認 Modal */}
+      {confirmDelete && (
+        <ConfirmModal
+          title="刪除評論"
+          message="確定要刪除此則評論嗎？ 刪除後將無法恢復喔。"
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={async () => {
+            await handleDelete(confirmDelete.commentId);
+            setConfirmDelete(null);
+          }}
+        />
+      )}
     </section>
   );
 }

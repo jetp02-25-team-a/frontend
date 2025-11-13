@@ -40,17 +40,6 @@ export default function SpotReviewsPanel({
     };
   }, [showSuccess]);
 
-  // 計算平均與分布（給 RatingSummary）
-  // const count = reviews.length;
-  // const avg = count
-  //   ? (reviews.reduce((s, r) => s + r.rating, 0) / count).toFixed(1)
-  //   : '0.0';
-  // const dist = [5, 4, 3, 2, 1].map((star) => {
-  //   const n = reviews.filter((r) => r.rating === star).length;
-  //   const pct = count ? Math.round((n / count) * 100) : 0;
-  //   return { star, pct };
-  // });
-
   return (
     <div className="relative min-h-[60vh] w-full">
       {/* 主要內容，開啟 Modal 時灰階+變暗 */}
@@ -83,6 +72,7 @@ export default function SpotReviewsPanel({
         <SuccessModal
           title="評論發布成功"
           message="可以在評論區查看留言"
+          type="create"
           onClose={() => setShowSuccess(false)}
         />
       )}
