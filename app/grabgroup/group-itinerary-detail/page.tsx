@@ -7,7 +7,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DayCard from './_components/day-card';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import NodeCard from './_components/node-card';
 
 import AddItineraryButton from './_components/addItinerary-button';
@@ -28,7 +28,7 @@ export interface mapPoint {
   longitude: number;
 }
 
-export default function GroupItineraryDetalPage() {
+export default function GroupItineraryDetailPage() {
   const params = useSearchParams().get('itineraryId');
   const itineraryId = params;
   //處理滑動
@@ -60,6 +60,7 @@ export default function GroupItineraryDetalPage() {
     if (data && data.success) {
       const datas = data.data;
       setItineraryData((prev) => [...datas]); //設定context
+      console.log('ItineraryData==>', itineraryData);
     }
   }, [data]);
 
@@ -91,10 +92,15 @@ export default function GroupItineraryDetalPage() {
     setIsIframeVisible(show);
   };
 
-  const handleAddNode = (dayId: number, nodeData: any) => {
+  const handleAddNode = async (dayId: number, nodeData: any) => {
     console.log('nodeData', itineraryData);
+    
+    let updatedData: any = null;
+    
+    // 1. 先更新本地狀態（立即顯示）
     setItineraryData((prev) => {
-      return prev.map((d, index) => {
+      if (!prev) return prev;
+      const newData = prev.map((d, index) => {
         if (index === dayId) {
           return {
             ...d,
@@ -103,7 +109,30 @@ export default function GroupItineraryDetalPage() {
         }
         return d;
       });
+      updatedData = newData; // 保存更新後的資料
+      return newData;
     });
+
+    // 2. 保存到資料庫
+    try {
+      const response = await fetch(`${API_SERVER}/itineraries/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itineraryData: updatedData,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('✅ 節點已保存到資料庫');
+      } else {
+        console.error('❌ 保存失敗:', response.statusText);
+      }
+    } catch (error) {
+      console.error('❌ 保存時發生錯誤:', error);
+    }
   };
 
   return (
@@ -223,18 +252,36 @@ export default function GroupItineraryDetalPage() {
                       return (
                         <div key={nodeIndex} className="w-full">
                           <NodeCard
-                            image={node.Place.image}
+                            image={
+                              (node as any).Attraction?.image ||
+                              node.Place?.image ||
+                              '/default-place.jpg'
+                            }
                             duration_minute={node.durationMinutes}
-                            title={node.Place.nameZh}
-                            address={node.Place.addrFull}
+                            title={
+                              (node as any).Attraction?.name ||
+                              node.Place?.nameZh ||
+                              '未知地點'
+                            }
+                            address={
+                              (node as any).Attraction?.addrFull ||
+                              node.Place?.addrFull ||
+                              '地址不詳'
+                            }
                             start_time={start.toISOString()}
                             end_time={end.toISOString()}
                             dayIndex={index}
                             nodeIndex={nodeIndex}
                             onClick={() =>
                               setMapPoint({
-                                latitude: node.Place.lat,
-                                longitude: node.Place.lng,
+                                latitude:
+                                  (node as any).Attraction?.lat ||
+                                  node.Place?.lat ||
+                                  25.033964,
+                                longitude:
+                                  (node as any).Attraction?.lng ||
+                                  node.Place?.lng ||
+                                  121.564468,
                               })
                             }
                           />

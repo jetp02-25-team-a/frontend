@@ -283,7 +283,7 @@ export default function CreateGroupItineraryPage() {
                       }
                     });
                     router.push(
-                      `/grabgroup/group-itinerart-detal?itineraryId=${result.itineraryId}`
+                      `/grabgroup/group-itinerary-detail?itineraryId=${result.itineraryId}`
                     );
                   }
                 } catch (err) {

@@ -15,6 +15,7 @@ import { ApiResponse } from '../_interfaces/userData';
 import { API_SERVER } from '../../config/api-path';
 import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 import FriendRecommend from './_components/friend-recommend';
+import { useRouter } from 'next/navigation';
 
 // const friend_data = [
 //   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
@@ -120,7 +121,7 @@ export default function UserInfoPage() {
   const [openChats, setOpenChats] = useState<ChatInterface[]>([]); //所有聊天室資訊 小視窗
   const [options, setOptions] = useState<string>('通知');
   const [allInviteMessage, setAllInviteMessage] = useState<InviteMessage>();
-
+  const router = useRouter();
   //分romms 跟 all_friends
   const [contact, setContact] = useState<any>({
     allRoomsLatestMessages: [],
@@ -179,6 +180,31 @@ export default function UserInfoPage() {
       console.log(err);
     }
   };
+
+  //取得所有持有行程 http://localhost:3005/api/itineraries/user-itineraries/7
+  const [userItineraries, setUserItineraries] = useState<any[]>([]);
+  const getUserItinerariesUrl = `${API_SERVER}/itineraries/user-itineraries`;
+
+  const handelUserItineraries = async () => {
+    try {
+      const reult = await fetch(getUserItinerariesUrl, {
+        method: 'GET',
+        headers: {
+          Authorization:
+            'Bearer ' +
+            JSON.parse(localStorage.getItem('BackpackUserInfo') || '{}').token,
+        },
+      });
+      if (reult.ok) {
+        const r = await reult.json();
+        console.log('userItineraries', r.data);
+        setUserItineraries(r.data);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   //一開啟網頁就抓取資料
   useEffect(() => {
     if (user?.id) handelAllInviteMessage();
@@ -223,6 +249,14 @@ export default function UserInfoPage() {
                   onClick={() => setOptions('好友')}
                 />
                 <ListButton
+                  name="行程"
+                  active={false}
+                  onClick={() => {
+                    setOptions('行程');
+                    handelUserItineraries(); //按下後取得所有行程
+                  }}
+                />
+                <ListButton
                   name="通知"
                   active={true}
                   onClick={() => {
@@ -237,6 +271,58 @@ export default function UserInfoPage() {
                   {options === '發文' && <>發表文章</>}
                   {options === '收藏景點' && <>收藏景點</>}
                   {options === '好友' && <></>}
+                  {options === '行程' && (
+                    <>
+                      {userItineraries && userItineraries.length > 0 ? (
+                        userItineraries.map((itinerary, index) => (
+                          <div
+                            key={index}
+                            className="border-b-2 border-gray-300 py-4 flex gap-3 items-center justify-between"
+                          >
+                            <div className="flex">
+                              <p className="text-gray-600">
+                                {itinerary.Itinerary?.area || '未指定區域'}
+                              </p>
+                              <h3 className="text-xl font-semibold">
+                                {itinerary.Itinerary?.title || '無標題'}
+                              </h3>
+                            </div>
+                            <div className="flex items-center gap-5">
+                              <p>{itinerary.Itinerary?.figure} 人/團體</p>
+                              <p className="text-xl font-semibold mr-40">
+                                {(() => {
+                                  const dateValue =
+                                    itinerary.Itinerary?.Days?.[0]?.dayDate;
+                                  if (!dateValue) return '無日期';
+
+                                  const date = new Date(dateValue);
+                                  if (isNaN(date.getTime())) return '無效日期';
+
+                                  return date.toLocaleDateString('zh-TW');
+                                })()}
+                              </p>{' '}
+                              <button
+                                className="border-2 border-amber-600 p-2 rounded-xl"
+                                onClick={() =>
+                                  router.push(
+                                    `/grabgroup/group-itinerary-detail?itineraryId=${itinerary.Itinerary?.id}`
+                                  )
+                                }
+                              >
+                                詳細頁面
+                              </button>
+                            </div>
+
+                            {/* 顯示更多行程資訊 */}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-4 text-gray-500">
+                          目前沒有行程資料
+                        </div>
+                      )}
+                    </>
+                  )}
                   {options === '通知' && (
                     <>
                       {/* 接收 */}

@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import Button from './../_components/Button';
+import Button from '../_components/Button';
 import { ItineraryContext } from '@/hooks/use-itinerart';
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
