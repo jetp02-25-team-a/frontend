@@ -1,11 +1,11 @@
 'use client'; // jika kamu pakai Next.js App Router
 
 import { useEffect, useState } from 'react';
-import HeroImage from './(site)/_components/HeroImage';
-import HeroSection from './(site)/_components/HeroSection';
-import IntroText from './(site)/_components/IntroText';
-import SidebarAction from './(site)/_components/SidebarActions';
-import DestinationCard from './(site)/_components/DestinationCard';
+import HeroImage from './_components/HeroImage';
+import HeroSection from './_components/HeroSection';
+import IntroText from './_components/IntroText';
+import SidebarAction from './_components/SidebarActions';
+import DestinationCard from './_components/DestinationCard';
 import { API_SERVER } from '../config/api-path';
 interface DestType {
   title: string;
@@ -24,8 +24,8 @@ export default function HomePage() {
           return {
             id: d.id,
             title: d.title,
-            location: d.Location.city,
-            imgUrl: d.Photos[0]?.url,
+            location: d.city,
+            imgUrl: d.imgUrl,
           };
         });
         setDestinations(newDest);
@@ -50,8 +50,9 @@ export default function HomePage() {
               <DestinationCard
                 key={dest.id}
                 // image={dest.image}
+                id={dest.id}
                 title={dest.title}
-                description="{dest.content}"
+                description={dest.location}
                 image={dest.imgUrl ? dest.imgUrl : ''}
               />
             ))}

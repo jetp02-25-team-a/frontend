@@ -1,7 +1,10 @@
 'use client';
 import Image from 'next/image';
-import { IMAGE_PATH } from '@/app/config/image-path';
+import { ARTICLE_PHOTOS_PATH } from '@/config/image-path';
+import Link from 'next/link';
+
 interface DestinationCardProps {
+  id: number;
   image?: string;
   title: string;
   description?: string;
@@ -13,19 +16,20 @@ const isValidUrl = (url?: string) => {
 };
 
 export default function DestinationCard({
+  id,
   image,
   title,
   description,
 }: DestinationCardProps) {
-  const url = isValidUrl(image) ? `${IMAGE_PATH}${image}` : '';
+  const url = isValidUrl(image) ? `${ARTICLE_PHOTOS_PATH}${image}` : '';
   return (
     <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all overflow-hidden">
       {isValidUrl(image) ? (
         <Image
           src={url}
           alt={title}
-          width={400}
-          height={250}
+          width={70}
+          height={140}
           className="object-cover w-full h-64"
         />
       ) : (
@@ -36,14 +40,17 @@ export default function DestinationCard({
 
       <div className="p-4 flex flex-col justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="">{title}</h3>
           {description && (
             <p className="text-sm text-gray-600 mt-2">{description}</p>
           )}
         </div>
-        <button className="mt-4 text-blue-600 hover:underline self-start">
+        <Link
+          href={`/article/detail?id=${id}`}
+          className="mt-4 text-blue-600 hover:underline self-start"
+        >
           查看
-        </button>
+        </Link>
       </div>
     </div>
   );

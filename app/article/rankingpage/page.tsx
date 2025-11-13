@@ -1,57 +1,101 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
-
 import HeroImage from '../_components/HeroImage';
-// import SidebarNav from './_components/SideBarNav';
-import IntroText from '../_components/IntroText';
-import DestinationGrid from '../_components/DestinationGrid';
+import SidebarActions from '../_components/SidebarActions';
 import SectionTitle from '../_components/SectionTitle';
 import ProductCard from '../_components/ProductCard';
-import SidebarActions from '../_components/SidebarActions';
-import { products } from '../data/products';
+import { products } from '../_data/products';
 
-export default function Page() {
+export default function RankingPage() {
   return (
-    <main className="flex">
-      {/* Sidebar kiri */}
-      {/* {<SidebarActions />} */}
-
-      {/* Konten utama */}
-      <div className="flex-1">
-        <HeroImage />
-
-        <div className="text-center mt-7 text-5xl font-bold">
-          你的旅程，不只是回憶——也是靈感的起點！
-        </div>
-
-        {/* <DestinationGrid /> */}
-
-        {/* Ranking Section */}
-        <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
-          <aside className="md:col-span-1">
-            <SidebarActions />
-          </aside>
-          <div className="md:col-span-3">
-            <SectionTitle />
-            <div className="grid gap-4">
-              {products.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  rank={index + 1}
-                  title={product.title}
-                  description={product.description}
-                  image={product.image}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
+    <main className="min-h-screen flex flex-col items-center">
+      <HeroImage />
+      <div className="text-center mt-7 text-5xl font-bold">
+        你的旅程，不只是回憶——也是靈感的起點！
       </div>
+
+      {/* Konten dengan Sidebar */}
+      <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6 p-6 w-full max-w-7xl">
+        {/* Sidebar */}
+        <aside className="md:col-span-1">
+          <SidebarActions />
+        </aside>
+
+        {/* Konten utama */}
+        <div className="md:col-span-3">
+          <SectionTitle />
+          <div className="grid gap-4">
+            {products.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                rank={index + 1}
+                title={product.title}
+                description={product.description}
+                image={product.image}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
+
+// 'use client';
+
+// import React from 'react';
+// import Image from 'next/image';
+
+// import HeroImage from '../_components/HeroImage';
+// // import SidebarNav from './_components/SideBarNav';
+// import IntroText from '../_components/IntroText';
+// import DestinationGrid from '../_components/DestinationGrid';
+// import SectionTitle from '../_components/SectionTitle';
+// import ProductCard from '../_components/ProductCard';
+// import SidebarActions from '../_components/SidebarActions';
+// import { products } from '../data/products';
+
+// export default function Page() {
+//   return (
+//     <main className="flex">
+//       {/* Sidebar kiri */}
+//       {/* {<SidebarActions />} */}
+
+//       {/* Konten utama */}
+//       <div className="flex-1">
+//         <HeroImage />
+
+//         <div className="text-center mt-7 text-5xl font-bold">
+//           你的旅程，不只是回憶——也是靈感的起點！
+//         </div>
+
+//         {/* <DestinationGrid /> */}
+
+//         {/* Ranking Section */}
+//         <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
+//           <aside className="md:col-span-1">
+//             <SidebarActions />
+//           </aside>
+//           <div className="md:col-span-3">
+//             <SectionTitle />
+//             <div className="grid gap-4">
+//               {products.map((product, index) => (
+//                 <ProductCard
+//                   key={product.id}
+//                   rank={index + 1}
+//                   title={product.title}
+//                   description={product.description}
+//                   image={product.image}
+//                 />
+//               ))}
+//             </div>
+//           </div>
+//         </section>
+//       </div>
+//     </main>
+//   );
+// }
 
 // 'use client';
 
