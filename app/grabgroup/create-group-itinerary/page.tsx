@@ -2,22 +2,18 @@
 import { useEffect, useState } from 'react';
 import Button from '../_components/Button';
 import DatePicker from './_components/date-picker';
-import Link from 'next/link';
+
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { faSleigh } from '@fortawesome/free-solid-svg-icons';
+
 import { useFetch } from '@/hooks/useFetch';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { application } from 'express';
+
 import { AVATAR_PATH } from '../../config/image-path';
 import { API_SERVER } from '../../config/api-path';
+import { useAuth } from '../../../hooks/use-Auth';
 
-const user_friends = [
-  { id: 1, avatar: '/avatar.png' },
-  { id: 2, avatar: '/avatar.png' },
-  { id: 3, avatar: '/avatar.png' },
-];
 interface User {
   avatar?: string;
   id: number;
@@ -42,6 +38,7 @@ export default function CreateGroupItineraryPage() {
   if (token) {
     newToken = 'Bearer ' + JSON.parse(token).token;
   }
+  const { user } = useAuth();
   useEffect(() => {
     //設定開始時間
     const startDate = searchParams.get('startDate')?.split('T')[0];
@@ -82,6 +79,9 @@ export default function CreateGroupItineraryPage() {
   }, [data]);
 
   const backend = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
+
+  const [pendingInvites, setPendingInvites] = useState<number[]>([]); // 儲存好友ID
+  const [inviteBtnState, setInviteBtnState] = useState<boolean>(true); // 依照狀態改變是否取消邀請
   return (
     <main className="w-full flex flex-col items-center py-16 gap-[30px]">
       <h1 className="text-4xl text-center">行程頁面</h1>
@@ -202,7 +202,19 @@ export default function CreateGroupItineraryPage() {
                         className="w-[50px] h-[50px] object-cover border-2 border-white rounded-full shrink"
                       />
                       <p className="mr-5">{friend.nickname}</p>
-                      <Button content="邀請" onClick={() => {}} />
+                      <Button
+                        // content="邀請"
+                        content={
+                          pendingInvites.includes(friend.id) ? '已邀請' : '邀請'
+                        }
+                        onClick={() => {
+                          setPendingInvites((prev) =>
+                            prev.includes(friend.id)
+                              ? prev.filter((id) => id !== friend.id) //刪除
+                              : [...prev, friend.id]
+                          );
+                        }}
+                      />
                     </div>
                   );
                 })}
@@ -231,7 +243,7 @@ export default function CreateGroupItineraryPage() {
                   startTime: startTime,
                   figure: peopleMax,
                 };
-                const url = `${backend}/api/itineraries/create-itinerary`;
+                const url = `${API_SERVER}/itineraries/create-itinerary`;
 
                 try {
                   const result = await fetch(url, {
@@ -245,6 +257,31 @@ export default function CreateGroupItineraryPage() {
                   //需要拿到建立的行程id
                   if (result) {
                     console.log('result', result);
+                    //對邀請清單的人發出邀請
+                    const invitedUrl = `${API_SERVER}/itineraries/invite`;
+                    // const { itineraryId, senderId, receiverId } = req.body;
+                    pendingInvites.forEach(async (friendId) => {
+                      const inviteData = {
+                        itineraryId: result.itineraryId,
+                        receiverId: friendId,
+                        senderId: user.id,
+                      };
+                      try {
+                        const inviteResult = await fetch(invitedUrl, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            // Authorization: newToken,
+                          },
+                          body: JSON.stringify(inviteData),
+                        }).then((r) => r.json());
+                        if (inviteResult && inviteResult.success) {
+                          console.log(`成功邀請好友ID ${friendId} 加入行程`);
+                        }
+                      } catch (err) {
+                        console.log(err);
+                      }
+                    });
                     router.push(
                       `/grabgroup/group-itinerart-detal?itineraryId=${result.itineraryId}`
                     );
