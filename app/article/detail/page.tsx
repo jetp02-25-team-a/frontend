@@ -549,7 +549,7 @@ export default function ReviewArticlePage() {
 
         {/* Message Board */}
         <div className="mt-10">
-          <MessageBoard articleId={article.id} />
+          <MessageBoard articleId ={article.id} />
         </div>
       </main>
     </div>

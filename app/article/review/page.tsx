@@ -9,6 +9,7 @@ import { API_SERVER } from '@/config/api-path';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import styles from './Card.module.css';
+import { ARTICLE_PHOTOS_PATH } from '../../../config/image-path';
 
 // --- 1. DEFINISI TIPE DATA (INTERFACE) ---
 
@@ -19,7 +20,7 @@ interface ReviewData {
   alt_text: string;
   title_text: string;
   city: string; // Lokasi
-  rating?: number; 
+  rating?: number;
   is_featured?: boolean;
 }
 
@@ -43,14 +44,12 @@ const Card: React.FC<CardProps> = ({ data }) => {
       className="w-full max-w-xs md:max-w-60 overflow-hidden rounded-xl shadow-lg 
                  bg-white transition-transform duration-300 hover:scale-[1.02] cursor-pointer"
     >
-      
       {/* Container Gambar */}
-      <div className="relative w-full pb-[75%]"> 
-        
+      <div className="relative w-full pb-[75%]">
         {/* Render Image hanya jika ada URL yang valid */}
-        {imageSrc && ( 
+        {imageSrc && (
           <Image
-            src={imageSrc}
+            src={`${ARTICLE_PHOTOS_PATH}${imageSrc}`}
             alt={alt_text || title_text} // Gunakan alt_text atau title_text
             fill
             sizes="(max-width: 600px) 100vw, 33vw"
@@ -58,10 +57,10 @@ const Card: React.FC<CardProps> = ({ data }) => {
             priority // Menandakan gambar penting untuk LCP (opsional)
           />
         )}
-        
+
         {/* Badge 'Ulasan Terbaik' atau Rating */}
         {(is_featured || rating) && (
-          <div 
+          <div
             className="absolute top-3 left-3 bg-black/50 text-white px-2 py-1 
                        rounded-full text-xs font-bold flex items-center z-10"
           >
@@ -73,9 +72,9 @@ const Card: React.FC<CardProps> = ({ data }) => {
             )}
           </div>
         )}
-        
+
         {/* Ikon Hati/Suka */}
-        <button 
+        <button
           className="absolute top-3 right-3 bg-white/70 p-1.5 rounded-full 
                      flex items-center justify-center border-none z-10 hover:bg-white"
           aria-label="Add to Favorite"
@@ -89,8 +88,10 @@ const Card: React.FC<CardProps> = ({ data }) => {
       {/* Konten Teks */}
       <div className="p-3">
         {/* Judul */}
-        <p className="text-sm font-bold text-gray-800 mb-1 truncate">{title_text}</p>
-        
+        <p className="text-sm font-bold text-gray-800 mb-1 truncate">
+          {title_text}
+        </p>
+
         {/* Lokasi */}
         <div className="flex items-center text-xs text-gray-500">
           <span className="mr-1">📍</span>
@@ -100,7 +101,6 @@ const Card: React.FC<CardProps> = ({ data }) => {
     </div>
   );
 };
-
 
 // --- 3. KOMPONEN UTAMA Halaman (Data Fetching) ---
 
@@ -112,14 +112,14 @@ const ReviewPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(API_ENDPOINT);
+        const response = await fetch(`${API_SERVER}/article`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: ReviewData[] = await response.json();
         setReviews(data);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error('Error fetching data:', err);
         setError('Gagal memuat data. Silakan coba lagi nanti.');
       } finally {
         setLoading(false);
@@ -143,7 +143,7 @@ const ReviewPage = () => {
     return (
       <div className="text-center p-8 text-red-600">
         <h2>{error}</h2>
-        <p>Make sure the backend server is running on **{API_ENDPOINT}**.</p>
+        <p>{`Make sure the backend server is running on **${API_SERVER}**.`}</p>
       </div>
     );
   }
@@ -152,14 +152,14 @@ const ReviewPage = () => {
   return (
     <div className="p-5">
       <h1 className="text-2xl font-bold mb-6">Choose article popular</h1>
-      
+
       {reviews.length === 0 ? (
         <p>No review data available yet.</p>
       ) : (
-        <div 
-          className="flex space-x-5 overflow-x-auto pb-4 hide-scrollbar" 
+        <div
+          className="flex space-x-5 overflow-x-auto pb-4 hide-scrollbar"
           // Gaya tambahan untuk menyembunyikan scrollbar (jika perlu):
-          // style={{ scrollbarWidth: 'none' }} 
+          // style={{ scrollbarWidth: 'none' }}
         >
           {reviews.map((review) => (
             <div key={review.id} className="flex-shrink-0">
@@ -173,148 +173,6 @@ const ReviewPage = () => {
 };
 
 export default ReviewPage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // // 'use client';
 // // import React, { useEffect, useState } from 'react';
@@ -873,8 +731,6 @@ export default ReviewPage;
 //     </div>
 //   );
 // }
-
-
 
 //📁 /app/article/review/page.tsx
 // 'use client';

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { ARTICLE_PHOTOS_PATH } from '../../../config/image-path';
 
 interface DetailFormProps {
   article: {
@@ -22,7 +23,7 @@ export default function DetailForm({ article }: DetailFormProps) {
       {/* {http://localhost:3005/api/9840962b-43fb-4690-bf35-b3dbfefa12ed.jpg} && ( */}
       <div className="absolute top-4 right-4 w-32 h-32">
         <img
-          src={`http://localhost:3005${photoUrl}`}
+          src={`${ARTICLE_PHOTOS_PATH}${photoUrl}`}
           alt={article.title || 'Article Photo'}
           className="w-full h-full object-cover rounded-lg shadow-md border"
         />
