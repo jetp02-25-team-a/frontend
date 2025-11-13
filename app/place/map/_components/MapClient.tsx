@@ -315,18 +315,15 @@ export default function MapClient() {
           >
             <Popup>
               <div className="min-w-[180px]">
-                <div
-                  className="font-semibold text-sm mb-1 hover:underline cursor-pointer"
-                  onClick={() => router.push(`/place/${p.id}`)}
-                >
+                <div className="font-semibold text-sm mb-1 hover:underline cursor-pointer">
                   {p.name}
                 </div>
                 {p.address && (
                   <div className="text-xs text-gray-600 mb-2">{p.address}</div>
                 )}
                 <button
-                  onClick={() => openDetail(p)}
-                  className="rounded bg-black text-white text-xs px-3 py-1"
+                  onClick={() => router.push(`place-info/${p.id}`)}
+                  className="rounded bg-amber-400 text-white text-xs px-3 py-1 hover:cursor-pointer"
                 >
                   查看詳情
                 </button>

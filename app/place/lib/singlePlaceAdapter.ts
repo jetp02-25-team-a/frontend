@@ -40,7 +40,7 @@ export async function getSpotDetail(placeId: number) {
     address: p.address ?? '',
     lat: p.latitude ?? null,
     lng: p.longitude ?? null,
-    photos: (p.Photos ?? []).map((ph: any) => ph.url),
+    photos: (p.Photos ?? []).map((ph: any) => normalizePhotoUrl(ph.url)),
     ratingAvg: parseFloat(p.rating?.avg ?? '0'),
     reviewCount: p.commentCount ?? 0,
     hours: p.openingHour,
@@ -60,6 +60,13 @@ export async function getSpotDetail(placeId: number) {
     openTime: h.openTime,
     closeTime: h.closeTime,
   }));
+
+  function normalizePhotoUrl(url?: string | null) {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    // 相對路徑：補上後端 domain + port
+    return `${base}${url}`;
+  }
 
   return { spot, reviews, hours };
 }

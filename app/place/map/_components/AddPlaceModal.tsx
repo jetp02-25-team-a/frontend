@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
@@ -116,16 +116,12 @@ function StarRatingInput({
 export default function AddPlaceModal({
   open,
   onClose,
-  onPickCoord, // 觸發一次「從地圖點選座標」
-  mapCenter, // [lat, lng]
   onCreated, // 建立成功回調
   apiBase,
   currentUserId = 10, // TODO: 之後接登入
 }: {
   open: boolean;
   onClose: () => void;
-  onPickCoord: () => void;
-  mapCenter: [number, number];
   onCreated?: (place: any) => void;
   apiBase: string;
   currentUserId?: number;
@@ -135,12 +131,10 @@ export default function AddPlaceModal({
   const [introduce, setIntroduce] = useState('');
   const [address, setAddress] = useState('');
   const [region, setRegion] = useState('');
-  const [latitude, setLatitude] = useState<number | ''>('');
-  const [longitude, setLongitude] = useState<number | ''>('');
-  const [photosText, setPhotosText] = useState(''); // 以換行輸入圖片 URL
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-
+  const [contact, setContact] = useState('0212345678');
+  const [latitude, setLatitude] = useState<string>('');
+  const [longitude, setLongitude] = useState<string>('');
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [score, setScore] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
   const [hours, setHours] = useState<OpeningRow[]>(() =>
@@ -151,6 +145,12 @@ export default function AddPlaceModal({
       closeTime: '',
     }))
   );
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
   const openingHoursPayload = useMemo(() => {
     // 只送有意義的天；公休送 { weekday, isClosed: true }
@@ -168,15 +168,15 @@ export default function AddPlaceModal({
     if (!open) {
       // reset when close
       setType('spot');
-      setName('');
-      setIntroduce('');
-      setAddress('');
-      setRegion('');
-      setLatitude('');
-      setLongitude('');
-      setPhotosText('');
-      setScore(0);
-      setComment('');
+      setName('地標建立測試');
+      setIntroduce('這是一個Demo用的地標建立測試');
+      setAddress('臺北市大安區復興南路一段390號');
+      setRegion('大安區');
+      setLatitude('25.0339444');
+      setLongitude('121.5432777');
+      setPhotoFiles([]); // 有問題
+      setScore(5);
+      setComment('寫前端跟後端真是太好玩了，五星好評!');
       setHours(
         Array.from({ length: 7 }, (_, i) => ({
           weekday: i,
@@ -206,6 +206,12 @@ export default function AddPlaceModal({
     }
   }
 
+  function appendFiles(files: FileList | File[]) {
+    const arr = Array.from(files);
+    if (!arr.length) return;
+    setPhotoFiles((prev) => [...prev, ...arr]);
+  }
+
   async function handleSubmit() {
     setErr(null);
 
@@ -220,61 +226,53 @@ export default function AddPlaceModal({
     if (!comment.trim()) return setErr('請輸入留言');
 
     setLoading(true);
+
     try {
-      const photos = photosText
-        .split('\n')
-        .map((s) => s.trim())
-        .filter(Boolean);
+      // ⭐⭐ 用 FormData 取代 JSON
+      const form = new FormData();
+      form.append('type', type);
+      form.append('name', name.trim());
+      form.append('address', address.trim());
+      form.append('region', region.trim());
+      form.append('introduce', introduce.trim());
+      form.append('openingHours', JSON.stringify(openingHoursPayload));
 
-      const body: any = {
-        type,
-        name: name.trim(),
-        address: address.trim(),
-        region: region.trim(),
-        introduce: introduce.trim(),
-        openingHours: openingHoursPayload,
-        photos: photos.length ? photos : undefined,
-      };
-
-      // 經緯度可選：若有就帶
       if (latitude !== '' && longitude !== '') {
-        body.latitude = Number(latitude);
-        body.longitude = Number(longitude);
+        form.append('latitude', latitude);
+        form.append('longitude', longitude);
       }
 
-      // 1) 建地標
-      const placeJson = await postJSON(`${apiBase}/api/place`, body);
-      const place = placeJson?.data ?? placeJson; // 相容不同包裝
-      if (!place?.id) throw new Error('建立地標成功但未取得 place.id');
+      // ⭐⭐ 把所有 File 都 append 進去（後端會用 multer.array("photos") 接收）
+      photoFiles.forEach((file) => {
+        form.append('photos', file);
+      });
 
-      // 2) 建立評分（必填）
-      // 優先嘗試 nested 路由；失敗再嘗試非 nested
-      try {
-        await postJSON(`${apiBase}/api/place/${place.id}/ranks`, {
-          score,
-          userId: currentUserId,
-        });
-      } catch {
-        await postJSON(`${apiBase}/api/rank`, {
-          placeId: place.id,
-          score,
-          userId: currentUserId,
-        });
+      // 1) 建立地標 — multipart/form-data
+      const res = await fetch(`${apiBase}/api/place`, {
+        method: 'POST',
+        body: form,
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`建立地標失敗: ${text}`);
       }
 
-      // 3) 建立留言（必填）
-      try {
-        await postJSON(`${apiBase}/api/place/${place.id}/comments`, {
-          content: comment.trim(),
-          userId: currentUserId,
-        });
-      } catch {
-        await postJSON(`${apiBase}/api/comment`, {
-          placeId: place.id,
-          content: comment.trim(),
-          userId: currentUserId,
-        });
-      }
+      const json = await res.json();
+      const place = json.data;
+      if (!place?.id) throw new Error('建立成功但未取得 place.id');
+
+      // 2) 建立評分
+      await postJSON(`${apiBase}/api/place/${place.id}/ranks`, {
+        score,
+        userId: currentUserId,
+      });
+
+      // 3) 建立留言
+      await postJSON(`${apiBase}/api/place/${place.id}/comments`, {
+        content: comment.trim(),
+        userId: currentUserId,
+      });
 
       // 4) 補齊 stats 後再通知父層（避免父層拿到沒有 avg 的 place）
       const placeForUI = {
@@ -297,11 +295,6 @@ export default function AddPlaceModal({
     } finally {
       setLoading(false);
     }
-  }
-
-  function useMapCenter() {
-    setLatitude(mapCenter[0]);
-    setLongitude(mapCenter[1]);
   }
 
   function toggleClosed(i: number) {
@@ -334,203 +327,260 @@ export default function AddPlaceModal({
       {/* panel */}
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                w-[min(640px,95vw)] max-h-[90vh] overflow-auto rounded-2xl bg-white p-5 shadow-xl"
+                w-[min(720px,95vw)] max-h-[90vh] overflow-auto rounded-2xl bg-white p-6 shadow-xl"
       >
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-semibold">新增地標</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-amber-800">新增地標</h2>
           <button
             onClick={onClose}
-            className="px-3 py-1 rounded-md border hover:bg-gray-50"
+            className="px-3 py-1 rounded-full border border-amber-200 text-sm text-amber-700 hover:bg-amber-50"
           >
             關閉
           </button>
         </div>
 
         {err && (
-          <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-red-700">
+          <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-red-700 text-sm">
             {err}
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <label className="col-span-1 text-sm">
-            類型
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value as any)}
-              className="mt-1 w-full rounded-md border px-2 py-1"
-            >
-              <option value="spot">景點</option>
-              <option value="food">美食</option>
-            </select>
-          </label>
+        {/* 奶茶色大卡片 */}
+        <div className="rounded-3xl border-2 border-amber-300 bg-[#FFF7E4] px-6 py-5 space-y-5">
+          {/* 基本資料 */}
+          <div className="grid grid-cols-2 gap-4">
+            <label className="col-span-1 text-sm text-amber-900">
+              類型
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as any)}
+                className="mt-1 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              >
+                <option value="spot">景點</option>
+                <option value="food">美食</option>
+              </select>
+            </label>
 
-          <label className="col-span-1 text-sm">
-            名稱*
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-md border px-2 py-1"
-              placeholder="地標名稱"
-            />
-          </label>
+            <label className="col-span-1 text-sm text-amber-900">
+              地名*
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                placeholder="輸入地標名稱"
+              />
+            </label>
 
-          <label className="col-span-2 text-sm">
-            介紹*（至少 10 字）
-            <textarea
-              value={introduce}
-              onChange={(e) => setIntroduce(e.target.value)}
-              className="mt-1 w-full rounded-md border px-2 py-2"
-              rows={3}
-              placeholder="簡短介紹這個地標…"
-            />
-          </label>
+            <label className="col-span-2 text-sm text-amber-900">
+              描述*
+              <textarea
+                value={introduce}
+                onChange={(e) => setIntroduce(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                rows={3}
+                placeholder="簡短介紹這個地標…（至少 10 字）"
+              />
+            </label>
 
-          <label className="col-span-2 text-sm">
-            地址*
-            <input
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="mt-1 w-full rounded-md border px-2 py-1"
-              placeholder="完整地址"
-            />
-          </label>
+            <label className="col-span-2 text-sm text-amber-900">
+              地址*
+              <input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                placeholder="例如：新北市新店區…"
+              />
+            </label>
 
-          <label className="col-span-1 text-sm">
-            地區/城市*
-            <input
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              className="mt-1 w-full rounded-md border px-2 py-1"
-              placeholder="例如：台北市"
-            />
-          </label>
+            <label className="col-span-1 text-sm text-amber-900">
+              地區/城市*
+              <input
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                placeholder="例如：新店區 / 台北市"
+              />
+            </label>
 
-          <div className="col-span-1 flex items-end gap-2">
-            <button
-              onClick={useMapCenter}
-              className="h-9 rounded-md border px-3 text-sm hover:bg-gray-50"
-              title="用目前地圖中心設定經緯度"
-            >
-              用地圖中心
-            </button>
-            <button
-              onClick={onPickCoord}
-              className="h-9 rounded-md border px-3 text-sm hover:bg-gray-50"
-              title="在地圖上點一個位置"
-            >
-              從地圖取點
-            </button>
+            <label className="col-span-1 text-sm text-amber-900">
+              聯絡方式（選填）
+              <input
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                placeholder="電話或社群帳號"
+              />
+            </label>
+
+            <label className="col-span-1 text-sm text-amber-900">
+              緯度 (lat)
+              <input
+                value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}
+                type="number"
+                step="any"
+                className="mt-1 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                placeholder="25.033944"
+              />
+            </label>
+            <label className="col-span-1 text-sm text-amber-900">
+              經度 (lng)
+              <input
+                value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}
+                type="number"
+                step="any"
+                className="mt-1 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                placeholder="121.543278"
+              />
+            </label>
           </div>
 
-          <label className="col-span-1 text-sm">
-            緯度 (lat)
-            <input
-              value={latitude}
-              onChange={(e) =>
-                setLatitude(e.target.value ? Number(e.target.value) : '')
-              }
-              type="number"
-              step="any"
-              className="mt-1 w-full rounded-md border px-2 py-1"
-              placeholder="例如 25.03"
-            />
-          </label>
-          <label className="col-span-1 text-sm">
-            經度 (lng)
-            <input
-              value={longitude}
-              onChange={(e) =>
-                setLongitude(e.target.value ? Number(e.target.value) : '')
-              }
-              type="number"
-              step="any"
-              className="mt-1 w-full rounded-md border px-2 py-1"
-              placeholder="例如 121.56"
-            />
-          </label>
-
-          <label className="col-span-2 text-sm">
-            照片 URL（每行一個）
-            <textarea
-              value={photosText}
-              onChange={(e) => setPhotosText(e.target.value)}
-              className="mt-1 w-full rounded-md border px-2 py-2"
-              rows={2}
-              placeholder="https://...jpg\nhttps://...png"
-            />
-          </label>
-        </div>
-
-        {/* ⭐ 評分與留言（必填） */}
-        <div className="mt-5 rounded-xl border p-3">
-          <div className="font-medium">評分與留言（必填）</div>
-          <div className="mt-2 flex items-center gap-3">
-            <span className="text-sm text-gray-600">評分</span>
-            <StarRatingInput value={score} onChange={(v) => setScore(v)} />
-          </div>
-          <label className="block mt-3 text-sm">
-            留言
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="mt-1 w-full rounded-md border px-2 py-2"
-              rows={3}
-              placeholder="請輸入你的心得（必填）"
-            />
-          </label>
-        </div>
-
-        {/* 營業時間 */}
-        <div className="mt-4">
-          <div className="mb-2 font-medium">營業時間（可公休）</div>
+          {/* 圖片：拖拉上傳區塊 */}
           <div className="space-y-2">
-            {hours.map((h, i) => (
-              <div key={h.weekday} className="flex items-center gap-3">
-                <div className="w-8 text-sm text-gray-600">
-                  週{weekdays[h.weekday]}
+            <div className="text-sm font-medium text-amber-900">圖片：</div>
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                if (e.dataTransfer.files?.length) {
+                  appendFiles(e.dataTransfer.files);
+                  e.dataTransfer.clearData();
+                }
+              }}
+              onClick={() => fileInputRef.current?.click()}
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all ${
+                isDragging
+                  ? 'border-amber-500 bg-amber-50'
+                  : 'border-amber-300 bg-white'
+              }`}
+            >
+              <div className="text-3xl leading-none text-amber-400">+</div>
+              <p className="mt-2 text-sm text-gray-700">
+                Drop your files here, or{' '}
+                <span className="text-indigo-500 underline">
+                  click to browse
+                </span>
+              </p>
+              <p className="mt-1 text-xs text-gray-400">
+                Unlimited files, 5GB total limit.
+              </p>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) {
+                  appendFiles(e.target.files);
+                  // 讓同一檔案可以再次選取
+                  e.target.value = '';
+                }
+              }}
+            />
+            {photoFiles.length > 0 && (
+              <div className="mt-1 text-xs text-gray-600">
+                已選擇 {photoFiles.length} 張照片
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {photoFiles.map((f, idx) => (
+                    <span
+                      key={idx}
+                      className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] text-amber-900"
+                    >
+                      {f.name}
+                    </span>
+                  ))}
                 </div>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={h.isClosed}
-                    onChange={() => toggleClosed(i)}
-                  />
-                  公休
-                </label>
-                <input
-                  type="time"
-                  disabled={h.isClosed}
-                  value={h.openTime}
-                  onChange={(e) => setTime(i, 'openTime', e.target.value)}
-                  className="rounded-md border px-2 py-1"
-                />
-                <span>—</span>
-                <input
-                  type="time"
-                  disabled={h.isClosed}
-                  value={h.closeTime}
-                  onChange={(e) => setTime(i, 'closeTime', e.target.value)}
-                  className="rounded-md border px-2 py-1"
-                />
               </div>
-            ))}
+            )}
+          </div>
+
+          {/* 評分與留言 */}
+          <div className="rounded-2xl border border-amber-200 bg-white px-4 py-3">
+            <div className="font-medium text-amber-900 mb-2">您的評價：</div>
+            <label className="block text-sm text-amber-900">
+              留言
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                rows={3}
+                placeholder="Type your comment here ︱"
+              />
+            </label>
+            <div className="mt-3 flex items-center gap-3">
+              <span className="text-sm text-gray-700">評分</span>
+              <StarRatingInput value={score} onChange={(v) => setScore(v)} />
+            </div>
+          </div>
+
+          {/* 營業時間 */}
+          <div>
+            <div className="mb-2 font-medium text-amber-900 text-sm">
+              營業時間（可公休）
+            </div>
+            <div className="space-y-2">
+              {hours.map((h, i) => (
+                <div
+                  key={h.weekday}
+                  className="flex items-center gap-3 text-sm"
+                >
+                  <div className="w-10 text-amber-900">
+                    週{weekdays[h.weekday]}
+                  </div>
+                  <label className="flex items-center gap-2 text-amber-900">
+                    <input
+                      type="checkbox"
+                      checked={h.isClosed}
+                      onChange={() => toggleClosed(i)}
+                    />
+                    公休
+                  </label>
+                  <input
+                    type="time"
+                    disabled={h.isClosed}
+                    value={h.openTime}
+                    onChange={(e) => setTime(i, 'openTime', e.target.value)}
+                    className="rounded-md border border-amber-200 bg-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  />
+                  <span>—</span>
+                  <input
+                    type="time"
+                    disabled={h.isClosed}
+                    value={h.closeTime}
+                    onChange={(e) => setTime(i, 'closeTime', e.target.value)}
+                    className="rounded-md border border-amber-200 bg-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="mt-5 flex justify-end gap-2">
+        {/* 底部按鈕 */}
+        <div className="mt-4 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="rounded-lg border px-4 py-2 hover:bg-gray-50"
+            className="rounded-full border border-amber-300 px-4 py-2 text-sm text-amber-800 bg-white hover:bg-amber-50"
           >
             取消
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="rounded-full bg-amber-500 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
           >
-            {loading ? '建立中…' : '建立地標'}
+            {loading ? '建立中…' : '完成'}
           </button>
         </div>
       </div>
