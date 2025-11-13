@@ -36,7 +36,7 @@ export default function CartCard({
 
   return (
     <>
-      <div className="flex flex-row w-4/5 mx-auto my-8">
+      <div className="flex flex-row w-4/5 mx-auto mb-8">
         <div>
           <Image src={picURL} alt="產品圖片" height={200} width={150}></Image>
         </div>
