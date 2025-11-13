@@ -10,7 +10,7 @@ export default function Avatar() {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <div
-      className="relative"
+      className="relative w-15 h-15"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -20,12 +20,12 @@ export default function Avatar() {
         }
         alt="用戶頭像"
         className=" rounded-full border-white border-2"
-        width={36}
-        height={36}
+        fill
+        sizes="100%"
         // priority
       ></Image>
       <div
-        className={`absolute w-fit bg-white left-1/2 transform -translate-x-1/2 z-20 whitespace-nowrap p-3 px-6 rounded-2xl ${isHovered ? '' : 'hidden'}`}
+        className={`absolute w-fit bg-white left-1/2 transform -translate-x-1/2 z-20 whitespace-nowrap p-3 px-6 rounded-2xl  mt-15 ${isHovered ? '' : 'hidden'}`}
       >
         <div>
           <Link href={'/member/user-info'}>個人資料</Link>

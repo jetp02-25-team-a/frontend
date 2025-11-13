@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { ApiResponse } from '../../_interfaces/userData';
 import { API_SERVER } from '../../../config/api-path';
 import Image from 'next/image';
-import { IMAGE_PATH } from '../../../config/image-path';
+import { AVATAR_PATH, IMAGE_PATH } from '../../../config/image-path';
 import { useRouter } from 'next/navigation';
 
 const userDataInit: ApiResponse = {
@@ -122,7 +122,7 @@ export default function UserIdPage() {
                     selectedFile
                       ? URL.createObjectURL(selectedFile)
                       : userData.data.avatar
-                        ? `${IMAGE_PATH}${userData.data.avatar}`
+                        ? `${AVATAR_PATH}${userData.data.avatar}`
                         : '/avatar_default.png'
                   } //檔案>舊頭像>預設頭像
                   alt=""
