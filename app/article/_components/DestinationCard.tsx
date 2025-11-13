@@ -24,8 +24,8 @@ export default function DestinationCard({
         <Image
           src={url}
           alt={title}
-          width={400}
-          height={250}
+          width={70}
+          height={70}
           className="object-cover w-full h-64"
         />
       ) : (

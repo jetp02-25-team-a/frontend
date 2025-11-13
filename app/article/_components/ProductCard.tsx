@@ -23,8 +23,8 @@ export default function ProductCard({
       <Image
         src={image}
         alt={title}
-        width={80}
-        height={80}
+        width={50}
+        height={50}
         className="rounded-md"
       />
       <div>

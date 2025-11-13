@@ -273,7 +273,7 @@ export default function ReviewArticlePage() {
       }));
     } catch (err) {
       console.error('Like Error:', err);
-      alert('Gagal menyukai artikel.');
+      alert('Failed to like article.');
     } finally {
       setIsLiking(false);
     }
@@ -297,11 +297,11 @@ export default function ReviewArticlePage() {
 
       if (!res.ok) throw new Error('Failed to delete article');
 
-      alert('Artikel berhasil dihapus.');
+      alert('Article successfully deleted.');
       router.push('/article/list');
     } catch (err) {
       console.error('Delete Error:', err);
-      alert('Gagal menghapus artikel.');
+      alert('Failed to like the article');
     }
   };
 
