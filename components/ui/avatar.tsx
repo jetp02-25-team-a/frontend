@@ -28,7 +28,7 @@ export default function Avatar() {
         className={`absolute w-fit bg-white left-1/2 transform -translate-x-1/2 z-20 whitespace-nowrap p-3 px-6 rounded-2xl ${isHovered ? '' : 'hidden'}`}
       >
         <div>
-          <Link href={'/member'}>個人資料</Link>
+          <Link href={'/member/user-info'}>個人資料</Link>
         </div>
         <div>
           <button onClick={logout} className="hover:cursor-pointer mt-2">
