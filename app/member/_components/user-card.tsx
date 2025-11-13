@@ -53,7 +53,7 @@ export default function ComponentsUserCard({
             <h3 className="text-xl font-semibold">{name}</h3>
             <p>{description}</p>
             {state === 'self' && (
-              <ButtonO path={`member/edit/${id}`} text="編輯個人資料" />
+              <ButtonO path={`/member/edit/${id}`} text="編輯個人資料" />
             )}
             {state === 'other' && (
               <div className="flex gap-3">

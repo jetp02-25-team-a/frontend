@@ -40,7 +40,7 @@ export function AuthProvider({
   // 定義會員的狀態
   const [user, setUser] = useState<User>(initUser);
   const [isReady, setIsReady] = useState(false);
-
+  const router = useRouter();
   // 登入
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -80,6 +80,7 @@ export function AuthProvider({
   const logout = () => {
     localStorage.removeItem(storageKey);
     setUser(initUser);
+    router.push('/');
   };
 
   const getAuthHeader = () => {
