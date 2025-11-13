@@ -1,0 +1,89 @@
+/* Card.module.css */
+
+.card {
+  width: 100%;
+  max-width: 250px; /* Lebar maksimum satu kartu */
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  /* Rasio aspek: 4:3 (ketinggian = 75% dari lebar) */
+  padding-bottom: 75%;
+}
+
+/* Badge untuk Rating/Fitur */
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.5); /* Latar belakang semi-transparan */
+  color: white;
+  padding: 4px 8px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.star {
+  margin-right: 4px;
+  font-size: 0.8rem;
+}
+
+/* Tombol Hati/Suka */
+.heartButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.heartButton:hover {
+  background-color: white;
+}
+
+.content {
+  padding: 10px;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  /* Warna teks disesuaikan agar mirip dengan contoh */
+  color: #333;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.locationIcon {
+  margin-right: 5px;
+}

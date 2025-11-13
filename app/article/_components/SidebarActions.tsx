@@ -9,19 +9,24 @@ export default function SidebarActions() {
     {
       // href: 'article/rankingpage',
       // label: '推薦景點排行榜',
-      href: '/rankingpage',
+      href: '/article/rankingpage',
       label: '推薦景點排行榜',
       color: 'hover:text-blue-600',
     },
     {
-      href: 'article/review',
+      href: '/article/review',
       label: '推薦文章景點分享',
       color: 'hover:text-green-600',
     },
     {
-      href: 'article/guide',
+      href: '/article/guide',
       label: '建立分享',
-      color: 'hover:text-purple-600',
+      color: 'hover:text-orange-600',
+    },
+    {
+      href: '/article',
+      label: 'back to article page',
+      color: 'hover:text-orange-600',
     },
   ];
 
@@ -34,7 +39,7 @@ export default function SidebarActions() {
             key={item.href}
             href={item.href}
             className={`w-full text-left px-3 py-2 rounded-lg transition 
-              ${isActive ? 'bg-amber-200 text-black font-bold' : 'text-black'} 
+              ${isActive ? 'bg-amber-600 text-amber-950' : 'text-black'} 
               ${item.color}`}
           >
             {item.label}

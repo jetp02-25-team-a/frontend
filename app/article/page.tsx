@@ -50,6 +50,7 @@ export default function HomePage() {
               <DestinationCard
                 key={dest.id}
                 // image={dest.image}
+                id={dest.id}
                 title={dest.title}
                 description={dest.location}
                 image={dest.imgUrl ? dest.imgUrl : ''}

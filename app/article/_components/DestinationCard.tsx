@@ -1,7 +1,10 @@
 'use client';
 import Image from 'next/image';
 import { ARTICLE_PHOTOS_PATH } from '@/config/image-path';
+import Link from 'next/link';
+
 interface DestinationCardProps {
+  id: number;
   image?: string;
   title: string;
   description?: string;
@@ -13,6 +16,7 @@ const isValidUrl = (url?: string) => {
 };
 
 export default function DestinationCard({
+  id,
   image,
   title,
   description,
@@ -25,7 +29,7 @@ export default function DestinationCard({
           src={url}
           alt={title}
           width={70}
-          height={70}
+          height={140}
           className="object-cover w-full h-64"
         />
       ) : (
@@ -41,9 +45,12 @@ export default function DestinationCard({
             <p className="text-sm text-gray-600 mt-2">{description}</p>
           )}
         </div>
-        <button className="mt-4 text-blue-600 hover:underline self-start">
+        <Link
+          href={`/article/detail?id=${id}`}
+          className="mt-4 text-blue-600 hover:underline self-start"
+        >
           查看
-        </button>
+        </Link>
       </div>
     </div>
   );
