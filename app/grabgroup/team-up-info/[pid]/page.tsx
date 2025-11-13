@@ -268,7 +268,8 @@ export default function PlacePage() {
           {/* 參與人數 */}
           <div className=" flex items-end gap-[30px]">
             <p className="text-[20px] text-black">
-              合計{itineraryList?.Itineraries?.[0]?.figure ?? 1}人
+              最多{itineraryList?.Itineraries?.[0]?.figure ?? 1}人/ 目前
+              {itineraryList?.Itineraries?.[0]?.UserLinked?.length ?? 1}人
             </p>
             <div className="flex">
               {itineraryList &&
