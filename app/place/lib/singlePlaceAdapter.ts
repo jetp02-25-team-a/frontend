@@ -48,6 +48,7 @@ export async function getSpotDetail(placeId: number) {
 
   const reviews = (p.comments ?? []).map((c: any) => ({
     id: c.id,
+    userId: c.userId,
     name: c.fullName,
     avatar: c.avatar,
     date: c.createdAt,

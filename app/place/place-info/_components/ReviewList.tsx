@@ -1,10 +1,15 @@
 'use client';
 import { useState } from 'react';
-import { updateComment, deleteComment } from '@/app/place/lib/commentAdaptor';
+import { useAuth } from '@/hooks/use-Auth';
+import { updateComment, deleteReview } from '@/app/place/lib/commentAdaptor';
+import StarRating from './StarRating';
+import { createOrUpsertRank } from '@/app/place/lib/rankAdaptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faStar as faStarSolid,
   faStarHalfStroke,
+  faPen,
+  faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
@@ -21,27 +26,47 @@ type ReviewItem = {
 export default function ReviewList({
   placeId,
   reviews,
-  currentUserId, // 用來判斷是否顯示「編輯/刪除」
   onChanged, // 更新後讓外層 refresh / mutate
 }: {
   placeId: number;
   reviews: ReviewItem[];
-  currentUserId?: number;
   onChanged?: () => void;
 }) {
+  const { user, isReady } = useAuth();
+  const isLoggedIn = !!user.email;
+
   const [editingId, setEditingId] = useState<number | null>(null);
   const [draft, setDraft] = useState('');
+  const [rating, setEditScore] = useState<number>(0);
+
+  if (!isReady) {
+    return null;
+  }
 
   async function handleSave(id: number) {
+    if (!isLoggedIn) return;
+
     const text = draft.trim();
     if (!text) return;
-    await updateComment(placeId, id, text);
+
+    const uid = Number(user.id);
+    if (!Number.isFinite(uid) || uid <= 0) return;
+
+    const score = rating || 0;
+    if (!score) return; // 不讓 0 分送出
+
+    await Promise.all([
+      updateComment(placeId, id, text, uid),
+      createOrUpsertRank(placeId, score, uid),
+    ]);
     setEditingId(null);
     onChanged?.();
   }
 
-  async function handleDelete(id: number) {
-    await deleteComment(placeId, id);
+  async function handleDelete(commentId: number) {
+    if (!isLoggedIn) return;
+    const uid = Number(user.id);
+    await deleteReview(placeId, commentId, uid); // 👈 一次完成 刪留言＋刪 rank
     onChanged?.();
   }
 
@@ -74,11 +99,15 @@ export default function ReviewList({
   return (
     <section className="space-y-3 w-[60%]">
       {reviews.map((r) => {
-        const uid = typeof currentUserId === 'number' ? currentUserId : NaN;
+        const uid = user.id;
         const isMine = Number(r.userId) === uid;
         const inEdit = editingId === r.id;
+
         return (
-          <article key={r.id} className="rounded-2xl border p-4 bg-white">
+          <article
+            key={r.id}
+            className="rounded-2xl border p-4 bg-white relative"
+          >
             <div className="flex items-center gap-3">
               <img src={r.avatar} className="h-8 w-8 rounded-full" />
               <div className="font-semibold">{r.name}</div>
@@ -98,22 +127,28 @@ export default function ReviewList({
                 {renderStars(r.score)}
               </div>
               {/* 只有自己的留言才顯示編輯/刪除 */}
-              {isMine && !inEdit && (
-                <div className="flex items-center gap-2">
+              {isLoggedIn && isMine && !inEdit && (
+                <div className="absolute bottom-3 right-3 flex items-center gap-2 mt-10">
+                  {/* 編輯 */}
                   <button
-                    className="text-xs text-amber-600 hover:underline"
+                    className="text-amber-600 hover:text-green-500 hover:cursor-pointer transition"
                     onClick={() => {
                       setEditingId(r.id);
                       setDraft(r.content);
+                      setEditScore(Number(r.score) || 0);
                     }}
+                    title="編輯"
                   >
-                    編輯
+                    <FontAwesomeIcon icon={faPen} className="w-4 h-4" />
                   </button>
+
+                  {/* 刪除 */}
                   <button
-                    className="text-xs text-red-600 hover:underline"
+                    className="text-amber-600 hover:text-red-600 hover:cursor-pointer transition"
                     onClick={() => handleDelete(r.id)}
+                    title="刪除"
                   >
-                    刪除
+                    <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
                   </button>
                 </div>
               )}
@@ -124,6 +159,14 @@ export default function ReviewList({
               <p className="mt-2 text-sm">{r.content}</p>
             ) : (
               <div className="mt-3">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="text-xs text-neutral-600">評分</span>
+                  <StarRating
+                    value={rating}
+                    onChange={setEditScore}
+                    size={18}
+                  />
+                </div>
                 <textarea
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}

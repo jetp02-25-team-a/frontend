@@ -1,20 +1,17 @@
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL!;
 // 讀 env 並轉 number；沒有就丟明確錯誤，避免 NaN
-const DEMO_UID_NUM = Number(process.env.NEXT_PUBLIC_MOCK_USER_ID ?? '');
-if (!Number.isFinite(DEMO_UID_NUM) || DEMO_UID_NUM <= 0) {
-  throw new Error(
-    'Missing or invalid NEXT_PUBLIC_MOCK_USER_ID. ' +
-      '請在 .env.local 設定，例如：NEXT_PUBLIC_MOCK_USER_ID=1，並重啟 dev server。'
-  );
-}
-const DEMO_UID = String(DEMO_UID_NUM);
 
 // 新增或覆寫（有 @@unique([userId, placeId]) 就 upsert）
-export async function createOrUpsertComment(placeId: number, content: string) {
+export async function createOrUpsertComment(
+  placeId: number,
+  content: string,
+  userId: number
+) {
+  const uidStr = String(userId);
   const r = await fetch(`${BASE}/api/place/${placeId}/comments`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-user-id': DEMO_UID },
-    body: JSON.stringify({ userId: DEMO_UID_NUM, placeId, content }),
+    headers: { 'Content-Type': 'application/json', 'x-user-id': uidStr },
+    body: JSON.stringify({ userId, placeId, content }),
   });
   // 讀文字避免二次取用 body
   const text = await r.text();
@@ -32,12 +29,14 @@ export async function createOrUpsertComment(placeId: number, content: string) {
 export async function updateComment(
   placeId: number,
   commentId: number,
-  content: string
+  content: string,
+  userId: number
 ) {
+  const uidStr = String(userId);
   const r = await fetch(`${BASE}/api/place/${placeId}/comments/${commentId}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'x-user-id': DEMO_UID },
-    body: JSON.stringify({ userId: DEMO_UID_NUM, placeId, content }),
+    headers: { 'Content-Type': 'application/json', 'x-user-id': uidStr },
+    body: JSON.stringify({ userId, placeId, content }),
   });
   const text = await r.text();
   if (!r.ok)
@@ -45,12 +44,16 @@ export async function updateComment(
   return JSON.parse(text).data;
 }
 
-// 刪除（只能刪自己的）
-export async function deleteComment(placeId: number, commentId: number) {
+// 刪除留言和星等
+export async function deleteReview(
+  placeId: number,
+  commentId: number,
+  userId: number
+) {
   const r = await fetch(`${BASE}/api/place/${placeId}/comments/${commentId}`, {
     method: 'DELETE',
     headers: {
-      'x-user-id': DEMO_UID, // 👈
+      'x-user-id': String(userId),
     },
   });
   const text = await r.text();
