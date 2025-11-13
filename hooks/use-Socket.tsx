@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './use-Auth';
+import { SOCKET_SERVER } from '@/config/socketIo';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -16,7 +17,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!user?.id) return;
 
-    const API_URL = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
+    const API_URL = `${SOCKET_SERVER}`;
     const newSocket = io(API_URL, {
       withCredentials: true,
       query: { userId: user.id },

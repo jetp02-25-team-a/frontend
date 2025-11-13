@@ -19,13 +19,16 @@ export default function Chat({
       className={`flex items-center ${direction === 'left' ? 'justify-start' : 'justify-end'} gap-2 my-2`}
     >
       {direction === 'left' && (
-        <Image
-          width={46}
-          height={46}
-          src={avatar}
-          alt=""
-          className="w-[46px] h-[46px] rounded-full"
-        />
+        <div className="w-[46px] h-[46px] overflow-hidden rounded-full relative">
+          <Image
+            fill
+            // width={46}
+            // height={46}
+            src={avatar}
+            alt=""
+            className="object-cover"
+          />
+        </div>
       )}
       {direction === 'right' && (
         <p className="text-gray-500 text-sm">

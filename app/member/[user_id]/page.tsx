@@ -11,6 +11,7 @@ import ListButton from '../user-info/_components/list-button';
 import Checklist from '../user-info/_components/checklist';
 import { useFetch } from '@/hooks/useFetch';
 import { AVATAR_PATH, IMAGE_PATH } from '../../config/image-path';
+import { useAuth } from '../../../hooks/use-Auth';
 
 interface UserALLData {
   id: number;
@@ -73,6 +74,8 @@ const handleAddFriend = async (id: number) => {
 export default function UserIdPage() {
   const { user_id } = useParams();
   const [userData, setUserData] = useState<UserALLData>(userALLDataDefault);
+  const { user, isAuthenticated, isReady } = useAuth();
+  const [isFriend, setIsFriend] = useState<boolean>(false);
 
   const [options, setOptions] = useState<string>('發文');
   const url = `${API_SERVER}/friendships/userinfo?userId=${user_id}`;
@@ -86,6 +89,21 @@ export default function UserIdPage() {
     if (data?.success) setUserData(data.data);
   }, [data]);
 
+  useEffect(() => {
+    //確認是不是好友
+    const checkIsFriend = async (id: number, authId: number) => {
+      const checkUrl = `${API_SERVER}/friendships/check?userId=${authId}&friendId=${id}`;
+      const response = await fetch(checkUrl).then((r) => r.json());
+      if (response.isFriend) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    checkIsFriend(userData.id, user.id).then((r) => setIsFriend(r));
+  }, [userData]);
+
   return (
     <div className="bg-light-orange ">
       <div className="flex flex-col items-center py-16 gap-[30px]">
@@ -96,7 +114,7 @@ export default function UserIdPage() {
           name={userData.nickname}
           description={userData.description}
           id={userData.id}
-          state="other"
+          state={`${isFriend ? 'isFriend' : 'other'}`}
           addFriend={handleAddFriend}
         />
 

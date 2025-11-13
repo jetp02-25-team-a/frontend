@@ -14,7 +14,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSocket } from '@/hooks/use-Socket';
 import { useAuth } from '../../../hooks/use-Auth';
 import { useFetch } from '../../../hooks/useFetch';
-import { API_SERVER } from '../../config/api-path';
+import { API_SERVER } from '../../../config/api-path';
+import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 
 const messages = {
   title: '台北一日遊',
@@ -68,6 +69,10 @@ export default function ChatBox({
     if (userId) {
       //發送對方id
       socket.emit('friendID', userId);
+
+      socket.on('newMessage', () => {
+        refetch();
+      });
     }
     return () => {
       socket.off('public');
@@ -115,6 +120,10 @@ export default function ChatBox({
         }
       }
     );
+
+    socket.on('message:refetch', (data) => {
+      console.log('🔄 後端通知要刷新');
+    });
     // setMessage(''); //清空輸入欄位state
     // if (textAreaRef.current) textAreaRef.current.value = ''; //清空輸入欄位
     // setTimeout(() => refetch(), 200);//延遲發送
@@ -179,12 +188,15 @@ export default function ChatBox({
 
             {Array.isArray(allMessage) &&
               allMessage.map((message, index) => {
+                console.log('avatar=>', message);
                 return (
                   <Chat
                     key={index}
                     content={message.content}
-                    direction={message.senderId === user?.id ? 'right' : 'left'}
-                    avatar="/image.png"
+                    direction={
+                      message.Sender.id === user?.id ? 'right' : 'left'
+                    }
+                    avatar={`${AVATAR_PATH}${message.Sender.avatar}`}
                     updatedAt={message.updatedAt}
                   />
                 );

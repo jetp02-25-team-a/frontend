@@ -132,12 +132,18 @@ export default function PlacePage() {
     return `${IMAGE_PATH}/itineraries_photo/${fileName}`;
   };
   const openAll = () => {
-    const el = document.getElementById('first-photo-trigger') as HTMLElement | null;
+    const el = document.getElementById(
+      'first-photo-trigger'
+    ) as HTMLElement | null;
     if (el) {
       // dispatch a sequence of events to better trigger 3rd-party listeners
       ['pointerdown', 'pointerup', 'click'].forEach((type) =>
         el.dispatchEvent(
-          new MouseEvent(type, { bubbles: true, cancelable: true, view: window })
+          new MouseEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+          })
         )
       );
     }

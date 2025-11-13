@@ -14,11 +14,12 @@ import UserCard from '../_components/user-card';
 import { ApiResponse } from '../_interfaces/userData';
 import { API_SERVER } from '../../config/api-path';
 import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
+import FriendRecommend from './_components/friend-recommend';
 
-const friend_data = [
-  { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
-  { id: 2, user_name: '大衝名', avatar: 'image.png', address: '新北產業園區' },
-];
+// const friend_data = [
+//   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
+//   { id: 2, user_name: '大衝名', avatar: 'image.png', address: '新北產業園區' },
+// ];
 
 //
 interface ChatInterface {
@@ -268,7 +269,8 @@ export default function UserInfoPage() {
           <OpenChatWindows openChats={openChats} setOpenChats={setOpenChats} />
         </div>
         <div className="bg-gray-300">
-          <div className="p-2.5 space-y-2.5">
+          <FriendRecommend />
+          {/* <div className="p-2.5 space-y-2.5">
             {friend_data.map((card, index) => {
               return (
                 <FriendCard
@@ -279,7 +281,7 @@ export default function UserInfoPage() {
                 />
               );
             })}
-          </div>
+          </div> */}
 
           <h4 className="text-center text-[24px] py-2.5 border-b-2 border-gray-600 bg-white">
             聯絡人
