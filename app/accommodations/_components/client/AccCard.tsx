@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { FaLocationDot } from 'react-icons/fa6';
 import Link from 'next/link';
 
+import { IMAGE_PATH } from '@/config/image-path';
+
 // 定義 Props 介面
 export interface ComponentsAccCardProps {
   id: number;
@@ -50,7 +52,7 @@ export default function ComponentsAccCard({
           <div className="w-full h-64 relative overflow-hidden ">
             {/* Next.js Image 元件 */}
             <Image
-              src={imageUrl}
+              src={`${IMAGE_PATH}${imageUrl}`}
               alt={imageAlt}
               fill={true}
               className="object-cover transition-all duration-700 ease-in-out group-hover:scale-110"
