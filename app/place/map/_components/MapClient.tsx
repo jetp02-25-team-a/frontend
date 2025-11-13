@@ -119,7 +119,6 @@ export default function MapClient() {
   const [modalOpen, setModalOpen] = useState(false);
   const [pickMode, setPickMode] = useState(false);
   const [picked, setPicked] = useState<L.LatLng | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
   // ✅ 新增：目前地圖中心，給 Modal「用地圖中心」
   const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
 
@@ -220,13 +219,6 @@ export default function MapClient() {
     if (window.innerWidth < 640) setDrawerOpen(false);
   }, []);
 
-  // Toast
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2500);
-    return () => clearTimeout(t);
-  }, [toast]);
-
   // 點小卡 / Marker → 詳情
   const [detailOpen, setDetailOpen] = useState(false);
   const [selected, setSelected] = useState<Place | null>(null);
@@ -270,14 +262,12 @@ export default function MapClient() {
 
   function handlePickCoordOnce() {
     setPickMode(true);
-    setToast('請在地圖上點一下要新增的座標');
   }
 
   function handlePicked(latlng: L.LatLng) {
     setPickMode(false);
     setPicked(latlng);
     setCenter([latlng.lat, latlng.lng]); // ✅ 取點後同步中心，Modal 可直接點「用地圖中心」
-    setToast(`已選座標：${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`);
   }
 
   return (
@@ -285,12 +275,6 @@ export default function MapClient() {
       className="relative rounded-2xl overflow-hidden bg-amber-50"
       style={{ height: MAP_HEIGHT }}
     >
-      {/* 小提醒 */}
-      {toast && (
-        <div className="pointer-events-none absolute left-1/2 top-3 z-[500] -translate-x-1/2 rounded-md bg-black/70 px-3 py-1 text-sm text-white">
-          {toast}
-        </div>
-      )}
       <MapContainer
         ref={mapRef as any} // ✅ 用 ref 取代 whenCreated
         center={hasQuery ? [25.04, 121.55] : DEFAULT_CENTER}
@@ -341,7 +325,6 @@ export default function MapClient() {
         mapCenter={center}
         apiBase={API}
         onCreated={(p) => {
-          setToast('已建立地標！');
           setPicked(null);
 
           const normalized = normalizePlace(p);

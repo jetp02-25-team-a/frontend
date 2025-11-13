@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import Toast from '../../_components/Toast';
 
 type OpeningRow = {
   weekday: number; // 0~6
@@ -164,6 +165,11 @@ export default function AddPlaceModal({
     });
   }, [hours]);
 
+  const [toast, setToast] = useState<{
+    message: string;
+    type?: 'success' | 'error';
+  } | null>(null);
+
   useEffect(() => {
     if (!open) {
       // reset when close
@@ -285,7 +291,10 @@ export default function AddPlaceModal({
 
       try {
         onCreated?.(placeForUI); // 父層再拿去 setState
-        onClose();
+        setToast({
+          message: '地標已成功建立！',
+          type: 'success',
+        });
       } catch (e) {
         console.error('onCreated error:', e);
         setErr('建立成功，但更新畫面時發生錯誤（缺少 avg）。'); // 不會再顯示 undefined.avg
@@ -318,7 +327,7 @@ export default function AddPlaceModal({
     });
   }
 
-  if (!open) return null;
+  if (!open && !toast) return null;
 
   return (
     <div className="fixed inset-0 z-[999]">
@@ -584,6 +593,21 @@ export default function AddPlaceModal({
           </button>
         </div>
       </div>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => {
+            // Toast 淡出結束 or 點 × 時會呼叫這裡
+            setToast(null);
+
+            // ✅ 只有成功時我們才希望自動關 modal
+            if (toast.type === 'success') {
+              onClose();
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
