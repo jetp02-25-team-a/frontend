@@ -6,6 +6,7 @@ import { useCart } from '../../../hooks/use-Cart';
 import { API_SERVER } from '../../config/api-path';
 import CartCard from '../_components/cartCard';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface ProductVariants {
   id: number;
@@ -35,15 +36,17 @@ export default function CartPage() {
   const { user } = useAuth();
   const { cart, addToCart, clearCart, removeFromCart } = useCart();
   const [items, setItems] = useState<Product[]>([]);
-  const router = useRouter();
   let totalprice = 0;
+  let allProductNames = '';
 
-  const test = new FormData();
-  const testcheckout = async () => {
-    try {
-      const data = await fetch(`${API_SERVER}/checkout`);
-    } catch (e) {}
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    clearCart();
+
+    e.currentTarget.submit();
   };
+
   useEffect(() => {
     const getData = async () => {
       // 每次執行時，先清空 items，以避免重複資料
@@ -81,11 +84,10 @@ export default function CartPage() {
     // 修正 2: 將 cart.items 加入依賴項
   }, [cart.items]);
   const isCartEmpty = !cart.items || cart.items.length === 0;
-  console.log(items);
 
   return (
     <>
-      <div className="bg-[#FBE7C1]">
+      <div className="bg-[#FBE7C1] p-8">
         {isCartEmpty ? (
           // 購物車為空時顯示的提示訊息
           <div
@@ -123,6 +125,7 @@ export default function CartPage() {
               }
 
               totalprice = totalprice + cartItem.amount * variantDetail.price;
+              allProductNames += `${productDetail.productName} (${variantDetail.variantName}) x ${cartItem.amount}; `;
 
               return (
                 <CartCard
@@ -139,11 +142,72 @@ export default function CartPage() {
             })}
           </ul>
         )}
-        <div>
-          <span>{totalprice}</span>
+        <div className="flex justify-center">
+          <div className="bg-[#F8D28C] w-4/5 p-8">
+            <div className="flex flex-row justify-between">
+              <span className="text-xl font-bold">總計</span>
+              <span className="text-xl font-bold">{totalprice}</span>
+            </div>
+            <div className="flex justify-between">
+              <div>
+                <button className="mt-8 p-1 px-6 border rounded-2xl mr-3">
+                  折價券
+                </button>
+                <button className="mt-8 p-1 px-6 border rounded-2xl mr-3">
+                  折價券
+                </button>
+                <button className="mt-8 p-1 px-6 border rounded-2xl mr-3">
+                  折價券
+                </button>
+              </div>
+              <div>
+                <form
+                  action={`${API_SERVER}/checkout`}
+                  method="POST"
+                  onSubmit={handleSubmit}
+                >
+                  <input type="hidden" name="total_price" value={totalprice} />
+                  <input
+                    type="hidden"
+                    name="product_list"
+                    value={allProductNames.trim()}
+                  />
+                  <input type="hidden" name="userid" value={user.id} />
+                  {cart.items?.map((item, index) => {
+                    return (
+                      <div key={item.variant_id}>
+                        <input
+                          type="hidden"
+                          name={`item_variant${index}`}
+                          value={item.variant_id}
+                        />
+                        <input
+                          type="hidden"
+                          name={`item_amount${index}`}
+                          value={item.amount}
+                        />
+                      </div>
+                    );
+                  })}
+                  <button
+                    type="submit"
+                    className="mt-8 p-1 px-6 border rounded-2xl :hover {
+  cursor: pointer}"
+                  >
+                    去結帳
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <button onClick={clearCart}>去結帳</button>
+        <div className="flex justify-center">
+          <Link
+            href={`http://localhost:3000/shops`}
+            className="mt-8 p-1 px-6 border rounded-2xl"
+          >
+            回商城
+          </Link>
         </div>
       </div>
     </>
