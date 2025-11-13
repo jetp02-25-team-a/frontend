@@ -84,8 +84,13 @@ export function useFavorites(data: { id: number }[]) {
         setFavorites(prevState);
         toast.error('收藏失敗，請稍後再試');
       }
+
+      // 4. 成功處理
+      const actionText = isCurrentlyFavorite ? '已取消收藏' : '已成功收藏';
+      // 🌟 修正點：API 呼叫成功且 res.ok 時，發出成功提示
+      toast.success(actionText);
     } catch (error) {
-      // 4. 網路錯誤時回滾
+      // 5. 網路錯誤時回滾
       setFavorites(prevState);
       toast.error('網路錯誤，請稍後再試');
     }
