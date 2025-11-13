@@ -118,7 +118,7 @@ export default function EditArticlePage() {
       if (!res.ok) throw new Error('Failed to submit data');
 
       alert('✅ Article submitted successfully!');
-      router.push(`/article/review?id=${pid}`);
+      router.push(`/article/detail?id=${pid}`);
     } catch (err) {
       console.error('❌ Submit error:', err);
       alert('❌ Failed to submit article');
