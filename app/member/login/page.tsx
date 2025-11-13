@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../hooks/use-Auth';
 import Link from 'next/link';
+import SimpleModal from '../_components/modal';
 
 export default function Page() {
   const [data, setData] = useState({
