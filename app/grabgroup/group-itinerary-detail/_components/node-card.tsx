@@ -9,13 +9,6 @@ import {
   faLocationDot,
 } from '@fortawesome/free-solid-svg-icons';
 import { ItineraryContext, useItinerary } from '@/hooks/use-itinerart';
-import {
-  ItineraryContextType,
-  ItineraryData,
-  Node,
-  StayNode,
-  GoogleMapPlace,
-} from '../../_types/itineraryTypes';
 
 interface NodeCardProps {
   duration_minute: number;
@@ -27,6 +20,14 @@ interface NodeCardProps {
   dayIndex: number;
   nodeIndex: number;
   onClick?: () => void;
+  // 新增拖拽相關 props
+  onDragStart?: (dayIndex: number, nodeIndex: number) => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragEnter?: (dayIndex: number, nodeIndex: number) => void;
+  onDragLeave?: () => void;
+  onDrop?: (dayIndex: number, nodeIndex: number) => void;
+  isDragging?: boolean;
+  isDragOver?: boolean;
 }
 export default function NodeCard({
   image,
@@ -38,23 +39,71 @@ export default function NodeCard({
   dayIndex,
   nodeIndex,
   onClick,
+  // 新增拖拽相關參數
+  onDragStart,
+  onDragOver,
+  onDragEnter,
+  onDragLeave,
+  onDrop,
+  isDragging = false,
+  isDragOver = false,
 }: NodeCardProps) {
-  const { itineraryData, setItineraryData } = useItinerary(); //公共
+  const { setItineraryData } = useItinerary(); //公共
 
-  const start = new Date(start_time);
+  const start = new Date(start_time || '');
   const startTime = start.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
   });
-  const end = new Date(end_time);
+  const end = new Date(end_time || '');
   const endTime = end.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
   });
+
+  // 🔄 拖拽處理函數
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', `${dayIndex}-${nodeIndex}`);
+    e.dataTransfer.effectAllowed = 'move';
+    onDragStart?.(dayIndex, nodeIndex);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    onDragOver?.(e);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    onDragEnter?.(dayIndex, nodeIndex);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    onDragLeave?.();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    onDrop?.(dayIndex, nodeIndex);
+  };
+
   return (
-    <div className="flex items-center " onClick={onClick}>
+    <div
+      className={`flex items-center cursor-move transition-all duration-200 ${
+        isDragging ? 'opacity-50 scale-95' : ''
+      } ${isDragOver ? 'ring-2 ring-blue-400 shadow-lg' : ''}`}
+      onClick={onClick}
+      draggable={true}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <div className="flex flex-col w-[100px] px-3 gap-1 items-center">
         <p className="text-gray-400">{startTime}</p>
         <FontAwesomeIcon

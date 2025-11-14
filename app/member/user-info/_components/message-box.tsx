@@ -25,14 +25,6 @@ export default function MessageBox({
   receiverId,
   senderId,
 }: MessageBoxProps) {
-  console.log(
-    '當前使用者id:',
-    userId,
-    '///接受者id:',
-    receiverId,
-    '////發送者:id',
-    senderId
-  );
   return (
     <div
       onClick={onClick}

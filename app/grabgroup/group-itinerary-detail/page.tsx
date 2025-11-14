@@ -51,6 +51,16 @@ export default function GroupItineraryDetailPage() {
   //日期bar 用來顯示點選的天
   const [activeId, setActiveId] = useState<number>(0);
 
+  // 🔄 拖拽狀態管理
+  const [draggedItem, setDraggedItem] = useState<{
+    dayIndex: number;
+    nodeIndex: number;
+  } | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<{
+    dayIndex: number;
+    nodeIndex: number;
+  } | null>(null);
+
   const { itineraryData, setItineraryData } = useItinerary(); //公共
 
   const url = `${API_SERVER}/itineraries/detail?itineraryId=${itineraryId}`;
@@ -90,6 +100,110 @@ export default function GroupItineraryDetailPage() {
   // 這個函式會傳給子組件
   const handleIframeVisible = (show: boolean) => {
     setIsIframeVisible(show);
+  };
+
+  // 🔄 拖拽處理函數
+  const handleDragStart = (dayIndex: number, nodeIndex: number) => {
+    setDraggedItem({ dayIndex, nodeIndex });
+    console.log('🔄 開始拖拽:', { dayIndex, nodeIndex });
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDragEnter = (dayIndex: number, nodeIndex: number) => {
+    setDragOverItem({ dayIndex, nodeIndex });
+  };
+
+  const handleDragLeave = () => {
+    setDragOverItem(null);
+  };
+
+  const handleDrop = async (
+    targetDayIndex: number,
+    targetNodeIndex: number
+  ) => {
+    if (!draggedItem || !itineraryData) return;
+
+    const { dayIndex: sourceDayIndex, nodeIndex: sourceNodeIndex } =
+      draggedItem;
+
+    // 如果拖拽到同一個位置，不做任何處理
+    if (
+      sourceDayIndex === targetDayIndex &&
+      sourceNodeIndex === targetNodeIndex
+    ) {
+      setDraggedItem(null);
+      setDragOverItem(null);
+      return;
+    }
+
+    console.log('🔄 拖拽完成:', {
+      from: { dayIndex: sourceDayIndex, nodeIndex: sourceNodeIndex },
+      to: { dayIndex: targetDayIndex, nodeIndex: targetNodeIndex },
+    });
+
+    // 🔄 重新排序邏輯
+    let updatedData: ItineraryData[] = [];
+
+    setItineraryData((prev) => {
+      if (!prev) return prev;
+
+      const newData = [...prev];
+
+      // 取得要移動的節點
+      const draggedNode = newData[sourceDayIndex].Nodes[sourceNodeIndex];
+
+      // 從原位置移除節點
+      newData[sourceDayIndex] = {
+        ...newData[sourceDayIndex],
+        Nodes: newData[sourceDayIndex].Nodes.filter(
+          (_, i) => i !== sourceNodeIndex
+        ),
+      };
+
+      // 插入到新位置
+      const targetNodes = [...newData[targetDayIndex].Nodes];
+      targetNodes.splice(targetNodeIndex, 0, draggedNode);
+
+      newData[targetDayIndex] = {
+        ...newData[targetDayIndex],
+        Nodes: targetNodes,
+      };
+
+      updatedData = newData;
+      return newData;
+    });
+
+    // 🔄 自動保存到資料庫
+    try {
+      console.log('🔄 拖拽排序後自動保存...');
+
+      const response = await fetch(`${API_SERVER}/itineraries/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itineraryData: updatedData,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log('✅ 拖拽排序已保存到資料庫');
+      } else {
+        console.error('❌ 拖拽排序保存失敗:', response.statusText, result);
+      }
+    } catch (error) {
+      console.error('❌ 拖拽排序保存時發生錯誤:', error);
+    }
+
+    // 清理拖拽狀態
+    setDraggedItem(null);
+    setDragOverItem(null);
   };
 
   const handleAddNode = async (dayId: number, nodeData: any) => {
@@ -294,7 +408,13 @@ export default function GroupItineraryDetailPage() {
                         tmpTime = end.toISOString(); //在將暫存時間設定為end時間提供下一次作為開始時間讀取
                       }
 
-                      // const end = addMinutes(start, node.durationMinutes);
+                      // 檢查是否為拖拽狀態
+                      const isDragging =
+                        draggedItem?.dayIndex === index &&
+                        draggedItem?.nodeIndex === nodeIndex;
+                      const isDragOver =
+                        dragOverItem?.dayIndex === index &&
+                        dragOverItem?.nodeIndex === nodeIndex;
 
                       return (
                         <div key={nodeIndex} className="w-full">
@@ -319,6 +439,14 @@ export default function GroupItineraryDetailPage() {
                             end_time={end.toISOString()}
                             dayIndex={index}
                             nodeIndex={nodeIndex}
+                            // 🔄 拖拽相關屬性
+                            onDragStart={handleDragStart}
+                            onDragOver={handleDragOver}
+                            onDragEnter={handleDragEnter}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            isDragging={isDragging}
+                            isDragOver={isDragOver}
                             onClick={() =>
                               setMapPoint({
                                 latitude:
