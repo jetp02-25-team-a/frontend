@@ -3,7 +3,8 @@
 import { AccDataCard } from '../../_types';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import ComponentsAccCard from './AccCard';
-import { useFavorites, useCarousel } from '../../_lib/_hooks';
+import { useCarousel } from '../../_lib/_hooks';
+import { useFavoritesContext } from '../../_lib/_context';
 import LoginModal from './LoginModal';
 
 export interface CarouselContentProps {
@@ -19,7 +20,7 @@ const CARD_FULL_SIZE = CARD_WIDTH + GAP_WIDTH;
 export default function CarouselContent({ title, data }: CarouselContentProps) {
   // 狀態管理：追蹤每個卡片的收藏狀態
   const { toggleFavorite, isFavorite, showLoginModal, setShowLoginModal } =
-    useFavorites(data);
+    useFavoritesContext();
 
   // 捲動邏輯
   const { moveCarousel, translateX, isAtStart, isAtEnd } = useCarousel(

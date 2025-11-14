@@ -68,7 +68,9 @@ export default function Navbar() {
             <div className="bg-white w-[2px] h-7"></div>
             <Link
               href="/accommodations"
-              className={`px-[15px] ${pathname === '/accommodations' ? 'text-white' : ''}`}
+              className={`px-[15px] ${
+                pathname.startsWith('/accommodations') ? 'text-white' : ''
+              }`}
             >
               住宿交通
             </Link>
