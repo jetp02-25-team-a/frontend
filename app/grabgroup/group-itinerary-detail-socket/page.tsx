@@ -38,9 +38,11 @@ export default function GroupItineraryDetailPage() {
 
   // Socket 相關設置
   const { socket } = useSocket();
+  const { user } = useAuth();
+
   //
   useEffect(() => {
-    if (!socket || !itineraryId || !user.id || !user.nickname) return;
+    if (!socket || !itineraryId || !user?.id || !user?.nickname) return;
     // 加入房間
     const itineraryRoomData = {
       itineraryId: Number(itineraryId),
@@ -49,6 +51,13 @@ export default function GroupItineraryDetailPage() {
     };
 
     socket.emit('itinerary:join', itineraryRoomData);
+    console.log('🏠 加入房間資料:', itineraryRoomData);
+
+    // 監聽房間加入確認
+    socket.on('itinerary:joined', (data) => {
+      console.log('✅ 成功加入房間:', data);
+    });
+
     //新增Day監聽
     const handleAddDay = (data: any) => {
       if (data.userId !== user?.id?.toString()) {
@@ -74,16 +83,131 @@ export default function GroupItineraryDetailPage() {
         });
       }
     };
-    //      socket.to(roomName).emit("itinerary:deleteDay", data);
     socket.on('itinerary:deleteDay', (data) => {
       console.log('收到刪除天數資料:', data);
       handleDeleteDay(data);
+    });
+
+    //增加節點監聽
+    const handleSocketAddNode = (data: any) => {
+      console.log('收到增加節點資料:', data);
+      if (data.userId !== user?.id?.toString()) {
+        setItineraryData((prev) => {
+          if (!prev) return prev;
+          const newData = prev.map((d, index) => {
+            if (index === data.dayIndex) {
+              return { ...d, Nodes: [...d.Nodes, data.nodeData] };
+            }
+            return d;
+          });
+          return newData;
+        });
+      }
+    };
+    socket.on('itinerary:addNode', (data) => {
+      console.log('收到資料增加節點:', data);
+      handleSocketAddNode(data);
+    });
+
+    //刪除節點監聽
+    const handleSocketDeleteNode = (data: any) => {
+      console.log('收到刪除節點資料:', data);
+      // 不需要檢查 userId，因為後端已經排除了發送者
+      setItineraryData((prev) => {
+        if (!prev) return prev;
+        const newData = prev.map((d, index) => {
+          if (index === data.dayIndex) {
+            const newNodes = d.Nodes.filter((_, i) => i !== data.nodeIndex);
+            return { ...d, Nodes: newNodes };
+          }
+          return d;
+        });
+        console.log('刪除節點後更新的資料:', newData);
+        return newData;
+      });
+    };
+    socket.on('itinerary:nodeDeleted', (data) => {
+      console.log('收到刪除節點事件:', data);
+      handleSocketDeleteNode(data);
+    });
+
+    //拖曳節點監聽
+    const handleSocketNodeDragged = (data: any) => {
+      console.log('收到拖曳節點資料:', data);
+      const {
+        sourceDayIndex,
+        sourceNodeIndex,
+        targetDayIndex,
+        targetNodeIndex,
+        nodeData,
+      } = data;
+
+      // 檢查資料完整性
+      if (
+        sourceDayIndex === undefined ||
+        targetDayIndex === undefined ||
+        !nodeData
+      ) {
+        console.error('拖曳資料不完整:', data);
+        return;
+      }
+
+      setItineraryData((prev) => {
+        if (!prev) return prev;
+        const newData = [...prev];
+
+        // 檢查索引有效性
+        if (
+          sourceDayIndex >= newData.length ||
+          targetDayIndex >= newData.length
+        ) {
+          console.error('拖曳索引超出範圍:', {
+            sourceDayIndex,
+            targetDayIndex,
+            dataLength: newData.length,
+          });
+          return prev;
+        }
+
+        // 從原位置移除節點
+        const sourceDay = newData[sourceDayIndex];
+        if (!sourceDay || sourceNodeIndex >= sourceDay.Nodes.length) {
+          console.error('來源節點不存在:', {
+            sourceDayIndex,
+            sourceNodeIndex,
+            sourceNodes: sourceDay?.Nodes?.length,
+          });
+          return prev;
+        }
+
+        newData[sourceDayIndex] = {
+          ...newData[sourceDayIndex],
+          Nodes: newData[sourceDayIndex].Nodes.filter(
+            (_, i) => i !== sourceNodeIndex
+          ),
+        };
+
+        // 插入到新位置
+        const targetNodes = [...newData[targetDayIndex].Nodes];
+        targetNodes.splice(targetNodeIndex, 0, nodeData);
+
+        newData[targetDayIndex] = {
+          ...newData[targetDayIndex],
+          Nodes: targetNodes,
+        };
+
+        console.log('拖曳節點後更新的資料:', newData);
+        return newData;
+      });
+    };
+    socket.on('itinerary:nodeDragged', (data) => {
+      console.log('收到拖曳節點事件:', data);
+      handleSocketNodeDragged(data);
     });
   }, [socket]);
   // 加天數方式
 
   //
-  const { user } = useAuth();
 
   //處理滑動
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -139,17 +263,16 @@ export default function GroupItineraryDetailPage() {
     });
   };
 
-  //公共資料更新後刷新
-  useEffect(() => {
-    // if (itineraryData) setDays(itineraryData);
-    let newItineraryData: ItineraryData[] = [];
-    if (itineraryData) {
-      newItineraryData = normalizeDays(itineraryData);
-    }
-    if (JSON.stringify(newItineraryData) !== JSON.stringify(itineraryData)) {
-      setItineraryData(newItineraryData);
-    }
-  }, [itineraryData]);
+  // 移除會造成無限循環的 useEffect
+  // useEffect(() => {
+  //   let newItineraryData: ItineraryData[] = [];
+  //   if (itineraryData) {
+  //     newItineraryData = normalizeDays(itineraryData);
+  //   }
+  //   if (JSON.stringify(newItineraryData) !== JSON.stringify(itineraryData)) {
+  //     setItineraryData(newItineraryData);
+  //   }
+  // }, [itineraryData]);
 
   // 控制iframe顯示
   const [isIframeVisible, setIsIframeVisible] = useState(false);
@@ -201,7 +324,7 @@ export default function GroupItineraryDetailPage() {
     });
 
     // 🔄 重新排序邏輯
-    let updatedData: ItineraryData[] = [];
+    let draggedNode: any = null;
 
     setItineraryData((prev) => {
       if (!prev) return prev;
@@ -209,7 +332,7 @@ export default function GroupItineraryDetailPage() {
       const newData = [...prev];
 
       // 取得要移動的節點
-      const draggedNode = newData[sourceDayIndex].Nodes[sourceNodeIndex];
+      draggedNode = newData[sourceDayIndex].Nodes[sourceNodeIndex];
 
       // 從原位置移除節點
       newData[sourceDayIndex] = {
@@ -228,35 +351,94 @@ export default function GroupItineraryDetailPage() {
         Nodes: targetNodes,
       };
 
-      updatedData = newData;
+      console.log('拖曳完成後的本地資料:', newData);
       return newData;
     });
+
+    // 發送 Socket 事件給其他用戶
+    const socketData = {
+      itineraryId: Number(itineraryId),
+      sourceDayIndex: sourceDayIndex,
+      sourceNodeIndex: sourceNodeIndex,
+      targetDayIndex: targetDayIndex,
+      targetNodeIndex: targetNodeIndex,
+      nodeData: draggedNode,
+      // 為了向後兼容，也加入後端期望的格式
+      dayIndex: targetDayIndex, // 後端可能需要這個
+      newPosition: targetNodeIndex, // 後端可能需要這個
+      userId: user?.id?.toString() || 'unknown',
+      userName: user?.nickname || 'Anonymous',
+      timestamp: new Date().toISOString(),
+    };
+
+    console.log('發送拖曳節點 Socket 資料:', socketData);
+    socket?.emit('itinerary:nodeDragged', socketData);
 
     // 清理拖拽狀態
     setDraggedItem(null);
     setDragOverItem(null);
   };
+  //給面板用的新增節點的函式
+  const handleAddNode = async (dayIndex: number, nodeData: any) => {
+    console.log('處理新增節點 - dayIndex:', dayIndex, 'nodeData:', nodeData);
 
-  const handleAddNode = async (dayId: number, nodeData: any) => {
-    console.log('nodeData', itineraryData);
-
-    let updatedData: any = null;
-
-    // 1. 先更新本地狀態（立即顯示）
+    // 先更新本地狀態
     setItineraryData((prev) => {
       if (!prev) return prev;
       const newData = prev.map((d, index) => {
-        if (index === dayId) {
-          return {
-            ...d,
-            Nodes: [...d.Nodes, nodeData],
-          };
+        if (index === dayIndex) {
+          return { ...d, Nodes: [...d.Nodes, nodeData] };
         }
         return d;
       });
-      updatedData = newData; // 保存更新後的資料
+      console.log('更新後的本地資料:', newData);
       return newData;
     });
+
+    // 然後發送 socket 事件給其他用戶
+    const socketData = {
+      itineraryId: Number(itineraryId),
+      dayIndex: dayIndex,
+      nodeData: nodeData,
+      userId: user?.id?.toString() || 'unknown',
+      userName: user?.nickname || 'Anonymous',
+      timestamp: new Date().toISOString(),
+    };
+
+    console.log('發送新增節點 Socket 資料:', socketData);
+    socket?.emit('itinerary:addNode', socketData);
+  };
+
+  //處理刪除節點的函式
+  const handleDeleteNode = async (dayIndex: number, nodeIndex: number) => {
+    console.log('處理刪除節點 - dayIndex:', dayIndex, 'nodeIndex:', nodeIndex);
+
+    // 先更新本地狀態
+    setItineraryData((prev) => {
+      if (!prev) return prev;
+      const newData = prev.map((d, index) => {
+        if (index === dayIndex) {
+          const newNodes = d.Nodes.filter((_, i) => i !== nodeIndex);
+          return { ...d, Nodes: newNodes };
+        }
+        return d;
+      });
+      console.log('刪除節點後的本地資料:', newData);
+      return newData;
+    });
+
+    // 然後發送 socket 事件給其他用戶
+    const socketData = {
+      itineraryId: Number(itineraryId),
+      dayIndex: dayIndex,
+      nodeIndex: nodeIndex,
+      userId: user?.id?.toString() || 'unknown',
+      userName: user?.nickname || 'Anonymous',
+      timestamp: new Date().toISOString(),
+    };
+
+    console.log('發送刪除節點 Socket 資料:', socketData);
+    socket?.emit('itinerary:nodeDeleted', socketData);
   };
 
   return (
@@ -433,6 +615,8 @@ export default function GroupItineraryDetailPage() {
                             onDrop={handleDrop}
                             isDragging={isDragging}
                             isDragOver={isDragOver}
+                            // 🗑️ 刪除節點功能
+                            onDeleteNode={handleDeleteNode}
                             onClick={() =>
                               setMapPoint({
                                 latitude:
@@ -457,7 +641,6 @@ export default function GroupItineraryDetailPage() {
                         icon={faPlus}
                         btn_name="加入行程"
                         onClick={() => {
-                          console.log('down');
                           setCurrentDayIndex(index); //設置當天日期，使用陣列索引
                           setIsIframeVisible(true);
                         }}
