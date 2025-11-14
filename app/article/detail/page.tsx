@@ -121,27 +121,80 @@ export default function ReviewArticlePage() {
   }, [article.id, isLiking, getAuthHeader]); // article.id dan isLiking harus masuk dependency
 
   // 🔹 Delete Article
+
   const handleDelete = useCallback(async () => {
-    if (!article.id) return;
-    if (!confirm('Are you sure you want to delete this article?')) return;
+  if (!article.id) return;
+  if (!confirm('Are you sure you want to delete this article?')) return;
 
-    try {
-      const res = await fetch(`${API_SERVER}/article/${article.id}`, {
-        method: 'DELETE',
-        headers: {
-          ...getAuthHeader(),
-        },
-      });
+  const headers = {
+    'Content-Type': 'application/json',
+    ...getAuthHeader(),
+  };
 
-      if (!res.ok) throw new Error('Failed to delete article');
+  if (!headers.Authorization) {
+    alert('You must be logged in to delete this article.');
+    return;
+  }
 
-      alert('Article successfully deleted.');
-      router.push('/article/list');
-    } catch (err) {
-      console.error('Delete Error:', err);
-      alert('Failed to delete the article.');
+  try {
+    const res = await fetch(`${API_SERVER}/article/${article.id}`, {
+      method: 'DELETE',
+      headers,
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Delete failed:', res.status, errorText);
+      throw new Error(`Failed to delete article: ${res.status}`);
     }
-  }, [article.id, getAuthHeader, router]);
+
+    alert('Article successfully deleted.');
+    router.push('/article/list');
+  } catch (err) {
+    console.error('Delete Error:', err);
+    alert(err instanceof Error ? err.message : 'Unexpected error during deletion.');
+  }
+}, [article.id, getAuthHeader, router]);
+
+
+
+
+
+
+
+
+
+//   const handleDelete = useCallback(async () => {
+//     if (!article.id) return;
+//     if (!confirm('Are you sure you want to delete this article?')) return;
+
+//     try {
+//       const res = await fetch(`${API_SERVER}/article/${article.id}`, {
+//         method: 'DELETE',
+//         headers: {
+//           ...getAuthHeader(),
+//         },
+//       });
+
+//       if (!res.ok) throw new Error('Failed to delete article');
+
+//       if (!res.ok) {
+//   const errorText = await res.text();
+//   console.error('Delete failed:', res.status, errorText);
+//   throw new Error('Failed to delete article');
+// }
+
+
+
+
+
+//       alert('Article successfully deleted.');
+//       router.push('/article/list');
+//     } catch (err) {
+//       console.error('Delete Error:', err);
+//       alert('Failed to delete the article.');
+//     }
+//   }, [article.id, getAuthHeader, router]);
 
   // 🔹 Load article on mount
   useEffect(() => {
