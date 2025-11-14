@@ -81,7 +81,7 @@ export default function CreateGroupItineraryPage() {
   const backend = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
 
   const [pendingInvites, setPendingInvites] = useState<number[]>([]); // 儲存好友ID
-  const [inviteBtnState, setInviteBtnState] = useState<boolean>(true); // 依照狀態改變是否取消邀請
+
   return (
     <main className="w-full flex flex-col items-center py-16 gap-[30px]">
       <h1 className="text-4xl text-center">行程頁面</h1>
@@ -117,7 +117,7 @@ export default function CreateGroupItineraryPage() {
           <input
             type="text"
             placeholder="輸入"
-            className="border-1 border-gray-300 w-full rounded-sm px-[12px] py-[4px]"
+            className="border-1 border-gray-300 w-full rounded-sm px-3 py-1"
             value={itineraryTitle}
             onChange={(e) => setItineraryTitle(e.target.value)}
           />
@@ -282,8 +282,12 @@ export default function CreateGroupItineraryPage() {
                         console.log(err);
                       }
                     });
+
+                    // 🔄 設置來源標記，讓目標頁面知道是從建立頁面來的
+                    sessionStorage.setItem('fromCreateGroupItinerary', 'true');
+
                     router.push(
-                      `/grabgroup/group-itinerary-detail?itineraryId=${result.itineraryId}`
+                      `/grabgroup/group-itinerary-detail?itineraryId=${result.itineraryId}&source=create-group-itinerary`
                     );
                   }
                 } catch (err) {

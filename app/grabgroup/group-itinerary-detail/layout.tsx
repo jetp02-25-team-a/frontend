@@ -39,14 +39,44 @@ export default function GroupItineraryDetalPage({
   const itineraryId = params;
   const [openChats, setOpenChats] = useState<ChatInterface[]>([]); //所有聊天室資訊 小視窗
 
-  // 追蹤來源頁面
+  // 追蹤來源頁面 - 使用更可靠的方法
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const referrer = document.referrer; // 獲取完整的上一頁 URL
+      // 🔄 方法1: 檢查 sessionStorage 中的來源標記
+      const fromCreatePage = sessionStorage.getItem('fromCreateGroupItinerary');
+
+      // 🔄 方法2: 檢查 URL 參數
+      const urlParams = new URLSearchParams(window.location.search);
+      const source = urlParams.get('source');
+
+      // 🔄 方法3: 檢查 document.referrer (備用)
+      const referrer = document.referrer;
+      let referrerPath = '';
+
       if (referrer) {
-        const referrerPath = new URL(referrer).pathname;
-        setPreviousPath(referrerPath);
-        // console.log('來源頁面:', referrerPath);
+        referrerPath = new URL(referrer).pathname;
+      }
+
+      console.log('🔍 SessionStorage fromCreatePage:', fromCreatePage);
+      console.log('🔍 URL source 參數:', source);
+      console.log('🔍 Document referrer:', referrer);
+      console.log('🔍 Referrer path:', referrerPath);
+
+      // 判斷是否來自建立頁面
+      const isFromCreatePage =
+        fromCreatePage === 'true' ||
+        source === 'create-group-itinerary' ||
+        referrerPath.includes('create-group-itinerary');
+
+      setPreviousPath(
+        isFromCreatePage ? 'create-group-itinerary' : referrerPath
+      );
+
+      console.log('🔍 最終判斷 - 是否來自建立頁面:', isFromCreatePage);
+
+      // 使用完後清除 sessionStorage 標記
+      if (fromCreatePage) {
+        sessionStorage.removeItem('fromCreateGroupItinerary');
       }
     }
   }, []);
@@ -67,8 +97,8 @@ export default function GroupItineraryDetalPage({
 
       // 🔄 同時抓取房間訊息和房間成員資料
       const [messagesResponse, membersResponse] = await Promise.all([
-        // 抓取房間訊息
-        fetch(`${API_SERVER}/chat/messages/room/${roomId}`, {
+        // 抓取房間訊息 - 使用與 chat-box 相同的 API
+        fetch(`${API_SERVER}/chat/allmessage?roomId=${roomId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -96,12 +126,12 @@ export default function GroupItineraryDetalPage({
         if (membersResponse.ok) {
           const membersResult = await membersResponse.json();
           console.log('所有房間資料:', membersResult);
-          
+
           // 在 allRoomsLatestMessages 中找到對應的房間
           const targetRoom = membersResult.data?.allRoomsLatestMessages?.find(
             (room: any) => room.roomData.id === roomId
           );
-          
+
           if (targetRoom && targetRoom.members) {
             roomMembers = targetRoom.members;
             console.log('✅ 找到房間成員:', roomMembers);
@@ -224,6 +254,7 @@ export default function GroupItineraryDetalPage({
         </div>
         {/* 訊息視窗區  */}
         <OpenChatWindows openChats={openChats} setOpenChats={setOpenChats} />
+
         {previousPath.includes('create-group-itinerary') && (
           <>
             <div className="flex gap-x-[21px] justify-center w-full">

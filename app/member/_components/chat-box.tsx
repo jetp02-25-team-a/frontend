@@ -51,7 +51,6 @@ export default function ChatBox({
 
   const { socket } = useSocket();
 
-  console.log('member====>', members);
   useEffect(() => {
     if (!socket) return;
     console.log('chat 連線 id=>', socket.id);
