@@ -5,7 +5,7 @@ import HeroImage from '../_components/HeroImage';
 import SidebarActions from '../_components/SidebarActions';
 import SectionTitle from '../_components/SectionTitle';
 import ProductCard from '../_components/ProductCard';
-import { products } from '../_data/products';
+import destinations from '../_data/destination';
 
 export default function RankingPage() {
   return (
@@ -26,13 +26,13 @@ export default function RankingPage() {
         <div className="md:col-span-3">
           <SectionTitle />
           <div className="grid gap-4">
-            {products.map((product, index) => (
+            {destinations.map((destination, index) => (
               <ProductCard
-                key={product.id}
+                key={destination.id ?? index}   // ← FIX key unik
                 rank={index + 1}
-                title={product.title}
-                description={product.description}
-                image={product.image}
+                title={destination.title}
+                description={destination.description}
+                image={destination.image}
               />
             ))}
           </div>
@@ -41,6 +41,83 @@ export default function RankingPage() {
     </main>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 'use client';
+
+// import React from 'react';
+// import HeroImage from '../_components/HeroImage';
+// import SidebarActions from '../_components/SidebarActions';
+// import SectionTitle from '../_components/SectionTitle';
+// import ProductCard from '../_components/ProductCard';
+// // import { products } from '../_data/products';
+// import { API_SERVER } from '@/config/api-path';
+// import destinations from '../_data/destination';
+// import DestinationCard from '../_components/DestinationCard';
+
+// export default function RankingPage() {
+//   return (
+//     <main className="min-h-screen flex flex-col items-center">
+//       <HeroImage />
+//       <div className="text-center mt-7 text-5xl font-bold">
+//         你的旅程，不只是回憶——也是靈感的起點！
+//       </div>
+
+//       {/* Konten dengan Sidebar */}
+//       <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6 p-6 w-full max-w-7xl">
+//         {/* Sidebar */}
+//         <aside className="md:col-span-1">
+//           <SidebarActions />
+//         </aside>
+
+//         {/* Konten utama */}
+//         <div className="md:col-span-3">
+//           <SectionTitle />
+//           <div className="grid gap-4">
+//             {destinations.map((destination, index) => (
+//               <ProductCard
+//                 key={DestinationCard.id}
+//                 rank={index + 1}
+//                 title={DestinationCard.title}
+//                 description={DestinationCard.description}
+//                 image={DestinationCard.image}
+//               />
+//             ))}
+//           </div>
+//         </div>
+//       </section>
+//     </main>
+//   );
+// }
 
 // 'use client';
 
