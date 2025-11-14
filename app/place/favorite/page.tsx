@@ -3,9 +3,9 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-Auth';
+import Link from 'next/link';
 import { getFavoritePlaces } from '@/app/place/lib/favoriteAdaptor';
 import Grid from '../_components/Grid';
-import Link from 'next/link';
 
 export default function FavoritePage() {
   const { user, isReady } = useAuth();
