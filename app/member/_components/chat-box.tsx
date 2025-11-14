@@ -17,7 +17,6 @@ import { useFetch } from '../../../hooks/useFetch';
 import { API_SERVER } from '../../../config/api-path';
 import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 
-
 interface Member {
   id: number;
   nickname: string;
@@ -51,6 +50,8 @@ export default function ChatBox({
   const { user, login, logout, getAuthHeader, isReady } = useAuth();
 
   const { socket } = useSocket();
+
+  console.log('member====>', members);
   useEffect(() => {
     if (!socket) return;
     console.log('chat 連線 id=>', socket.id);
@@ -145,6 +146,7 @@ export default function ChatBox({
         </div>
       </h2>
       {/*hidden 內容 */}
+
       {isHide && (
         <>
           {/* 所有參與者頭像 */}
@@ -184,16 +186,21 @@ export default function ChatBox({
 
             {Array.isArray(allMessage) &&
               allMessage.map((message, index) => {
-                console.log('avatar=>', message);
+                console.log('訊息資料=>', message);
+
+                // ✅ 安全檢查：處理不同的資料格式
+                const senderId = message.Sender?.id || message.senderId;
+                const senderAvatar =
+                  message.Sender?.avatar || 'default-avatar.png';
+                const messageTime = message.updatedAt || message.createdAt;
+
                 return (
                   <Chat
                     key={index}
                     content={message.content}
-                    direction={
-                      message.Sender.id === user?.id ? 'right' : 'left'
-                    }
-                    avatar={`${AVATAR_PATH}${message.Sender.avatar}`}
-                    updatedAt={message.updatedAt}
+                    direction={senderId === user?.id ? 'right' : 'left'}
+                    avatar={`${AVATAR_PATH}${senderAvatar}`}
+                    updatedAt={messageTime}
                   />
                 );
               })}

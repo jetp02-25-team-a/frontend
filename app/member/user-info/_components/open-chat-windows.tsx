@@ -31,7 +31,7 @@ export default function OpenChatWindows({
     setOpenChats(nextChats);
   };
   return (
-    <div className="absolute right-0 bottom-0 flex gap-2.5 items-end">
+    <div className="absolute right-0 bottom-0 flex gap-2.5 items-end z-10">
       {openChats.map((chatroom, index) => {
         return (
           <ChatBox

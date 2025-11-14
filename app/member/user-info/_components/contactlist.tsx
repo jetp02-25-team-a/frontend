@@ -63,7 +63,7 @@ export default function ContactList({
   openChats: ChatInterface[];
   onOpenChat: (chat: ChatInterface) => void;
 }) {
-  console.log('contact==>', contact);
+  // console.log('contact==>', contact);
   return (
     <div>
       {/* 團體聊天室 */}
