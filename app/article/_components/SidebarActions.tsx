@@ -13,11 +13,11 @@ export default function SidebarActions() {
       label: '推薦景點排行榜',
       color: 'hover:text-blue-600',
     },
-    {
-      href: '/article/review',
-      label: '推薦文章景點分享',
-      color: 'hover:text-green-600',
-    },
+    // {
+    //   href: '/article/review',
+    //   label: '推薦文章景點分享',
+    //   color: 'hover:text-green-600',
+    // },
     {
       href: '/article/guide',
       label: '建立分享',
