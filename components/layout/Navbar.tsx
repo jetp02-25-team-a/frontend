@@ -38,6 +38,14 @@ export default function Navbar() {
 
   const pathname = usePathname();
   if (pathname.includes('/grabgroup/panel')) return;
+
+  // 判斷是否在該路徑或其子路徑
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
+
+  // 高亮樣式（和首頁一樣的白色字，如果還有其它效果可加在這裡）
+  const linkCls = (href: string) =>
+    `px-[15px] ${isActive(href) ? 'text-white' : ''}`;
   return (
     <>
       <nav className="relative yellow-orange w-full h-[88px] flex justify-between items-center px-[80px] p-[13px]">
@@ -54,10 +62,7 @@ export default function Navbar() {
               行程規劃
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
-            <Link
-              href="/place"
-              className={`px-[15px] ${pathname === '/place' ? 'text-white' : ''}`}
-            >
+            <Link href="/place" className={linkCls('/place')}>
               美食景點
             </Link>
             <div className="bg-white w-[2px] h-7"></div>

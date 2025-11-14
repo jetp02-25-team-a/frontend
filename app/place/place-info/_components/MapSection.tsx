@@ -1,13 +1,28 @@
-// components/spot/MapSection.tsx
-export default function MapSection() {
-  // 先用靜態圖/placeholder，之後再換地圖 SDK
+'use client';
+
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
+// ---- 用 dynamic 匯入 LeafletMap ----
+// ssr: false → 禁用伺服端渲染，避免 window 未定義
+const LeafletMap = dynamic(() => import('./MapSectionClient'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[360px] bg-neutral-200 animate-pulse rounded-xl" />
+  ),
+});
+
+export default function MapSectionWrapper({ placeId }: { placeId: number }) {
   return (
-    <section className="rounded-2xl border p-3 w-full">
-      <img
-        src="https://maps.googleapis.com/maps/api/staticmap?center=Taipei&zoom=12&size=1000x300&scale=2&key=AIzaSyD-PLACEHOLDER"
-        alt="map"
-        className="w-full h-72 object-cover rounded-xl"
+    <Suspense
+      fallback={
+        <div className="w-full h-[360px] bg-neutral-200 animate-pulse rounded-xl" />
+      }
+    >
+      <LeafletMap
+        placeId={placeId}
+        apiBase={process.env.NEXT_PUBLIC_API_BASE_URL || ''}
       />
-    </section>
+    </Suspense>
   );
 }

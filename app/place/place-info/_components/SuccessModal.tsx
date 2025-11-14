@@ -1,17 +1,23 @@
-// components/spot/Reviews/SuccessModal.tsx
 'use client';
 import { useEffect, useRef } from 'react';
 
 export default function SuccessModal({
   title,
   message,
+  type = 'create',
   onClose,
 }: {
   title: string;
   message: string;
+  type?: 'create' | 'edit' | 'delete';
   onClose: () => void;
 }) {
   const okRef = useRef<HTMLButtonElement | null>(null);
+  const imgMap: Record<typeof type, string> = {
+    create: '/black_nb.png',
+    edit: '/edit.png',
+    delete: '/trash.png',
+  };
 
   useEffect(() => {
     okRef.current?.focus();
@@ -41,8 +47,8 @@ export default function SuccessModal({
         <p className="mt-5 mb-5 text-sm text-gray-600">{message}</p>
         <div className="mb-5  flex justify-center items-center">
           <img
-            src="/black_nb.png"
-            alt="黑筆記本"
+            src={imgMap[type]}
+            alt={type}
             className="h-32 w-32 drop-shadow-md mt-5 mb-5"
           />
         </div>
