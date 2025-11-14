@@ -12,6 +12,8 @@ import {
 } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import Link from 'next/link';
+import { useAuth } from '@/hooks/use-Auth';
 import Drawer from './Drawer';
 import AddPlaceModal from './AddPlaceModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -103,6 +105,10 @@ export default function MapClient() {
 
   const hasQuery = !!(address || region || legacyQ);
 
+  const { user, isReady } = useAuth();
+  const isLoggedIn = !!user?.email;
+
+  const [loginHintOpen, setLoginHintOpen] = useState(false);
   const [places, setPlaces] = useState<Place[]>([]);
   const [drawers, setDrawers] = useState<Place[]>([]);
   const [page, setPage] = useState(1);
@@ -113,13 +119,10 @@ export default function MapClient() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-
   const mapRef = useRef<L.Map | null>(null);
-
   const [modalOpen, setModalOpen] = useState(false);
   const [pickMode, setPickMode] = useState(false);
   const [picked, setPicked] = useState<L.LatLng | null>(null);
-  // ✅ 新增：目前地圖中心，給 Modal「用地圖中心」
   const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
 
   // 當任一查詢參數變動時重置列表
@@ -257,6 +260,11 @@ export default function MapClient() {
   }
 
   function handleOpenModal() {
+    if (!isReady) return;
+    if (!isLoggedIn) {
+      setLoginHintOpen(true);
+      return;
+    }
     setModalOpen(true);
   }
 
@@ -384,6 +392,31 @@ export default function MapClient() {
           />
         </button>
       </div>
+
+      {/* 🚧 未登入提示：用發文的概念「請先登入才能新增地標」 */}
+      {loginHintOpen && (
+        <div className="absolute bottom-40 right-4 z-[6000] w-64 rounded-2xl border bg-white/95 shadow-lg p-3 text-sm">
+          <div className="font-semibold mb-1">新增地標</div>
+          <p className="text-xs text-neutral-600 mb-2">
+            只有登入會員才能新增地標喔～
+          </p>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setLoginHintOpen(false)}
+              className="rounded-full border px-3 py-1 text-xs hover:bg-neutral-50"
+            >
+              稍後再說
+            </button>
+            <Link
+              href="/member/login"
+              className="rounded-full bg-amber-400 px-3 py-1 text-xs text-white hover:opacity-90"
+            >
+              前往登入
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -86,9 +86,6 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
                 typeof ratingAvg === 'string' ? Number(ratingAvg) : ratingAvg
               )}
             </div>
-            <span className="text-sm text-gray-500 ml-1">
-              ({ratingAvg.toFixed(1)})
-            </span>
           </div>
           <p className="text-sm text-gray-600 truncate">{address}</p>
           <p className="text-sm">{desc.slice(0, 30)}...</p>
