@@ -14,6 +14,8 @@ import AddItineraryButton from './_components/addItinerary-button';
 import PlacePanel from './_components/place-panel';
 import { useFetch } from '@/hooks/useFetch';
 
+import { useAuth } from '@/hooks/use-Auth';
+
 import { ItineraryContext, useItinerary } from '@/hooks/use-itinerart';
 import { ItineraryContextType, ItineraryData } from '../_types/itineraryTypes';
 import Map from '../_components/GoogleMap';
@@ -31,6 +33,9 @@ export interface mapPoint {
 export default function GroupItineraryDetailPage() {
   const params = useSearchParams().get('itineraryId');
   const itineraryId = params;
+
+  const { user } = useAuth();
+
   //處理滑動
   const scrollRef = useRef<HTMLDivElement>(null);
   const scroll = (direction: 'pre' | 'next') => {
