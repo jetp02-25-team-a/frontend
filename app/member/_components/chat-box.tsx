@@ -51,30 +51,54 @@ export default function ChatBox({
 
   const { socket } = useSocket();
 
-  useEffect(() => {
-    if (!socket) return;
-    console.log('chat 連線 id=>', socket.id);
-    if (roomId) {
-      //發送房間號碼
-      socket.emit('joinRoomId', roomId);
-    }
-    if (userId) {
-      //發送對方id
-      socket.emit('friendID', userId);
-
-      socket.on('newMessage', () => {
-        refetch();
-      });
-    }
-    return () => {
-      socket.off('public');
-    };
-  }, [socket, roomId, userId]);
-
   //開啟時讀取所有歷史訊息
   const roomUrl = `${API_SERVER}/chat/allmessage?roomId=${roomId}`;
   const receiverUrl = `${API_SERVER}/chat/allmessage?receiverId=${userId}`;
   const { data, refetch } = useFetch(roomId ? roomUrl : receiverUrl);
+
+  useEffect(() => {
+    if (!socket) return;
+    console.log('💬 聊天連線 id=>', socket.id);
+    
+    if (roomId) {
+      //發送聊天房間號碼 - 使用不同的前綴避免與行程房間衝突
+      socket.emit('joinChatRoom', roomId);
+      console.log('🏠 加入聊天房間:', `chat_${roomId}`);
+    }
+    if (userId) {
+      //發送對方id
+      socket.emit('friendID', userId);
+      console.log('👤 設定好友ID:', userId);
+    }
+
+    // 監聽新訊息
+    const handleNewMessage = (data: any) => {
+      console.log('📨 收到新訊息通知:', data);
+      refetch(); // 重新獲取訊息
+    };
+
+    // 監聽刷新通知
+    const handleMessageRefetch = (data: any) => {
+      console.log('🔄 收到刷新通知:', data);
+      refetch(); // 重新獲取訊息
+    };
+
+    // 監聽聊天房間加入確認
+    const handleChatRoomJoined = (data: any) => {
+      console.log('✅ 成功加入聊天房間:', data);
+    };
+
+    socket.on('newMessage', handleNewMessage);
+    socket.on('message:refetch', handleMessageRefetch);
+    socket.on('chat:roomJoined', handleChatRoomJoined);
+
+    return () => {
+      socket.off('newMessage', handleNewMessage);
+      socket.off('message:refetch', handleMessageRefetch);
+      socket.off('chat:roomJoined', handleChatRoomJoined);
+      socket.off('public');
+    };
+  }, [socket, roomId, userId, refetch]);
 
   useEffect(() => {
     if (data?.data) setAllMessage(data.data);
@@ -95,8 +119,8 @@ export default function ChatBox({
   //發送訊息
   const sendMessage = (msg: string) => {
     if (!socket || msg.length < 1) return; //輸入為空
-    // setMessage(''); //清空輸入欄位state
-    // console.log('現在的message', message);
+    
+    console.log('📤 發送訊息:', msg);
     socket.emit(
       'chat',
       roomId
@@ -105,20 +129,13 @@ export default function ChatBox({
       (response: { success: boolean; message?: string }) => {
         // 伺服器確認已收到
         if (response.success) {
-          console.log('訊息已成功送出');
+          console.log('✅ 訊息已成功送出');
           setMessage(''); //清空輸入欄位state
         } else {
-          console.error('訊息送出失敗：', response.message);
+          console.error('❌ 訊息送出失敗：', response.message);
         }
       }
     );
-
-    socket.on('message:refetch', (data) => {
-      console.log('🔄 後端通知要刷新');
-    });
-    // setMessage(''); //清空輸入欄位state
-    // if (textAreaRef.current) textAreaRef.current.value = ''; //清空輸入欄位
-    // setTimeout(() => refetch(), 200);//延遲發送
   };
 
   return (
