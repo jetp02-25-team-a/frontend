@@ -2,8 +2,9 @@
 import { useRouter } from 'next/navigation';
 import Button from '../_components/Button';
 import { ItineraryContext } from '@/hooks/use-itinerart';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   ItineraryContextType,
   ItineraryData,
@@ -17,11 +18,25 @@ export default function GroupItineraryDetalPage({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [itineraryData, setItineraryData] = useState<ItineraryData[] | null>(
     null
   );
+  const [previousPath, setPreviousPath] = useState<string>('');
   const params = useSearchParams().get('itineraryId');
   const itineraryId = params;
+
+  // 追蹤來源頁面
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const referrer = document.referrer; // 獲取完整的上一頁 URL
+      if (referrer) {
+        const referrerPath = new URL(referrer).pathname;
+        setPreviousPath(referrerPath);
+        // console.log('來源頁面:', referrerPath);
+      }
+    }
+  }, []);
 
   return (
     <ItineraryContext.Provider value={{ itineraryData, setItineraryData }}>
@@ -32,18 +47,22 @@ export default function GroupItineraryDetalPage({
             編輯你們想去的景點和規劃你的行程
           </p>
         </div>
+        {previousPath.includes('create-group-itinerary') && (
+          <>
+            <div className="flex gap-x-[21px] justify-center w-full">
+              <Button content="回上一頁" onClick={() => router.back()} />
+              <Button
+                content="下一頁"
+                onClick={() =>
+                  router.push(
+                    `/grabgroup/team-up-edit-article?itineraryId=${itineraryId}`
+                  )
+                }
+              />
+            </div>
+          </>
+        )}
 
-        <div className="flex gap-x-[21px] justify-center w-full">
-          <Button content="回上一頁" onClick={() => router.back()} />
-          <Button
-            content="下一頁"
-            onClick={() =>
-              router.push(
-                `/grabgroup/team-up-edit-article?itineraryId=${itineraryId}`
-              )
-            }
-          />
-        </div>
         {children}
       </div>
     </ItineraryContext.Provider>

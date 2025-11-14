@@ -94,9 +94,9 @@ export default function GroupItineraryDetailPage() {
 
   const handleAddNode = async (dayId: number, nodeData: any) => {
     console.log('nodeData', itineraryData);
-    
+
     let updatedData: any = null;
-    
+
     // 1. 先更新本地狀態（立即顯示）
     setItineraryData((prev) => {
       if (!prev) return prev;
@@ -115,6 +115,9 @@ export default function GroupItineraryDetailPage() {
 
     // 2. 保存到資料庫
     try {
+      console.log('=== 準備保存到資料庫 ===');
+      console.log('要保存的資料:', updatedData);
+
       const response = await fetch(`${API_SERVER}/itineraries/save`, {
         method: 'POST',
         headers: {
@@ -125,10 +128,13 @@ export default function GroupItineraryDetailPage() {
         }),
       });
 
+      const result = await response.json();
+      console.log('後端回應:', result);
+
       if (response.ok) {
         console.log('✅ 節點已保存到資料庫');
       } else {
-        console.error('❌ 保存失敗:', response.statusText);
+        console.error('❌ 保存失敗:', response.statusText, result);
       }
     } catch (error) {
       console.error('❌ 保存時發生錯誤:', error);
@@ -188,7 +194,9 @@ export default function GroupItineraryDetailPage() {
             <p className="text-gray-600">活動天數上限為7天</p>
             <button
               className="cursor-pointer text-white yellow-orange px-[30px] py-2.5"
-              onClick={() => {
+              onClick={async () => {
+                if ((itineraryData?.length ?? 0) >= 7) return;
+
                 const lastDay = itineraryData?.at(-1); // ES2022 新語法，取最後一個元素
                 let dayString = new Date().toISOString(); // 假日期
                 if (lastDay)
@@ -196,17 +204,56 @@ export default function GroupItineraryDetailPage() {
                     new Date(lastDay.dayDate),
                     1
                   ).toISOString(); // 加一天
-                //創建新天的資料
+
+                //創建新天的資料 (注意：暫時用 undefined 當 id，後端會自動產生)
                 const newDay = {
-                  id: (itineraryData?.length ?? 0) + 1,
+                  id: undefined, // ✅ 新天數沒有 ID，讓後端自動產生
                   itineraryId: Number(itineraryId),
                   dayDate: dayString,
                   startTime: lastDay?.startTime ?? '2025-11-06T08:53:23.234Z',
                   Nodes: [],
                   StayNodes: [],
                 };
-                if ((itineraryData?.length ?? 0) >= 7) return;
-                setItineraryData((prev) => [...(prev ?? []), newDay]);
+
+                // 1. 先更新本地狀態
+                const updatedData = [...(itineraryData ?? []), newDay];
+                setItineraryData(updatedData);
+
+                // 2. 立即保存到資料庫
+                try {
+                  console.log('=== 新增天數，立即保存 ===');
+                  console.log('要保存的資料:', updatedData);
+
+                  const response = await fetch(
+                    `${API_SERVER}/itineraries/save`,
+                    {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        itineraryData: updatedData,
+                      }),
+                    }
+                  );
+
+                  const result = await response.json();
+                  console.log('新增天數後端回應:', result);
+
+                  if (response.ok) {
+                    console.log('✅ 新天數已保存到資料庫');
+                    // 重新載入資料以獲取正確的 ID
+                    refetch();
+                  } else {
+                    console.error(
+                      '❌ 新增天數保存失敗:',
+                      response.statusText,
+                      result
+                    );
+                  }
+                } catch (error) {
+                  console.error('❌ 新增天數保存時發生錯誤:', error);
+                }
               }}
             >
               新增
