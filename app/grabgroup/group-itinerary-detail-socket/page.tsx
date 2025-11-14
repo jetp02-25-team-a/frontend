@@ -41,7 +41,7 @@ export default function GroupItineraryDetailPage() {
   //
   useEffect(() => {
     if (!socket || !itineraryId || !user.id || !user.nickname) return;
-
+    // 加入房間
     const itineraryRoomData = {
       itineraryId: Number(itineraryId),
       userId: user.id,
@@ -49,7 +49,7 @@ export default function GroupItineraryDetailPage() {
     };
 
     socket.emit('itinerary:join', itineraryRoomData);
-    //新增資料
+    //新增Day監聽
     const handleAddDay = (data: any) => {
       if (data.userId !== user?.id?.toString()) {
         setItineraryData((prev) => {
@@ -63,8 +63,25 @@ export default function GroupItineraryDetailPage() {
       console.log('收到新增天數資料:', data);
       handleAddDay(data);
     });
-    // 加天數方式
+
+    //刪除Day監聽
+    const handleDeleteDay = (data: any) => {
+      if (data.userId !== user?.id?.toString()) {
+        setItineraryData((prev) => {
+          console.log('刪除天數:', data.dayIndex);
+          if (!prev) return prev;
+          return prev.filter((_, index) => index !== data.dayIndex);
+        });
+      }
+    };
+    //      socket.to(roomName).emit("itinerary:deleteDay", data);
+    socket.on('itinerary:deleteDay', (data) => {
+      console.log('收到刪除天數資料:', data);
+      handleDeleteDay(data);
+    });
   }, [socket]);
+  // 加天數方式
+
   //
   const { user } = useAuth();
 
@@ -277,6 +294,14 @@ export default function GroupItineraryDetailPage() {
                           (d, i) => i !== index
                         );
                         setItineraryData(newItineraryData);
+                        const data = {
+                          itineraryId: Number(itineraryId),
+                          dayIndex: index,
+                          userId: user?.id,
+                          userName: user?.nickname,
+                          timestamp: new Date().toISOString(),
+                        };
+                        socket?.emit('itinerary:deleteDay', data);
                       }}
                     />
                   );
