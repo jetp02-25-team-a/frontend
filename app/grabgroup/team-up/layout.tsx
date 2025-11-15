@@ -22,7 +22,7 @@ export default function TeamUpLayout({
         </div>
 
         <h1 className="text-4xl">熱門景點</h1>
-        <div className="bg-gray-200 h-0.5 w-full"></div>
+        {/* <div className="bg-gray-200 h-0.5 w-full"></div> */}
 
         {children}
       </div>

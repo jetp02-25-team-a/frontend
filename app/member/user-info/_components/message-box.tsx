@@ -25,14 +25,6 @@ export default function MessageBox({
   receiverId,
   senderId,
 }: MessageBoxProps) {
-  console.log(
-    '當前使用者id:',
-    userId,
-    '///接受者id:',
-    receiverId,
-    '////發送者:id',
-    senderId
-  );
   return (
     <div
       onClick={onClick}
@@ -67,7 +59,7 @@ export default function MessageBox({
       )}
 
       <div className="m-auto w-full">
-        <p className="text-lg">{title}</p>
+        <p className="text-[20px] text-black">{title}</p>
         <p className="text-base text-gray-400">{content}</p>
       </div>
       <div>{time ? formatTime12Hour(time) : ''}</div>

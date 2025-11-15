@@ -19,7 +19,7 @@ export default function Avatar() {
           user?.avatar ? `${AVATAR_PATH}/${user.avatar}` : '/avatar_default.png'
         }
         alt="用戶頭像"
-        className=" rounded-full border-white border-2"
+        className=" rounded-full border-white border-2 object-cover"
         fill
         sizes="100%"
         // priority

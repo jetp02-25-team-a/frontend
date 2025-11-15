@@ -2,20 +2,18 @@
 import { useEffect, useState } from 'react';
 import Button from '../_components/Button';
 import DatePicker from './_components/date-picker';
-import Link from 'next/link';
+
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { faSleigh } from '@fortawesome/free-solid-svg-icons';
+
 import { useFetch } from '@/hooks/useFetch';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { application } from 'express';
 
-const user_friends = [
-  { id: 1, avatar: '/avatar.png' },
-  { id: 2, avatar: '/avatar.png' },
-  { id: 3, avatar: '/avatar.png' },
-];
+import { AVATAR_PATH } from '../../config/image-path';
+import { API_SERVER } from '../../config/api-path';
+import { useAuth } from '../../../hooks/use-Auth';
+
 interface User {
   avatar?: string;
   id: number;
@@ -40,6 +38,7 @@ export default function CreateGroupItineraryPage() {
   if (token) {
     newToken = 'Bearer ' + JSON.parse(token).token;
   }
+  const { user } = useAuth();
   useEffect(() => {
     //設定開始時間
     const startDate = searchParams.get('startDate')?.split('T')[0];
@@ -67,7 +66,7 @@ export default function CreateGroupItineraryPage() {
   const [showFriends, setShowFriends] = useState<boolean>(false);
   const [peopleMax, setPeopleMax] = useState<number>(people ? +people : 0);
 
-  const getFirendsUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/friendships`;
+  const getFirendsUrl = `${API_SERVER}/friendships`;
   const { data, loading, error, refetch } = useFetch(getFirendsUrl);
   const [friendData, setFriendDate] = useState<User[]>();
 
@@ -80,6 +79,9 @@ export default function CreateGroupItineraryPage() {
   }, [data]);
 
   const backend = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
+
+  const [pendingInvites, setPendingInvites] = useState<number[]>([]); // 儲存好友ID
+
   return (
     <main className="w-full flex flex-col items-center py-16 gap-[30px]">
       <h1 className="text-4xl text-center">行程頁面</h1>
@@ -115,7 +117,7 @@ export default function CreateGroupItineraryPage() {
           <input
             type="text"
             placeholder="輸入"
-            className="border-1 border-gray-300 w-full rounded-sm px-[12px] py-[4px]"
+            className="border-1 border-gray-300 w-full rounded-sm px-3 py-1"
             value={itineraryTitle}
             onChange={(e) => setItineraryTitle(e.target.value)}
           />
@@ -139,27 +141,37 @@ export default function CreateGroupItineraryPage() {
           />
           <div className="w-full flex justify-end gap-2 relative">
             {/* 使用者的好友 */}
-            <div className=" flex items-end gap-[30px]">
-              <div className="flex">
-                {user_friends.map((v, i) => {
-                  return (
-                    <Image
-                      key={i}
-                      width={77}
-                      height={77}
-                      src={v.avatar}
-                      alt=""
-                      className="w-[50px] h-[50px] object-cover border-2 border-white rounded-full -ml-5"
-                    />
-                  );
-                })}
-              </div>
-            </div>
+            {friendData && (
+              <div className="flex gap-3">
+                <div className=" flex items-end gap-[30px]">
+                  <div className="flex">
+                    {/* 最多跑3個好友 */}
+                    {friendData.slice(0, 3).map((friend, i) => {
+                      return (
+                        <Image
+                          key={i}
+                          width={77}
+                          height={77}
+                          src={
+                            friend.avatar
+                              ? `${AVATAR_PATH}${friend.avatar}`
+                              : '/avatar.png'
+                          }
+                          alt=""
+                          className="w-[50px] h-[50px] object-cover border-2 border-white rounded-full -ml-5"
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
 
-            <Button
-              content="邀請好友"
-              onClick={() => setShowFriends(!showFriends)}
-            />
+                <Button
+                  content="邀請好友"
+                  onClick={() => setShowFriends(!showFriends)}
+                />
+              </div>
+            )}
+
             {/* //取得所有好友 且發送邀請訊息 */}
             {showFriends && friendData && (
               <div className=" absolute bg-white border-2 border-gray-200 rounded-2xl p-5 flex flex-col gap-4">
@@ -174,20 +186,35 @@ export default function CreateGroupItineraryPage() {
 
                 {friendData.map((friend: User, index: number) => {
                   return (
-                    <div key={index} className="gap-2 flex items-center">
+                    <div
+                      key={index}
+                      className="gap-2 flex items-center justify-between"
+                    >
                       <Image
                         width={77}
                         height={77}
                         src={
                           friend.avatar
-                            ? `${backend}/images/${friend.avatar}`
+                            ? `${AVATAR_PATH}${friend.avatar}`
                             : '/avatar.png'
                         }
                         alt=""
                         className="w-[50px] h-[50px] object-cover border-2 border-white rounded-full shrink"
                       />
                       <p className="mr-5">{friend.nickname}</p>
-                      <Button content="邀請" onClick={() => {}} />
+                      <Button
+                        // content="邀請"
+                        content={
+                          pendingInvites.includes(friend.id) ? '已邀請' : '邀請'
+                        }
+                        onClick={() => {
+                          setPendingInvites((prev) =>
+                            prev.includes(friend.id)
+                              ? prev.filter((id) => id !== friend.id) //刪除
+                              : [...prev, friend.id]
+                          );
+                        }}
+                      />
                     </div>
                   );
                 })}
@@ -216,7 +243,7 @@ export default function CreateGroupItineraryPage() {
                   startTime: startTime,
                   figure: peopleMax,
                 };
-                const url = `${backend}/api/itineraries/create-itinerary`;
+                const url = `${API_SERVER}/itineraries/create-itinerary`;
 
                 try {
                   const result = await fetch(url, {
@@ -230,8 +257,37 @@ export default function CreateGroupItineraryPage() {
                   //需要拿到建立的行程id
                   if (result) {
                     console.log('result', result);
+                    //對邀請清單的人發出邀請
+                    const invitedUrl = `${API_SERVER}/itineraries/invite`;
+                    // const { itineraryId, senderId, receiverId } = req.body;
+                    pendingInvites.forEach(async (friendId) => {
+                      const inviteData = {
+                        itineraryId: result.itineraryId,
+                        receiverId: friendId,
+                        senderId: user.id,
+                      };
+                      try {
+                        const inviteResult = await fetch(invitedUrl, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            // Authorization: newToken,
+                          },
+                          body: JSON.stringify(inviteData),
+                        }).then((r) => r.json());
+                        if (inviteResult && inviteResult.success) {
+                          console.log(`成功邀請好友ID ${friendId} 加入行程`);
+                        }
+                      } catch (err) {
+                        console.log(err);
+                      }
+                    });
+
+                    // 🔄 設置來源標記，讓目標頁面知道是從建立頁面來的
+                    sessionStorage.setItem('fromCreateGroupItinerary', 'true');
+
                     router.push(
-                      `/grabgroup/group-itinerart-detal?itineraryId=${result.itineraryId}`
+                      `/grabgroup/group-itinerary-detail?itineraryId=${result.itineraryId}&source=create-group-itinerary`
                     );
                   }
                 } catch (err) {

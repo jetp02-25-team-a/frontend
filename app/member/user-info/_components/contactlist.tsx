@@ -10,6 +10,7 @@ interface ChatInterface {
   time: string | null;
   room_name: string | null;
   room_id: number | null;
+  members?: Member[]; // 新增成員陣列
 }
 
 interface RoomData {
@@ -18,13 +19,20 @@ interface RoomData {
   roomName: string;
 }
 
+interface Member {
+  id: number;
+  nickname: string;
+  avatar: string;
+}
+
 interface RoomMessage {
   LatestMessage: {
     content: string;
     isRead: boolean;
     senderId: number;
     receiverId: number;
-  };
+  } | null;
+  members: Member[];
   roomData: RoomData;
 }
 
@@ -55,11 +63,19 @@ export default function ContactList({
   openChats: ChatInterface[];
   onOpenChat: (chat: ChatInterface) => void;
 }) {
+  // console.log('contact==>', contact);
   return (
     <div>
       {/* 團體聊天室 */}
       {contact.allRoomsLatestMessages.map(
         (message: RoomMessage, index: number) => {
+          // 取得第一個成員的頭像作為群組顯示圖片，或使用預設圖片
+          // const groupImage =
+          //   message.members && message.members.length > 0
+          //     ? message.members[0].avatar
+          //     : '/place-default_avatar.jpg';
+          const groupImage = '/place-default_avatar.jpg';
+
           const newChat = {
             user_name: null,
             user_id: null,
@@ -68,19 +84,23 @@ export default function ContactList({
             time: new Date().toISOString(),
             room_name: message.roomData.roomName,
             room_id: message.roomData.id,
+            members: message.members, // 傳遞成員陣列
           };
 
           return (
             <MessageBox
               key={index}
               userId={userId}
+              receiverId={message.LatestMessage?.receiverId}
+              senderId={message.LatestMessage?.senderId}
+              isRead={message.LatestMessage?.isRead}
               title={message.roomData.roomName}
               content={
                 message.LatestMessage
                   ? message.LatestMessage.content
                   : '還沒有訊息'
               }
-              image={'/place-default_avatar.jpg'}
+              image={groupImage}
               time={null}
               onClick={() => onOpenChat(newChat)}
             />

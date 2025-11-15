@@ -1,13 +1,8 @@
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
 let containerStyle = {
-  width: '586px',
-  height: '586px',
-};
-
-const center = {
-  lat: 25.033, // 台北101
-  lng: 121.5654,
+  width: '100%',
+  height: '100%',
 };
 
 interface MapProps {
@@ -18,8 +13,11 @@ interface MapProps {
 }
 
 const Map = ({ latitude, longitude, width, height }: MapProps) => {
-  if (width && height)
+  if (width && height) {
     containerStyle = { width: `${width}px`, height: `${height}px` };
+  } else {
+    containerStyle = { width: '100%', height: '100%' };
+  }
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLEMAP_API_KEY ?? '',
   });
