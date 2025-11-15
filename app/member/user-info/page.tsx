@@ -305,7 +305,7 @@ export default function UserInfoPage() {
                                 className="border-2 border-amber-600 p-2 rounded-xl"
                                 onClick={() =>
                                   router.push(
-                                    `/grabgroup/group-itinerary-detail?itineraryId=${itinerary.Itinerary?.id}`
+                                    `/grabgroup/group-itinerary-detail-socket?itineraryId=${itinerary.Itinerary?.id}`
                                   )
                                 }
                               >
