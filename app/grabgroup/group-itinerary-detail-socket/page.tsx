@@ -26,6 +26,7 @@ import { addDays, addMinutes } from 'date-fns';
 import { ItineraryEditor } from '../_components/ItineraryEditor';
 import { useSearchParams } from 'next/navigation';
 import { API_SERVER } from '../../config/api-path';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 export interface mapPoint {
   latitude: number; //預設台北101
@@ -281,6 +282,33 @@ export default function GroupItineraryDetailPage() {
     setIsIframeVisible(show);
   };
 
+  // 存檔狀態
+  const [isSaving, setIsSaving] = useState(false);
+
+  // 存檔功能
+  const handleSave = async () => {
+    if (!itineraryData || !itineraryId) return;
+
+    setIsSaving(true);
+
+    try {
+      await fetch(`${API_SERVER}/itineraries/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itineraryData: itineraryData,
+        }),
+      });
+      console.log('存檔完成');
+    } catch (error) {
+      console.error('存檔錯誤:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // 🔄 拖拽處理函數
   const handleDragStart = (dayIndex: number, nodeIndex: number) => {
     setDraggedItem({ dayIndex, nodeIndex });
@@ -443,12 +471,30 @@ export default function GroupItineraryDetailPage() {
 
   return (
     <>
-      <ItineraryEditor itineraryData={itineraryData} />
+      {/* 暫時註解掉自動保存功能，使用手動存檔 */}
+      {/* <ItineraryEditor itineraryData={itineraryData} /> */}
       {/* map_area */}
       <div className="grid grid-cols-[40%_60%] h-screen">
         {/* area_zone */}
-        <div className="bg-gray-200 p-[15px] space-y-3.5 overflow-scroll">
-          <h3 className="text-3xl">行程</h3>
+        <div className="bg-gray-200 p-[15px] space-y-3.5 overflow-auto relative">
+          {/* 標題和存檔按鈕區域 */}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-3xl">行程</h3>
+
+            {/* 存檔按鈕 */}
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium ${
+                isSaving
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+            >
+              <FontAwesomeIcon icon={faSave} />
+              {isSaving ? '存檔中...' : '存檔'}
+            </button>
+          </div>
           {/* date_bar area */}
           <div className="flex w-full ">
             <div
@@ -656,13 +702,13 @@ export default function GroupItineraryDetailPage() {
         {/* map_zone */}
         <div className="bg-amber-700 relative">
           {/* googlemap */}
-          <div className="w-full mx-auto my-auto ">
-            <Map
-              latitude={mapPoint.latitude}
-              longitude={mapPoint.longitude}
-              width={1000}
-              height={1000}
-            />
+          <div className="w-full h-full">
+            <div className="w-full h-full">
+              <Map
+                latitude={mapPoint.latitude}
+                longitude={mapPoint.longitude}
+              />
+            </div>
           </div>
           {/* 彈出視窗 */}
           {isIframeVisible && currentDayIndex !== null && (
