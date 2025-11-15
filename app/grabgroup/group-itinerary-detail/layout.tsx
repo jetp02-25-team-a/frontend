@@ -86,6 +86,12 @@ export default function GroupItineraryDetalPage({
     try {
       console.log(`開始抓取房間 ${roomId} 的對話訊息...`);
 
+      // 檢查是否在瀏覽器環境
+      if (typeof window === 'undefined') {
+        console.log('伺服器端環境，無法訪問 localStorage');
+        return;
+      }
+
       // 正確獲取 token
       const userInfo = localStorage.getItem('BackpackUserInfo');
       const token = userInfo ? JSON.parse(userInfo).token : null;
@@ -174,6 +180,13 @@ export default function GroupItineraryDetalPage({
   // 根據 itineraryId 抓取對應的聊天室資訊 抓取房間id 和房間名稱
   const fetchItineraryChatRoom = async () => {
     if (!itineraryId) return;
+    
+    // 檢查是否在瀏覽器環境
+    if (typeof window === 'undefined') {
+      console.log('伺服器端環境，無法訪問 localStorage');
+      return;
+    }
+    
     // 正確獲取 token
     const userInfo = localStorage.getItem('BackpackUserInfo');
     const token = userInfo ? JSON.parse(userInfo).token : null;

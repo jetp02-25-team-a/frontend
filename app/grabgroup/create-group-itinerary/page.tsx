@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Button from '../_components/Button';
 import DatePicker from './_components/date-picker';
+import toast from 'react-hot-toast';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
@@ -13,6 +14,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { AVATAR_PATH } from '../../config/image-path';
 import { API_SERVER } from '../../config/api-path';
 import { useAuth } from '../../../hooks/use-Auth';
+import { ca } from 'zod/v4/locales';
 
 interface User {
   avatar?: string;
@@ -235,6 +237,14 @@ export default function CreateGroupItineraryPage() {
             <Button
               content="下一步"
               onClick={async () => {
+                if (!itineraryTitle) {
+                  toast.error('請輸入行程標題');
+                  return;
+                }
+                if (!startTime) {
+                  toast.error('請輸入每日開始時間');
+                  return;
+                }
                 const data = {
                   title: itineraryTitle,
                   area: destination || '',
@@ -244,9 +254,8 @@ export default function CreateGroupItineraryPage() {
                   figure: peopleMax,
                 };
                 const url = `${API_SERVER}/itineraries/create-itinerary`;
-
                 try {
-                  const result = await fetch(url, {
+                  const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
@@ -254,15 +263,16 @@ export default function CreateGroupItineraryPage() {
                     },
                     body: JSON.stringify(data),
                   }).then((r) => r.json());
-                  //需要拿到建立的行程id
-                  if (result) {
-                    console.log('result', result);
+                  if (!response.success) {
+                    toast.error('需要使用者登入才能建立行程');
+                    return;
+                  } else {
                     //對邀請清單的人發出邀請
                     const invitedUrl = `${API_SERVER}/itineraries/invite`;
-                    // const { itineraryId, senderId, receiverId } = req.body;
+                    //對每位好友發送邀請
                     pendingInvites.forEach(async (friendId) => {
                       const inviteData = {
-                        itineraryId: result.itineraryId,
+                        itineraryId: response.itineraryId,
                         receiverId: friendId,
                         senderId: user.id,
                       };
@@ -276,18 +286,16 @@ export default function CreateGroupItineraryPage() {
                           body: JSON.stringify(inviteData),
                         }).then((r) => r.json());
                         if (inviteResult && inviteResult.success) {
-                          console.log(`成功邀請好友ID ${friendId} 加入行程`);
+                          // console.log(`成功邀請好友ID ${friendId} 加入行程`);
+                          toast.success(`成功邀請好友加入行程`);
                         }
                       } catch (err) {
+                        toast.error('邀請好友失敗');
                         console.log(err);
                       }
                     });
-
-                    // 🔄 設置來源標記，讓目標頁面知道是從建立頁面來的
-                    sessionStorage.setItem('fromCreateGroupItinerary', 'true');
-
                     router.push(
-                      `/grabgroup/group-itinerary-detail?itineraryId=${result.itineraryId}&source=create-group-itinerary`
+                      `/grabgroup/group-itinerary-detail?itineraryId=${response.itineraryId}&source=create-group-itinerary`
                     );
                   }
                 } catch (err) {
