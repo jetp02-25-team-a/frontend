@@ -1,132 +1,151 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import TripCard from './TripCard';
+
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { zhTW } from 'date-fns/locale';
 import 'react-datepicker/dist/react-datepicker.css';
 
+import { DestinationAPI, TripAPI } from '@/app/trip/utils/api';
+
 registerLocale('zh-TW', zhTW);
 
-const destinationCoverMap: Record<string, string> = {
-  台北: '/covers/taipei.jpg',
-  台中: '/covers/taichung.jpg',
-  台南: '/covers/tainan.jpg',
-  台東: '/covers/taitung.jpg',
-  高雄: '/covers/kaohsiung.jpg',
-  花蓮: '/covers/hualien.jpg',
-  宜蘭: '/covers/yilan.jpg',
-  屏東: '/covers/pingtung.jpg',
-  桃園: '/covers/taoyuan.jpg',
-  新竹: '/covers/hsinchu.jpg',
-  嘉義: '/covers/chiayi.jpg',
-  彰化: '/covers/changhua.jpg',
-  雲林: '/covers/yunlin.jpg',
-  苗栗: '/covers/miaoli.jpg',
-  南投: '/covers/nantou.jpg',
-  基隆: '/covers/keelung.jpg',
-  金門: '/covers/kinmen.jpg',
-  連江: '/covers/lienchiang.jpg',
-  澎湖: '/covers/penghu.jpg',
-};
+// --------------------------------------------------
+// 型別定義
+// --------------------------------------------------
+interface Destination {
+  id: number;
+  name: string;
+  cover_url: string;
+}
 
 export default function NewTripForm() {
   const router = useRouter();
+
+  const [destinations, setDestinations] = useState<Destination[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     title: '',
     type: '',
-    destination: '',
+    destinationId: '',
     startDate: '',
     endDate: '',
-    coverImage: 'https://picsum.photos/200/300.jpg',
+    coverImage: '',
   });
 
-  // ✅ 表單變更
+  // --------------------------------------------------
+  // 取得目的地列表
+  // --------------------------------------------------
+  useEffect(() => {
+    async function loadDestinations() {
+      try {
+        const list = await DestinationAPI.getAll();
+
+        // 自動附上圖片
+        const withImages = list.map((d) => ({
+          ...d,
+          cover_url: `https://picsum.photos/seed/dest-${d.id}/600/400`,
+        }));
+
+        setDestinations(withImages);
+      } catch (err) {
+        console.error('❌ 無法載入目的地列表:', err);
+      }
+    }
+
+    loadDestinations();
+  }, []);
+
+  // --------------------------------------------------
+  // 表單欄位：文字 or select
+  // --------------------------------------------------
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(name === 'destination' && {
-        coverImage: destinationCoverMap[value] || '/covers/default.jpg',
-      }),
-    }));
+
+    // 特別處理目的地 → 同步封面
+    if (name === 'destinationId') {
+      const selected = destinations.find((d) => d.id === Number(value));
+      setForm((prev) => ({
+        ...prev,
+        destinationId: value,
+        coverImage: selected?.cover_url ?? '',
+      }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ 送出表單
+  // --------------------------------------------------
+  // 建立行程 submit
+  // --------------------------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.title || !form.destination || !form.startDate || !form.endDate) {
+    if (
+      !form.title ||
+      !form.type ||
+      !form.destinationId ||
+      !form.startDate ||
+      !form.endDate
+    ) {
       alert('請完整填寫所有欄位');
       return;
     }
 
-    // ✅ 從 localStorage 抓登入使用者資訊
+    // 取得使用者資料
     const userData = localStorage.getItem('BackpackUserInfo');
     const parsedUser = userData ? JSON.parse(userData) : null;
+    const userId = parsedUser?.id ?? 1; // fallback
 
+    // Payload (依照你 TripAPI.create 規格)
     const payload = {
-      userId: parsedUser?.id || 1, // 預設 1，避免未登入出錯
+      userId,
       title: form.title,
-      area: form.destination,
+      type: form.type,
+      destinationId: Number(form.destinationId),
       startDate: form.startDate,
       endDate: form.endDate,
-      // ✅ 修正 URL 驗證問題：補上完整網址
-      url: form.coverImage.startsWith('http')
-        ? form.coverImage
-        : `${window.location.origin}${form.coverImage}`,
+      url: form.coverImage,
     };
 
     try {
       setSubmitting(true);
-      const API_URL =
-        process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
 
-      const res = await fetch(`${API_URL}/api/trips`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${parsedUser?.token || ''}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
+      const result = await TripAPI.create(payload);
 
       if (result.success) {
-        // ✅ 修正 undefined 問題：用 result.data.id
         router.push(`/trip/${result.data.id}/planner`);
       } else {
-        alert('建立失敗：' + result.message);
+        alert(result.message || '建立失敗');
       }
     } catch (err) {
       alert('建立失敗，請稍後再試');
-      console.error(err);
+      console.error('❌ 建立行程錯誤：', err);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // ✅ UI
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
   return (
     <form
       onSubmit={handleSubmit}
       className="bg-white p-6 rounded-2xl customize_shadow max-w-2xl mx-auto flex flex-col gap-6"
     >
       <h2 className="text-2xl font-bold text-center">建立新的旅程</h2>
-      <p className="text-sm text-center customize_text_gray">
-        請填寫以下資訊以建立行程
-      </p>
 
+      {/* 行程名稱 */}
       <input
-        type="text"
         name="title"
+        type="text"
         placeholder="行程名稱"
         value={form.title}
         onChange={handleChange}
@@ -134,6 +153,7 @@ export default function NewTripForm() {
         className="border border-yellow-orange rounded-lg px-4 py-2 text-sm"
       />
 
+      {/* 行程類型 */}
       <select
         name="type"
         value={form.type}
@@ -148,21 +168,23 @@ export default function NewTripForm() {
         <option value="家族">家族</option>
       </select>
 
+      {/* 目的地 */}
       <select
-        name="destination"
-        value={form.destination}
+        name="destinationId"
+        value={form.destinationId}
         onChange={handleChange}
         required
         className="border border-yellow-orange rounded-lg px-4 py-2 text-sm"
       >
         <option value="">選擇目的地</option>
-        {Object.keys(destinationCoverMap).map((city) => (
-          <option key={city} value={city}>
-            {city}
+        {destinations.map((d) => (
+          <option key={d.id} value={d.id}>
+            {d.name}
           </option>
         ))}
       </select>
 
+      {/* 日期選擇 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <DatePicker
           locale="zh-TW"
@@ -170,7 +192,7 @@ export default function NewTripForm() {
           onChange={(date) =>
             setForm((prev) => ({
               ...prev,
-              startDate: date?.toISOString().split('T')[0] || '',
+              startDate: date ? date.toISOString().split('T')[0] : '',
             }))
           }
           placeholderText="開始日期"
@@ -184,7 +206,7 @@ export default function NewTripForm() {
           onChange={(date) =>
             setForm((prev) => ({
               ...prev,
-              endDate: date?.toISOString().split('T')[0] || '',
+              endDate: date ? date.toISOString().split('T')[0] : '',
             }))
           }
           placeholderText="結束日期"
@@ -193,6 +215,7 @@ export default function NewTripForm() {
         />
       </div>
 
+      {/* 按鈕 */}
       <button
         type="submit"
         disabled={submitting}
@@ -201,20 +224,25 @@ export default function NewTripForm() {
         {submitting ? '建立中...' : '建立行程'}
       </button>
 
-      {/* ✅ 即時預覽 TripCard */}
+      {/* 即時預覽 */}
       <div className="mt-6">
         <h3 className="text-lg font-semibold mb-2 text-center">即時預覽</h3>
         <div className="max-w-[303px] mx-auto">
           <TripCard
             id={0}
             title={form.title || '預覽行程'}
-            area={form.destination || '尚未填寫'}
+            area={
+              destinations.find((d) => d.id === Number(form.destinationId))
+                ?.name || '尚未選擇'
+            }
             date={
               form.startDate && form.endDate
                 ? `${form.startDate} - ${form.endDate}`
                 : '尚未選擇'
             }
-            image={form.coverImage || '/covers/default.jpg'}
+            image={
+              form.coverImage || 'https://picsum.photos/seed/default/600/400'
+            }
           />
         </div>
       </div>

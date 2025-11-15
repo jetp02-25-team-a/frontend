@@ -58,7 +58,7 @@ export default function TripFilter({ onSearch }: TripFilterProps) {
           locale="zh-TW"
           selected={endDate}
           onChange={(date) => setEndDate(date)}
-          minDate={startDate}
+          minDate={startDate ?? undefined}
           placeholderText="結束時間"
           dateFormat="yyyy/MM/dd"
           className="focus:outline-none w-[100px]"
