@@ -3,13 +3,16 @@ import FavoriteProvider from './_lib/_context/FavoriteProvider';
 import SearchBar from './_components/client/Searchbar';
 import Section from './_components/server/Section';
 
-import { fetchAccommodations } from './_lib/_data';
+import {
+  fetchPopularAccommodations,
+  fetchHighRatedAccommodations,
+} from './_lib/_api';
 
 export default async function AccommodationPage() {
   try {
     const [popularData, highRatedData] = await Promise.all([
-      fetchAccommodations('popular'),
-      fetchAccommodations('highRated'),
+      fetchPopularAccommodations(),
+      fetchHighRatedAccommodations(),
     ]);
 
     return (

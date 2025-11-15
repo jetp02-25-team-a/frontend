@@ -1,6 +1,6 @@
 'use client';
 
-import { AccDataCard } from '../../_types';
+import { AccommodationListDTO } from '../../_types';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import ComponentsAccCard from './AccCard';
 import { useCarousel } from '../../_lib/_hooks';
@@ -9,7 +9,7 @@ import LoginModal from './LoginModal';
 
 export interface CarouselContentProps {
   title: string;
-  data: AccDataCard[];
+  data: AccommodationListDTO[];
 }
 
 // 💡 定義卡片寬度常量 (需與 ComponentsAccCard 中的實際寬度一致)

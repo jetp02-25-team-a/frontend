@@ -1,63 +1,29 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { useFetch } from '../_lib/_hooks';
+import { useRef } from 'react';
+import { useAccommodationSearch } from '../_lib/_hooks';
 import {
   useFavorites,
   useGeolocation,
   useInfiniteScroll,
 } from '../_lib/_hooks';
 
-import { API_SERVER } from '@/config/api-path';
-
 import AccCard from '../_components/client/AccCard';
 import Section from '../_components/server/Section';
 import SearchBar from '../_components/client/Searchbar';
 
-import type { AccDataCard, SearchResponse } from '../_types';
-
 export default function SearchPage() {
   const params = useSearchParams();
-  const [items, setItems] = useState<AccDataCard[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
+  const { items, meta, loading, error, setCursor } =
+    useAccommodationSearch(params);
+  const { favorites, toggleFavorite } = useFavorites(items);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  // 組 query string
-  const query = new URLSearchParams({
-    keyword: params.get('keyword') || '',
-    checkInDate: params.get('checkInDate') || '',
-    checkOutDate: params.get('checkOutDate') || '',
-    guestCount: params.get('guestCount') || '',
-    ...(cursor ? { cursor } : {}),
-  }).toString();
-
-  // 用 useFetch 抓搜尋結果
-  const { data, loading, error } = useFetch<SearchResponse>(
-    `${API_SERVER}/m3/accommodations/search?${query}`,
-    { withAuth: false } // 搜尋 API 不需要 token
-  );
-
-  // 收藏邏輯
-  const { favorites, toggleFavorite } = useFavorites(items);
-
-  // 監聽搜尋參數變化，直接清空 items
-  useEffect(() => {
-    setItems([]);
-    setCursor(null);
-  }, [params]);
-
-  // 每次 data 更新 → append 到 items
-  useEffect(() => {
-    if (data?.data) {
-      setItems((prev) => [...prev, ...data.data]);
-    }
-  }, [data]);
-
   // Infinite Scroll Hook
-  useInfiniteScroll(sentinelRef, !!data?.meta.hasNextPage, loading, () => {
-    if (data?.meta.endCursor) {
-      setCursor(data.meta.endCursor); // 🔑 用 endCursor 當下一頁 cursor
+  useInfiniteScroll(sentinelRef, !!meta?.hasNextPage, loading, () => {
+    if (meta?.endCursor) {
+      setCursor(meta.endCursor);
     }
   });
 
@@ -105,12 +71,10 @@ export default function SearchPage() {
                   錯誤: {error.message}
                 </div>
               )}
-              {!data?.meta.hasNextPage && (
+              {!meta?.hasNextPage && (
                 <div className="text-sm text-gray-500">已無更多結果</div>
               )}
-              {data?.meta.hasNextPage && (
-                <div ref={sentinelRef} className="h-1" />
-              )}
+              {meta?.hasNextPage && <div ref={sentinelRef} className="h-1" />}
             </div>
           </div>
 
