@@ -155,6 +155,29 @@ export default function UserInfoPage() {
     }
   }, [data]);
 
+  //標記訊息為已讀
+  const markAsRead = async (roomId: number | null, userId: number | null) => {
+    try {
+      const endpoint = roomId 
+        ? `${API_SERVER}/chat/mark-read-room`
+        : `${API_SERVER}/chat/mark-read-user`;
+      
+      const body = roomId 
+        ? { roomId, userId: user?.id }
+        : { senderId: userId, receiverId: user?.id };
+
+      await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (error) {
+      console.error('標記已讀失敗:', error);
+    }
+  };
+
   //卻認是否存在於小視窗清單中
   const existChat = (chatsList: ChatInterface[], newChat: ChatInterface) => {
     const exists = chatsList.some(
@@ -162,7 +185,11 @@ export default function UserInfoPage() {
         chat.room_id === newChat.room_id && chat.user_id === newChat.user_id
     );
     if (exists) return;
-    else setOpenChats((prev) => [...prev, newChat]);
+    
+    // 標記為已讀
+    markAsRead(newChat.room_id, newChat.user_id);
+    
+    setOpenChats((prev) => [...prev, newChat]);
   };
 
   //取得所有行程邀請訊息

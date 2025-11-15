@@ -59,7 +59,7 @@ export default function MessageBox({
       )}
 
       <div className="m-auto w-full">
-        <p className="text-lg">{title}</p>
+        <p className="text-[20px] text-black">{title}</p>
         <p className="text-base text-gray-400">{content}</p>
       </div>
       <div>{time ? formatTime12Hour(time) : ''}</div>

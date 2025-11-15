@@ -91,6 +91,9 @@ export default function ContactList({
             <MessageBox
               key={index}
               userId={userId}
+              receiverId={message.LatestMessage?.receiverId}
+              senderId={message.LatestMessage?.senderId}
+              isRead={message.LatestMessage?.isRead}
               title={message.roomData.roomName}
               content={
                 message.LatestMessage
