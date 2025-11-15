@@ -8,6 +8,7 @@ import { API_SERVER } from '../../../config/api-path';
 import Image from 'next/image';
 import { AVATAR_PATH, IMAGE_PATH } from '../../../config/image-path';
 import { useRouter } from 'next/navigation';
+import SimpleModal from '../../_components/modal';
 
 const userDataInit: ApiResponse = {
   success: false,
@@ -30,8 +31,20 @@ export default function UserIdPage() {
   const { user_id } = useParams();
   const [userData, setUserData] = useState(userDataInit);
   const [selectedFile, setSelectedFile] = useState<SelectedFile>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalMessage('');
+  };
+
+  const showModalWithMessage = (message: string) => {
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
 
   //資料拿取
   const getUserData = async () => {
@@ -94,9 +107,12 @@ export default function UserIdPage() {
       });
       if (response.ok) {
         updateUser(user.id);
-        router.push('/member/user-info');
-      } else {
-        console.log('失敗');
+        showModalWithMessage('成功編輯');
+        const timer = setTimeout(() => {
+          router.push('/member/user-info');
+        }, 1000);
+        // 清理函式 (Cleanup function)，防止在元件卸載或依賴項變化時意外觸發
+        return () => clearInterval(timer);
       }
     } catch {
       console.log('網路錯誤');
@@ -113,8 +129,8 @@ export default function UserIdPage() {
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="bg-[#FBE7C1]">
-          <div className="bg-white  rounded-[15] flex flex-col items-center w-fit p-5 mx-auto ">
+        <div className="bg-[#FBE7C1] h-[calc(100vh-354px-88px)] flex justify-center items-center">
+          <div className="bg-white  rounded-[15] flex flex-col items-center w-fit p-5 mx-auto h-fit">
             <div className="flex items-center">
               <div className="mx-5 ">
                 <Image
@@ -183,6 +199,11 @@ export default function UserIdPage() {
           </div>
         </div>
       </form>
+      <SimpleModal
+        isOpen={isModalOpen}
+        message={modalMessage}
+        onClose={closeModal}
+      />
     </>
   );
 }
