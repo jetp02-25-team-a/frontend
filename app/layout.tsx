@@ -12,6 +12,7 @@ import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 
 import { Noto_Sans_TC, Roboto } from 'next/font/google';
+import ToastProvider from '../components/ui/ToastProvider';
 
 // 1. 定義 Roboto 字型 (處理英文字和數字)
 const roboto = Roboto({
@@ -47,9 +48,11 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <SocketProvider>
-            <Navbar />
-            {children}
-            <Footer />
+            <ToastProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </ToastProvider>
           </SocketProvider>
         </AuthProvider>
       </body>

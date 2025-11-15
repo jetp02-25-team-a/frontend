@@ -19,9 +19,9 @@
 
 @theme {
   --color-brand: #f2a922;
-  --color-cg: #797878;
+  --color-cgray: #797878;
   --color-lo: #fbe7c1;
-  --color-lg: #f4f4f4;
+  --color-lgray: #f4f4f4;
 }
 
 .yellow-orange {

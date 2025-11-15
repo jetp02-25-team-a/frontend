@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Roboto, Plus_Jakarta_Sans } from 'next/font/google';
 import InputField from '../components/ui/input-field';
+import toast from 'react-hot-toast';
 const roboto = Roboto({
   subsets: ['latin'],
   weight: ['400', '700', '900'],

@@ -1,3 +1,4 @@
+// client/GalleryModal.tsx
 'use client';
 
 import { useState } from 'react';
@@ -6,28 +7,16 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 interface GalleryModalProps {
   images: { id: number; url: string; caption?: string }[];
-  initialIndex?: number;
   onClose: () => void;
 }
 
-export default function GalleryModal({
-  images,
-  initialIndex = 0,
-  onClose,
-}: GalleryModalProps) {
-  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+export default function GalleryModal({ images, onClose }: GalleryModalProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const handlePrev = () => {
+  const handlePrev = () =>
     setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
+  const handleNext = () =>
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
-
-  const handleSelect = (index: number) => {
-    setCurrentIndex(index);
-  };
 
   return (
     <div
@@ -39,7 +28,6 @@ export default function GalleryModal({
         className="relative w-[90vw] h-[75vh] mb-6 flex"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 左半邊點擊區 */}
         <div
           className="flex-1 flex items-center justify-start cursor-pointer group"
           onClick={handlePrev}
@@ -47,8 +35,7 @@ export default function GalleryModal({
           <FaChevronLeft className="text-white text-4xl opacity-70 group-hover:opacity-100 ml-6" />
         </div>
 
-        {/* 主圖 */}
-        <div className="flex-[8] relative">
+        <div className="flex-8 relative">
           <Image
             src={images[currentIndex].url}
             alt={images[currentIndex].caption || ''}
@@ -57,7 +44,6 @@ export default function GalleryModal({
           />
         </div>
 
-        {/* 右半邊點擊區 */}
         <div
           className="flex-1 flex items-center justify-end cursor-pointer group"
           onClick={handleNext}
@@ -66,7 +52,7 @@ export default function GalleryModal({
         </div>
       </div>
 
-      {/* 小圖預覽區 */}
+      {/* 小圖預覽 */}
       <div
         className="flex gap-2 overflow-x-auto px-4"
         onClick={(e) => e.stopPropagation()}
@@ -77,7 +63,7 @@ export default function GalleryModal({
             className={`w-24 h-16 relative cursor-pointer border ${
               idx === currentIndex ? 'border-white' : 'border-transparent'
             }`}
-            onClick={() => handleSelect(idx)}
+            onClick={() => setCurrentIndex(idx)}
           >
             <Image
               src={img.url}
