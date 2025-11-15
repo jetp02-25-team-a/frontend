@@ -4,11 +4,13 @@ import { faXmark, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar } from '@fortawesome/free-regular-svg-icons';
 import RagularButton from '../../../../components/ui/regular-button';
 import PanelCard from './panel-card';
 import { useFetch } from '@/hooks/useFetch';
 import { useItinerary } from '@/hooks/use-itinerart';
 import { ItineraryData } from '../../_types/itineraryTypes';
+import Image from 'next/image';
 
 interface IframeProps {
   visible: boolean;
@@ -25,12 +27,24 @@ interface SearchData {
   id: number;
   name: string;
   nameZh: string;
-  addrCity: string;
-  addrDistrict: string;
+  addrCity?: string;
+  addrDistrict?: string;
   addrFull: string;
   lat: number;
   lng: number;
   image: string;
+}
+
+// 附近景點型別
+interface NearbyAttraction {
+  id: number;
+  name: string;
+  nameZh: string;
+  lat: number;
+  lng: number;
+  addrFull: string;
+  image: string;
+  distance?: number;
 }
 
 export default function PlacePanel({
@@ -44,11 +58,18 @@ export default function PlacePanel({
   const [url, setUrl] = useState<string | undefined>(undefined);
 
   const [searchData, setSearchData] = useState<SearchData[] | undefined>();
-  const [placeData, setPlaceData] = useState<SearchData | null>(null);
-  const [durationMinutes, setDurationMinutes] = useState<number>(0);
+  const [placeData, setPlaceData] = useState<
+    SearchData | NearbyAttraction | null
+  >(null); // (主要點選的區域)詳細資料
+  const [durationMinutes, setDurationMinutes] = useState<number>(60);
 
   const { data, loading } = useFetch(url);
   const { itineraryData, setItineraryData } = useItinerary();
+
+  const [nearbyAttractions, setNearbyAttractions] = useState<
+    NearbyAttraction[]
+  >([]); // 附近景點資料
+  const [showNearby, setShowNearby] = useState(false); // 是否顯示附近景點
 
   // 觸發搜尋
   const handleSearch = (keyword: string) => {
@@ -65,8 +86,38 @@ export default function PlacePanel({
   const handleDetailPanel = (id: number) => {
     if (!searchData) return;
     const found = searchData.find((n) => n.id === id) || null;
+    if (!found) return;
     setPlaceData(found);
     setIsSearching(false); // 進入詳情畫面
+    searchNearbyPlaces(found.lat, found.lng, 2, found.id); // 傳入當前景點 ID
+  };
+
+  // 附近景點搜尋函數
+  const searchNearbyPlaces = async (
+    lat: number,
+    lng: number,
+    radius: number = 2, // 公里
+    excludeId?: number // 要排除的景點 ID
+  ) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
+      );
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('excludeId', excludeId);
+        const fileteredAttractions = result.data.attractions.filter(
+          (m: NearbyAttraction) => {
+            return m.id !== excludeId;
+          }
+        );
+        setNearbyAttractions(fileteredAttractions || []);
+        // console.log(`找到 ${result.data.attractions?.length || 0} 個附近景點`);
+      }
+    } catch (error) {
+      console.error('搜索附近景點失敗:', error);
+    }
   };
 
   // 後端回來資料 → 存進 state
@@ -197,22 +248,25 @@ export default function PlacePanel({
 
       {/* 詳情 + 加入行程 */}
       {placeData && !isSearching && (
-        <>
+        <div className="overflow-y-auto scroll-none max-h-[650px]">
           {placeData.image ? (
-            <img
-              src={placeData.image}
-              alt={placeData.nameZh || placeData.name}
-              width={400}
-              height={400}
-              className="w-full h-[244px] object-cover rounded-lg"
-            />
+            <div className="w-full h-[264px] relative">
+              <Image
+                src={placeData.image}
+                alt={placeData.nameZh || placeData.name}
+                fill
+                sizes="100%"
+                className="object-cover rounded-lg"
+              />
+            </div>
           ) : (
             <div className="w-full h-[244px] flex items-center justify-center bg-gray-200 rounded-lg">
               <span className="text-gray-600 text-sm">這個地點沒有圖片</span>
             </div>
           )}
 
-          <div className="mt-4">
+          <div className="mt-4 flex items-center">
+            <FontAwesomeIcon icon={faCalendar} className="text-2xl mr-3" />
             <label className="text-sm text-gray-600 mr-3">
               停留時間（分鐘）
             </label>
@@ -222,7 +276,7 @@ export default function PlacePanel({
               onChange={(e) => setDurationMinutes(Number(e.target.value))}
               min={0}
               step={5}
-              className="border rounded p-2 w-28 text-center"
+              className="border rounded-2xl p-2 w-28 text-center"
               placeholder="分鐘"
             />
           </div>
@@ -236,8 +290,50 @@ export default function PlacePanel({
             </p>
           </div>
 
-          <RagularButton content="加入行程" onClick={addNodeToDay} />
-        </>
+          <RagularButton
+            content="加入行程"
+            onClick={addNodeToDay}
+            mode="solid"
+            className="w-full"
+          />
+          {nearbyAttractions && (
+            <div>
+              <h3 className="text-xl mt-6">其他推薦景點</h3>
+              <hr />
+
+              {nearbyAttractions.map((attraction, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="flex justify-between p-2 my-2.5 justify-items-center border-b border-gray-300 cursor-pointer"
+                    onClick={() => setPlaceData(attraction)}
+                  >
+                    <div className="flex flex-col">
+                      <h2 className="text-2xl">
+                        {attraction.nameZh || attraction.name}
+                      </h2>
+                      <p className="text-gray-500">{attraction.addrFull}</p>
+                    </div>
+                    <div className="w-20 h-20 relative">
+                      {attraction.image ? (
+                        <Image
+                          src={attraction.image}
+                          alt=""
+                          fill
+                          sizes="100%"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded">
+                          <span className="text-gray-500 text-xs">無圖片</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
