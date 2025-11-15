@@ -19,10 +19,6 @@ type Front = {
   photos: string[];
 };
 
-const cmp = (order: 'asc' | 'desc') => (a: Front, b: Front) =>
-  (order === 'desc' ? b.ratingAvg - a.ratingAvg : a.ratingAvg - b.ratingAvg) ||
-  a.id - b.id; // 次排序：id
-
 function normalize(p: Raw): Front {
   const photos = Array.isArray(p?.Photos)
     ? p.Photos.map((x: any) => x?.url).filter(Boolean)

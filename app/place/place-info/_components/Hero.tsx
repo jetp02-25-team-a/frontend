@@ -1,19 +1,26 @@
 // components/spot/Hero.tsx
 'use client';
 import { useState, useEffect, useMemo } from 'react';
+import { useAuth } from '@/hooks/use-Auth';
 import Toast from '../../_components/Toast';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+import {
+  addFavorite,
+  removeFavorite,
+  checkFavorite,
+} from '@/app/place/lib/favoriteAdaptor';
+import Link from 'next/link';
 
 export default function Hero({
   spot,
   photos,
-  userId = 10,
 }: {
   spot: any;
   photos: string[];
-  userId?: number;
 }) {
+  const { user, isReady } = useAuth();
+  const isLoggedIn = !!user.email;
+  const userId = user.id;
+
   const [idx, setIdx] = useState(0);
   const [favorited, setFavorited] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,69 +28,68 @@ export default function Hero({
     message: string;
     type?: 'success' | 'error';
   } | null>(null);
+  const [loginHintOpen, setLoginHintOpen] = useState(false);
 
   const placeId = useMemo(() => spot?.id ?? spot?.place_id, [spot]); // 該景點的 id
 
   useEffect(() => {
-    const checkFavorite = async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE}/api/favorite/check?userId=${userId}&placeId=${placeId}`,
-          {
-            cache: 'no-store',
-          }
-        );
-        const json = await res.json();
-        if (res.ok) setFavorited(Boolean(json.favorited));
-      } catch (err) {
-        console.error('收藏狀態檢查失敗', err);
-      }
-    };
-    checkFavorite();
-  }, [userId, placeId]);
-
-  async function toggleFavorite() {
-    if (loading) return;
-    if (!userId) {
-      setToast({ message: '請先登入', type: 'error' });
+    if (!isReady) return;
+    if (!isLoggedIn || !userId || !placeId) {
+      setFavorited(false);
       return;
     }
-    if (!placeId) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const isFav = await checkFavorite(userId, placeId);
+        if (!cancelled) setFavorited(isFav);
+      } catch (err) {
+        console.error('checkFavorite error', err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isReady, isLoggedIn, userId, placeId]);
+
+  async function handleToggleFavorite() {
+    if (!isReady) return;
+
+    // ❗ 這裡做「要是會員才能收藏」的判斷
+    if (!isLoggedIn || !userId) {
+      setLoginHintOpen(true); // 開啟提示卡
+      return;
+    }
+
+    if (loading) return;
     setLoading(true);
-    const next = !favorited;
-    setFavorited(next);
 
     try {
-      if (next) {
-        // ✅ 正確：單數路由，且 body 要帶 userId + placeId
-        const res = await fetch(`${API_BASE}/api/favorite`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, placeId }),
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json?.message || '新增收藏失敗');
-        setToast({ message: '已加入收藏', type: 'success' });
-      } else {
-        // ✅ 正確：單數路由，且 query 要帶 userId
-        const res = await fetch(
-          `${API_BASE}/api/favorite/${placeId}?userId=${userId}`,
-          {
-            method: 'DELETE',
-          }
-        );
-        const json = await res.json();
-        if (!res.ok) throw new Error(json?.message || '取消收藏失敗');
+      if (favorited) {
+        // 取消收藏
+        await removeFavorite(userId, placeId);
+        setFavorited(false);
         setToast({ message: '已取消收藏', type: 'success' });
+      } else {
+        // 新增收藏
+        await addFavorite(userId, placeId);
+        setFavorited(true);
+        setToast({ message: '已加入收藏', type: 'success' });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setFavorited(!next); // 回滾
-      setToast({ message: '操作失敗，請稍後再試', type: 'error' });
+      setToast({
+        message: err?.message || '操作失敗，請稍後再試',
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }
   }
+
   return (
     <section>
       <div className="flex items-stretch">
@@ -94,11 +100,11 @@ export default function Hero({
           />
         </div>
         <div className="flex-1 flex flex-col pl-2 items-start justify-between gap-1">
-          <div className="flex">
+          <div className="flex relative">
             <h1 className="text-3xl font-bold">{spot.name}</h1>
             {/* 收藏功能 */}
             <button
-              onClick={toggleFavorite}
+              onClick={handleToggleFavorite}
               disabled={loading}
               aria-label={favorited ? '取消收藏' : '加入收藏'}
               className="ml-5 shrink-0 rounded-full border border-gray-300 bg-white px-3 py-1 transition hover:bg-amber-50 active:scale-95 disabled:opacity-50"
@@ -109,6 +115,29 @@ export default function Hero({
                 className="h-6 w-6 object-contain hover:cursor-pointer"
               />
             </button>
+            {loginHintOpen && (
+              <div className="absolute right-6 top-10 z-50 w-64 rounded-2xl border bg-white/95 shadow-lg p-3 text-sm">
+                <div className="font-semibold mb-1">收藏景點</div>
+                <p className="text-xs text-neutral-600 mb-2">
+                  只有登入會員才能收藏景點喔～
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setLoginHintOpen(false)}
+                    className="rounded-full border px-3 py-1 text-xs hover:bg-neutral-50"
+                  >
+                    稍後再說
+                  </button>
+                  <Link
+                    href={`/member/login`}
+                    className="inline-flex items-center rounded-full bg-amber-400 px-4 py-1.5 text-white text-sm hover:opacity-90"
+                  >
+                    前往登入
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
           {/* 景點描述 */}
           <div className="flex-1 flex flex-col w-full">
