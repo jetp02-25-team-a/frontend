@@ -253,7 +253,7 @@ export default function GroupItineraryDetalPage({
           </p>
         </div>
         {/* 訊息視窗區  */}
-        <OpenChatWindows openChats={openChats} setOpenChats={setOpenChats} />
+        {/* <OpenChatWindows openChats={openChats} setOpenChats={setOpenChats} /> */}
 
         {previousPath.includes('create-group-itinerary') && (
           <>
