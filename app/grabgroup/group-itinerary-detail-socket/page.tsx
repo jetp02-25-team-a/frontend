@@ -23,6 +23,7 @@ import { ItineraryContextType, ItineraryData } from '../_types/itineraryTypes';
 import Map from '../_components/GoogleMap';
 import MapWithNearby from '../_components/GoogleMapWithNearby';
 import NearbyAttractionsPanel from './_components/NearbyAttractionsPanel';
+import SocketDebugPanel from './_components/SocketDebugPanel';
 
 import { addDays, addMinutes } from 'date-fns';
 import { ItineraryEditor } from '../_components/ItineraryEditor';
@@ -206,6 +207,34 @@ export default function GroupItineraryDetailPage() {
     socket.on('itinerary:nodeDragged', (data) => {
       console.log('收到拖曳節點事件:', data);
       handleSocketNodeDragged(data);
+    });
+
+    // 時間調整監聽
+    const handleSocketTimeChanged = (data: any) => {
+      console.log('收到時間調整資料:', data);
+      if (data.userId !== user?.id?.toString()) {
+        setItineraryData((prev) => {
+          if (!prev) return prev;
+          const newData = prev.map((d, index) => {
+            if (index === data.dayIndex) {
+              const newNodes = d.Nodes.map((node, i) => {
+                if (i === data.nodeIndex) {
+                  return { ...node, durationMinutes: data.newDuration };
+                }
+                return node;
+              });
+              return { ...d, Nodes: newNodes };
+            }
+            return d;
+          });
+          console.log('時間調整後更新的資料:', newData);
+          return newData;
+        });
+      }
+    };
+    socket.on('itinerary:timeChanged', (data) => {
+      console.log('收到時間調整事件:', data);
+      handleSocketTimeChanged(data);
     });
   }, [socket]);
   // 加天數方式
@@ -532,6 +561,55 @@ export default function GroupItineraryDetailPage() {
     socket?.emit('itinerary:nodeDeleted', socketData);
   };
 
+  // 處理時間調整的函式
+  const handleTimeChange = async (
+    dayIndex: number,
+    nodeIndex: number,
+    newDuration: number
+  ) => {
+    console.log(
+      '處理時間調整 - dayIndex:',
+      dayIndex,
+      'nodeIndex:',
+      nodeIndex,
+      'newDuration:',
+      newDuration
+    );
+
+    // 先更新本地狀態
+    setItineraryData((prev) => {
+      if (!prev) return prev;
+      const newData = prev.map((d, index) => {
+        if (index === dayIndex) {
+          const newNodes = d.Nodes.map((node, i) => {
+            if (i === nodeIndex) {
+              return { ...node, durationMinutes: newDuration };
+            }
+            return node;
+          });
+          return { ...d, Nodes: newNodes };
+        }
+        return d;
+      });
+      console.log('時間調整後的本地資料:', newData);
+      return newData;
+    });
+
+    // 發送 socket 事件給其他用戶
+    const socketData = {
+      itineraryId: Number(itineraryId),
+      dayIndex: dayIndex,
+      nodeIndex: nodeIndex,
+      newDuration: newDuration,
+      userId: user?.id?.toString() || 'unknown',
+      userName: user?.nickname || 'Anonymous',
+      timestamp: new Date().toISOString(),
+    };
+
+    console.log('發送時間調整 Socket 資料:', socketData);
+    socket?.emit('itinerary:timeChanged', socketData);
+  };
+
   return (
     <>
       {/* 暫時註解掉自動保存功能，使用手動存檔 */}
@@ -726,6 +804,8 @@ export default function GroupItineraryDetailPage() {
                             isDragOver={isDragOver}
                             // 🗑️ 刪除節點功能
                             onDeleteNode={handleDeleteNode}
+                            // ⏰ 時間調整功能
+                            onTimeChange={handleTimeChange}
                             onClick={() =>
                               setMapPoint({
                                 latitude:
@@ -777,7 +857,7 @@ export default function GroupItineraryDetailPage() {
                     ✕
                   </button>
                 </div>
-                
+
                 {/* 搜索半徑選擇 */}
                 <div className="flex items-center gap-2">
                   <label className="text-sm">範圍:</label>
@@ -793,7 +873,7 @@ export default function GroupItineraryDetailPage() {
                   </select>
                 </div>
               </div>
-              
+
               {/* 景點列表 */}
               <div className="flex-1 overflow-hidden">
                 <NearbyAttractionsPanel
@@ -861,6 +941,9 @@ export default function GroupItineraryDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Socket 調試面板 */}
+      {/* <SocketDebugPanel itineraryId={itineraryId} /> */}
     </>
   );
 }
