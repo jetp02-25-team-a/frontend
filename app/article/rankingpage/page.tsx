@@ -4,7 +4,7 @@ import React from 'react';
 import HeroImage from '../_components/HeroImage';
 import SidebarActions from '../_components/SidebarActions';
 import SectionTitle from '../_components/SectionTitle';
-import DestinationCard from '../_components/DestinationCard';
+// import DestinationCard from '../_components/DestinationCard';
 import ProductCard from '../_components/ProductCard';
 import destinations from '../_data/destination';
 
