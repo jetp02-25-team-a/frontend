@@ -1,66 +1,107 @@
-// app/trip/utils/api.ts
-const API_BASE = 'http://localhost:3005/api';
+'use client';
 
-// 取得所有行程
-export async function getTrips(userId?: number) {
-  const url = userId
-    ? `${API_BASE}/trips?userId=${userId}`
-    : `${API_BASE}/trips`;
-  const res = await fetch(url);
-  const json = await res.json();
-  return json.success ? json.data : [];
-}
+/* ============================================
+   🔧 API Base 設定
+============================================ */
+const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
+export const API_BASE = `${BASE}/api/m2`;
 
-// 取得單一行程
-export async function getTripById(id: string | number) {
-  try {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
+/* ============================================
+   🔧 統一 API 請求方法
+============================================ */
+async function request<T = any>(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  path: string,
+  data?: any
+): Promise<T> {
+  const options: RequestInit = {
+    method,
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  };
 
-    const res = await fetch(`${API_URL}/api/trips/${id}`);
-    const json = await res.json();
-    return json;
-  } catch (err) {
-    console.error('取得行程失敗:', err);
-    return { success: false, message: '伺服器錯誤' };
+  if (data && method !== 'GET' && method !== 'DELETE') {
+    options.body = JSON.stringify(data);
   }
+
+  const res = await fetch(`${API_BASE}${path}`, options);
+  let json = {};
+
+  try {
+    json = await res.json();
+  } catch {}
+
+  if (!res.ok) {
+    throw new Error((json as any).message || 'API Error');
+  }
+
+  return json as T;
 }
 
-// 建立新行程
-export async function createTrip(tripData: any) {
-  const res = await fetch(`${API_BASE}/trips`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(tripData),
-  });
-  return await res.json();
-}
+/* ============================================
+   🟦 Trip API
+============================================ */
+export const TripAPI = {
+  getAll: () => request('GET', `/trip`),
 
-// 取得所有支出
-export async function getExpenses(tripPlanId: number) {
-  const res = await fetch(`${API_BASE}/expenses?tripPlanId=${tripPlanId}`);
-  const json = await res.json();
-  return json.success ? json.data : [];
-}
+  getById: (id: number) => request('GET', `/trip/${id}`),
 
-// 取得支出分類
-export async function getExpenseTypes() {
-  const res = await fetch(`${API_BASE}/expense-types`);
-  const json = await res.json();
-  return json.success ? json.data : [];
-}
+  create: (data: any) => request('POST', `/trip`, data),
 
-// 新增支出
-export async function createExpense(data: any) {
-  const res = await fetch(`${API_BASE}/expenses`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  return await res.json();
-}
+  update: (id: number, data: any) => request('PUT', `/trip/${id}`, data),
 
-// 刪除支出
-export async function deleteExpense(id: number) {
-  const res = await fetch(`${API_BASE}/expenses/${id}`, { method: 'DELETE' });
-  return await res.json();
-}
+  remove: (id: number) => request('DELETE', `/trip/${id}`),
+};
+
+/* ============================================
+   🟫 Destination API
+============================================ */
+export const DestinationAPI = {
+  getAll: () => request('GET', `/destination`),
+};
+
+/* ============================================
+   🟧 Expense API
+============================================ */
+export const ExpenseAPI = {
+  getByTrip: (tripId: number) => request('GET', `/expense/${tripId}/expenses`),
+
+  create: (tripId: number, data: any) =>
+    request('POST', `/expense/${tripId}/expenses`, data),
+
+  delete: (id: number) => request('DELETE', `/expense/expenses/${id}`),
+};
+
+/* ============================================
+   🟩 Packing API
+============================================ */
+export const PackingAPI = {
+  getByTrip: (tripId: number) => request('GET', `/packing/${tripId}/packing`),
+
+  add: (tripId: number, data: any) =>
+    request('POST', `/packing/${tripId}/packing`, data),
+
+  toggle: (id: number) => request('PATCH', `/packing/packing/${id}`),
+
+  delete: (id: number) => request('DELETE', `/packing/packing/${id}`),
+};
+
+/* ============================================
+   🟦 Trip Plan Detail API  
+   (新增 / 編輯 / 刪除 / 依日期查詢)
+============================================ */
+export const TripPlanDetailAPI = {
+  /** GET: 取得特定日期的行程 */
+  getByTripDay: (tripId: number, day: string) =>
+    request('GET', `/plan/${tripId}/detail?day=${day}`),
+
+  /** POST: 新增一筆行程 detail */
+  create: (tripId: number, data: any) =>
+    request('POST', `/plan/${tripId}/detail`, data),
+
+  /** PUT: 編輯行程 detail */
+  update: (id: number, data: any) => request('PUT', `/plan/detail/${id}`, data),
+
+  /** DELETE: 刪除行程 detail */
+  delete: (id: number) => request('DELETE', `/plan/detail/${id}`),
+};
