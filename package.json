@@ -30,6 +30,7 @@
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "lucide-react": "^0.553.0",
+    "mapbox-gl": "^3.16.0",
     "moment": "^2.30.1",
     "next": "15.5.3",
     "react": "19.1.0",

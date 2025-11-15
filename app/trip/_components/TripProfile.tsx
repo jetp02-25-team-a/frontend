@@ -1,9 +1,8 @@
-interface TripProfileProps {
-  name: string;
-  avatar?: string;
-}
+'use client';
 
-export default function TripProfile({ name, avatar }: TripProfileProps) {
+type Props = { name: string; avatar?: string };
+
+export default function TripProfile({ name, avatar = '/avatar.png' }: Props) {
   return (
     <div className="text-center">
       <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-lg mb-4">
