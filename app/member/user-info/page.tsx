@@ -212,9 +212,9 @@ export default function UserInfoPage() {
 
   return (
     <>
-      <div className="grid grid-cols-[80%_20%]">
+      <div className="grid grid-cols-[80%_20%] h-screen">
         {/* 個人資訊區 */}
-        <div className="bg-light-orange relative">
+        <div className="bg-light-orange relative overflow-y-auto scrollbar-hide">
           <div className="flex flex-col items-center py-16 gap-[30px]">
             {/* 個人資訊區 */}
 

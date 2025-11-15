@@ -45,6 +45,10 @@
   scrollbar-width: none; /* Firefox */
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* WebKit 瀏覽器 */
+}
+
 /* 自定義滾動條樣式 */
 .custom-scrollbar {
   scrollbar-width: thin;
