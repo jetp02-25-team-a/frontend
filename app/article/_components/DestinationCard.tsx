@@ -28,7 +28,7 @@ export default function DestinationCard({
         <Image
           src={url}
           alt={title}
-          width={70}
+          width={100}
           height={140}
           className="object-cover w-full h-64"
         />
@@ -56,55 +56,6 @@ export default function DestinationCard({
   );
 }
 
-// 'use client';
-// import Image from 'next/image';
-
-// interface DestinationCardProps {
-//   image?: string;
-//   title: string;
-//   description?: string;
-// }
-
-// const isValidUrl = (url?: string) => {
-//   if (!url) return false;
-//   try {
-//     new URL(url);
-//     return true;
-//   } catch {
-//     return false;
-//   }
-// };
-
-// export default function DestinationCard({ image, title, description }: DestinationCardProps) {
-//   const displayImage =
-//     isValidUrl(image) ? image : image ? `http://localhost:4000/${image}` : null;
-
-//   return (
-//     <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all overflow-hidden">
-//       {displayImage ? (
-//         <Image
-//           src={displayImage}
-//           alt={title}
-//           width={400}
-//           height={250}
-//           className="object-cover w-full h-64"
-//         />
-//       ) : (
-//         <div className="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
-//           No image available
-//         </div>
-//       )}
-
-//       <div className="p-4 flex flex-col justify-between">
-//         <div>
-//           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-//           {description && <p className="text-sm text-gray-600 mt-2">{description}</p>}
-//         </div>
-//         <button className="mt-4 text-blue-600 hover:underline self-start">查看</button>
-//       </div>
-//     </div>
-//   );
-// }
 
 // // 'use client';
 // // import Image from 'next/image';

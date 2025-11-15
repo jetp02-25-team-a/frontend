@@ -1,29 +1,27 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react'; // Tambahkan useCallback
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-// Pindahkan komponen import
 import SidebarAction from '../_components/SidebarActions';
 import DetailForm from '../_components/DetailForms';
 import MessageBoard from '../_components/MessageBoard';
 import StatusDisplay from '../_components/StatusDisplay';
 
-// Gunakan path import yang benar
+import { ARTICLE_PHOTOS_PATH } from '../../../config/image-path';
 import { API_SERVER } from '@/app/config/api-path';
 import { useAuth } from '../../../hooks/use-Auth';
 
-// --- Interface Data ---
 interface Article {
   id?: string;
   userId: string;
   title: string;
   location: string;
-  Content: string;
-  photos: string | string[];
+  content: string;
+  photos?: string | string[];
   likes?: number;
-  isLikedByMe?: boolean; // Tambahkan ini agar bisa di-update
+  isLikedByMe?: boolean;
 }
 
 interface LikeResponse {
@@ -32,61 +30,52 @@ interface LikeResponse {
   isLikedByMe?: boolean;
 }
 
-// --- Komponen Utama Halaman ---
 export default function ReviewArticlePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pid = searchParams.get('id');
 
-  // Ambil fungsi otentikasi dari hook
   const { getAuthHeader } = useAuth();
 
   const [article, setArticle] = useState<Article>({
     userId: '',
     title: 'Loading...',
     location: '',
-    Content: '',
+    content: '',
     photos: '',
     likes: 0,
-    isLikedByMe: false, // Default status
+    isLikedByMe: false,
   });
 
   const [isLoading, setIsLoading] = useState(true);
   const [isLiking, setIsLiking] = useState(false);
 
-  // 🔹 Fetch single article (dideklarasikan di luar useEffect tapi dibungkus useCallback)
   const getArticle = useCallback(async (articleId: string) => {
     try {
       const res = await fetch(`${API_SERVER}/article/${articleId}`);
       if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
       const data = await res.json();
-
       if (!data?.id) throw new Error('Invalid article data');
       setArticle(data);
     } catch (err) {
       console.error('Fetch Error:', err);
       alert('Gagal memuat artikel.');
-      // Set status menjadi error atau default jika fetch gagal
       setArticle((prev) => ({ ...prev, title: 'Article Not Found' }));
     } finally {
       setIsLoading(false);
     }
-  }, []); // getArticle tidak bergantung pada state/prop apapun kecuali pid dari useEffect
+  }, []);
 
-  // 🔹 Toggle Like Article (Menggunakan logika yang sudah direfactor)
   const handleLike = useCallback(async () => {
     if (!article.id || isLiking) return;
-
     setIsLiking(true);
 
     try {
-      const endpoint = `${API_SERVER}/article/${article.id}/like`;
-
-      const res = await fetch(endpoint, {
+      const res = await fetch(`${API_SERVER}/article/${article.id}/like`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...getAuthHeader(), // Gunakan getAuthHeader dari useAuth
+          ...getAuthHeader(),
         },
       });
 
@@ -97,12 +86,10 @@ export default function ReviewArticlePage() {
       }
 
       const result: LikeResponse = await res.json();
-
       if (typeof result.newLikesCount !== 'number') {
         throw new Error('Respons backend tidak valid: newLikesCount hilang.');
       }
 
-      // Update State dengan Data Akurat dari Backend
       setArticle((prev) => ({
         ...prev,
         likes: result.newLikesCount,
@@ -110,118 +97,67 @@ export default function ReviewArticlePage() {
       }));
     } catch (err) {
       const errorMessage =
-        err instanceof Error
-          ? err.message
-          : 'Terjadi kesalahan tidak terduga saat like.';
+        err instanceof Error ? err.message : 'Terjadi kesalahan tidak terduga saat like.';
       console.error('Like Error:', err);
       alert(errorMessage);
     } finally {
       setIsLiking(false);
     }
-  }, [article.id, isLiking, getAuthHeader]); // article.id dan isLiking harus masuk dependency
-
-  // 🔹 Delete Article
+  }, [article.id, isLiking, getAuthHeader]);
 
   const handleDelete = useCallback(async () => {
-  if (!article.id) return;
-  if (!confirm('Are you sure you want to delete this article?')) return;
+    if (!article.id) return;
+    if (!confirm('Are you sure you want to delete this article?')) return;
 
-  const headers = {
-    'Content-Type': 'application/json',
-    ...getAuthHeader(),
-  };
+    const headers = {
+      'Content-Type': 'application/json',
+      ...getAuthHeader(),
+    };
 
-  if (!headers.Authorization) {
-    alert('You must be logged in to delete this article.');
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API_SERVER}/article/${article.id}`, {
-      method: 'DELETE',
-      headers,
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('Delete failed:', res.status, errorText);
-      throw new Error(`Failed to delete article: ${res.status}`);
+    if (!headers.Authorization) {
+      alert('You must be logged in to delete this article.');
+      return;
     }
 
-    alert('Article successfully deleted.');
-    router.push('/article/list');
-  } catch (err) {
-    console.error('Delete Error:', err);
-    alert(err instanceof Error ? err.message : 'Unexpected error during deletion.');
-  }
-}, [article.id, getAuthHeader, router]);
+    try {
+      const res = await fetch(`${API_SERVER}/article/${article.id}`, {
+        method: 'DELETE',
+        headers,
+      });
 
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Delete failed:', res.status, errorText);
+        throw new Error(`Failed to delete article: ${res.status}`);
+      }
 
+      alert('Article successfully deleted.');
+      router.push('/article/list');
+    } catch (err) {
+      console.error('Delete Error:', err);
+      alert(err instanceof Error ? err.message : 'Unexpected error during deletion.');
+    }
+  }, [article.id, getAuthHeader, router]);
 
-
-
-
-
-
-
-//   const handleDelete = useCallback(async () => {
-//     if (!article.id) return;
-//     if (!confirm('Are you sure you want to delete this article?')) return;
-
-//     try {
-//       const res = await fetch(`${API_SERVER}/article/${article.id}`, {
-//         method: 'DELETE',
-//         headers: {
-//           ...getAuthHeader(),
-//         },
-//       });
-
-//       if (!res.ok) throw new Error('Failed to delete article');
-
-//       if (!res.ok) {
-//   const errorText = await res.text();
-//   console.error('Delete failed:', res.status, errorText);
-//   throw new Error('Failed to delete article');
-// }
-
-
-
-
-
-//       alert('Article successfully deleted.');
-//       router.push('/article/list');
-//     } catch (err) {
-//       console.error('Delete Error:', err);
-//       alert('Failed to delete the article.');
-//     }
-//   }, [article.id, getAuthHeader, router]);
-
-  // 🔹 Load article on mount
   useEffect(() => {
     if (pid) {
       getArticle(pid);
     } else {
       setIsLoading(false);
     }
-  }, [pid, getArticle]); // getArticle harus menjadi dependency
+  }, [pid, getArticle]);
 
-  // 🔹 UI Rendering
   if (isLoading) return <StatusDisplay message="Loading article details..." />;
   if (!pid) return <StatusDisplay message="Cannot find article ID." />;
-  // Jika artikel gagal dimuat, tampilkan pesan error
-  if (article.title === 'Article Not Found')
-    return <StatusDisplay message="Article Not Found (404)" />;
+  if (article.title === 'Article Not Found') return <StatusDisplay message="Article Not Found (404)" />;
 
   return (
     <div className="relative max-w-7xl mx-auto py-10 px-4 flex flex-col md:flex-row gap-8">
-      {/* Sidebar */}
       <aside className="w-full md:w-80 flex-shrink-0 pt-10 border-r border-gray-200 md:pr-6">
         <SidebarAction />
       </aside>
 
-      {/* Main Content */}
       <main className="relative flex-grow max-w-4xl bg-white rounded-2xl shadow-md p-6 md:p-10">
-        {/* Action Buttons */}
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
           <Link
             href={`/article/edit?id=${article.id}`}
@@ -246,15 +182,46 @@ export default function ReviewArticlePage() {
           </button>
         </div>
 
-        {/* Title */}
         <h1 className="text-3xl font-extrabold text-gray-800 mb-6 text-center md:text-left">
-          {article.title} {/* Tampilkan judul artikel yang dimuat */}
+          {article.title}
         </h1>
 
-        {/* Article Details */}
         <DetailForm article={article} />
 
-        {/* Message Board */}
+        {article?.photos && (
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold mb-4">📸 Travel Photos</h2>
+            {Array.isArray(article.photos) ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {article.photos.map((photo, idx) => (
+                  <img
+                    key={idx}
+                    src={
+                      photo.startsWith('http')
+                        ? photo
+                        : `${ARTICLE_PHOTOS_PATH}${photo}`
+                    }
+                    alt={`photo-${idx}`}
+                    className="rounded-xl shadow-md w-full object-cover"
+                    onError={(e) => (e.currentTarget.src = '/no-image.png')}
+                  />
+                ))}
+              </div>
+            ) : (
+              <img
+                src={
+                  typeof article.photos === 'string' && article.photos.trim() !== ''
+                    ? `${ARTICLE_PHOTOS_PATH}${article.photos}`
+                    : '/no-image.png'
+                }
+                alt="article-photo"
+                className="rounded-xl shadow-md w-full object-cover"
+                onError={(e) => (e.currentTarget.src = '/no-image.png')}
+              />
+            )}
+          </div>
+        )}
+
         <div className="mt-10">
           <MessageBoard articleId={article.id} />
         </div>
@@ -262,6 +229,14 @@ export default function ReviewArticlePage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 // 'use client';
 
