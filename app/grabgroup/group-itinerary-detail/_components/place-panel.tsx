@@ -27,8 +27,8 @@ interface SearchData {
   id: number;
   name: string;
   nameZh: string;
-  addrCity?: string;
-  addrDistrict?: string;
+  addrCity?: string | '';
+  addrDistrict?: string | '';
   addrFull: string;
   lat: number;
   lng: number;
@@ -197,7 +197,7 @@ export default function PlacePanel({
               }}
             >
               <FontAwesomeIcon icon={faAngleLeft} />
-              <span>返回列表</span>
+              <span>返回</span>
             </button>
           )}
         </span>
@@ -306,7 +306,17 @@ export default function PlacePanel({
                   <div
                     key={index}
                     className="flex justify-between p-2 my-2.5 justify-items-center border-b border-gray-300 cursor-pointer"
-                    onClick={() => setPlaceData(attraction)}
+                    onClick={() => {
+                      setPlaceData(attraction);
+
+                      //再次刷新新景點的周邊訊息
+                      searchNearbyPlaces(
+                        attraction.lat,
+                        attraction.lng,
+                        5,
+                        attraction.id
+                      );
+                    }}
                   >
                     <div className="flex flex-col">
                       <h2 className="text-2xl">
