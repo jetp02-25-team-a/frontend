@@ -196,14 +196,14 @@ export default function TeamUpEditArticlePage() {
       />
 
       {/* 除錯資訊 */}
-      <div className="mt-4 p-4 bg-gray-100 rounded text-sm">
+      {/* <div className="mt-4 p-4 bg-gray-100 rounded text-sm">
         <p>
           <strong>除錯資訊：</strong>
         </p>
         <p>itineraryId: {itineraryId || '未找到'}</p>
         <p>標題長度: {title.length}</p>
         <p>內容長度: {value.length}</p>
-      </div>
+      </div> */}
     </div>
   );
 }
