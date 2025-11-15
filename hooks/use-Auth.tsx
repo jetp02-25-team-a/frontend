@@ -21,6 +21,7 @@ interface AuthContextType {
   getAuthHeader: () => { Authorization: string } | object;
   isReady: boolean;
   isAuthenticated: boolean;
+  updateUser: (id: number) => void;
 }
 
 //建立context
@@ -83,6 +84,22 @@ export function AuthProvider({
     router.push('/');
   };
 
+  const updateUser = async (id: number) => {
+    const r = await fetch(`${API_SERVER}/user/${id}`);
+    const result = await r.json();
+    const newInfo = {
+      nickname: result.data.nickname,
+      avatar: result.data.avatar,
+    };
+    const updatedUser = {
+      ...user, // 保留原有的 id, email, token
+      ...newInfo, // 用新獲取的 nickname 和 avatar 覆蓋舊值
+    };
+    setUser(updatedUser); // 同時更新 localStorage
+
+    localStorage.setItem(storageKey, JSON.stringify(updatedUser));
+  };
+
   const getAuthHeader = () => {
     if (!user?.token) return {};
     return {
@@ -133,6 +150,7 @@ export function AuthProvider({
         logout,
         getAuthHeader,
         isReady,
+        updateUser,
         isAuthenticated: !!user?.token,
       }}
     >

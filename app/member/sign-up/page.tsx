@@ -1,41 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { API_SERVER } from '../../config/api-path';
 import z from 'zod';
-
-interface ModalProps {
-  isOpen: boolean;
-  message: string;
-  onClose: () => void;
-}
-
-const SimpleModal: React.FC<ModalProps> = ({ isOpen, message, onClose }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed bottom-50  z-50 w-full max-w-sm left-1/2 -translate-x-1/2">
-      {/* Modal 內容區塊 */}
-      <div className="bg-white p-6 rounded-lg shadow-xl w-80">
-        <p className="mb-6">{message}</p>
-        <div className="flex justify-end">
-          <button
-            onClick={onClose}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-          >
-            關閉
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+import SimpleModal from '../_components/modal';
+import { useRouter } from 'next/navigation';
 
 const signupSchema = z
   .object({
     email: z.string().email({ message: '請輸入有效的電子郵件格式' }),
     password: z.string().min(6, '密碼至少需要 6 個字元'),
     passwordsec: z.string().min(6, '密碼至少需要 6 個字元'),
+    // 注意: 您的後端程式碼有處理 nickname，如果需要，請在這裡新增 nickname 欄位
   })
   .refine((data) => data.password === data.passwordsec, {
     message: '兩次密碼輸入不同',
@@ -50,6 +26,7 @@ export default function SignUpPage() {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+  const router = useRouter();
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -82,6 +59,8 @@ export default function SignUpPage() {
       const payload = {
         email: validatedData.email,
         password: validatedData.password,
+        // 如果後端需要 nickname，這裡應該補上，例如:
+        // nickname: 'user-' + Math.random().toString(36).substring(2, 8),
       };
 
       const response = await fetch(`${API_SERVER}/signup`, {
@@ -92,52 +71,89 @@ export default function SignUpPage() {
         body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
+      const resultData = await response.json();
+
+      if (response.ok && resultData.id) {
         showModalWithMessage('註冊成功，將返回登入頁');
-        return;
-      } else {
-        showModalWithMessage('註冊失敗');
+
+        // 💡 修正 1: 使用 setTimeout 導向
+        setTimeout(() => {
+          router.push('/member/login');
+        }, 1000);
+
+        return; // 成功註冊並設定導向後，立即返回
+      }
+
+      // 處理後端傳回的失敗訊息 (例如: 重複電子郵件)
+      if (resultData && resultData.success === false && resultData.message) {
+        showModalWithMessage(resultData.message); // 顯示後端傳回的錯誤訊息
         return;
       }
-    } catch {
-      showModalWithMessage('註冊失敗');
-      return '';
+
+      // 處理其他未預期的錯誤或非 200 OK 的狀態碼
+      showModalWithMessage('註冊失敗，請稍後再試。');
+      return;
+    } catch (error) {
+      // 捕捉網路錯誤、JSON 解析錯誤等
+      console.error('註冊過程中發生錯誤:', error);
+      showModalWithMessage('網路連線或伺服器發生異常');
     }
   };
+
   return (
     <>
-      <div className="w-screen h-full flex items-center justify-center bg-[#FBE7C1] ">
-        <form onSubmit={handleSubmit}>
-          <div className=" w-full justify-center flex mt-3">
-            <h1>註冊</h1>
+      <div className="w-screen h-[calc(100vh-354px-88px)] flex items-center justify-center bg-[#FBE7C1] ">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col items-center p-8 bg-white/50 rounded-lg shadow-lg"
+        >
+          {/* 標題區塊 */}
+          <div className="mb-8">
+            <h1 className="font-bold text-3xl">註冊</h1>
           </div>
-          <h2 className=" mt-2">電子郵件</h2>
+
+          {/* 電子郵件區塊 */}
+          <label htmlFor="email" className="self-start mt-2 mb-1">
+            電子郵件
+          </label>
           <input
-            className="bg-white mt-2 rounded-xl"
+            id="email"
+            className="bg-white rounded-xl p-2 w-80 border border-gray-300"
             type="text"
             name="email"
             value={data.email}
             onChange={handleFieldChange}
           />
-          <h2 className=" mt-2">密碼</h2>
+
+          {/* 密碼區塊 */}
+          <label htmlFor="password" className="self-start mt-4 mb-1">
+            密碼
+          </label>
           <input
-            className="bg-white mt-2 rounded-xl"
+            id="password"
+            className="bg-white rounded-xl p-2 w-80 border border-gray-300"
             type="password"
             name="password"
             value={data.password}
             onChange={handleFieldChange}
           />
-          <h2 className=" mt-2">確認密碼</h2>
+
+          {/* 確認密碼區塊 */}
+          <label htmlFor="passwordsec" className="self-start mt-4 mb-1">
+            確認密碼
+          </label>
           <input
-            className="bg-white mt-2 rounded-xl"
+            id="passwordsec"
+            className="bg-white rounded-xl p-2 w-80 border border-gray-300"
             type="password"
             name="passwordsec"
             value={data.passwordsec}
             onChange={handleFieldChange}
           />
 
-          <div className=" w-full justify-center flex m-3">
-            <button className="bg-amber-100 px-10 py-0.5 rounded-xl">
+          {/* 註冊按鈕區塊 */}
+          <div className="m-6">
+            <button className="bg-amber-100 px-10 py-2 rounded-xl font-semibold hover:bg-amber-200 transition">
               註冊
             </button>
           </div>

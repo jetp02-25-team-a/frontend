@@ -30,8 +30,11 @@ export default function Avatar() {
         <div>
           <Link href={'/member/user-info'}>個人資料</Link>
         </div>
-        <div>
-          <button onClick={logout} className="hover:cursor-pointer mt-2">
+        <div className="mt-2">
+          <Link href={'/shops/order'}>訂單資料</Link>
+        </div>
+        <div className="mt-2">
+          <button onClick={logout} className="hover:cursor-pointer ">
             登出
           </button>
         </div>

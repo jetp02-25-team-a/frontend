@@ -47,16 +47,21 @@ export default function ProductCard({
           ></div>
 
           <div
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 flex-col gap-4 ${
               isHovered ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'
             }`}
           >
             <button
               onClick={() => itemToCart(productId, variantId)}
-              className="bg-white text-[#F8D28C] font-bold py-2 px-4 rounded-full shadow-xl hover:bg-gray-100 transition-colors duration-200"
+              className="bg-white text-[#F8D28C] font-bold py-2 px-4 rounded-full shadow-xl hover:bg-gray-100 transition-colors duration-200 hover:cursor-pointer"
             >
               加入購物車
             </button>
+            <Link href={`/shops/product/${productId}`}>
+              <button className="bg-white text-[#F8D28C] font-bold py-2 px-6 rounded-full shadow-xl hover:bg-gray-100 transition-colors duration-200 hover:cursor-pointer ">
+                查看細節
+              </button>
+            </Link>
           </div>
         </div>
         <p className="mb-2 ml-3">{productName}</p>
