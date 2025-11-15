@@ -24,21 +24,23 @@ export default function Avatar() {
         sizes="100%"
         // priority
       ></Image>
-      <div
-        className={`absolute w-fit bg-white left-1/2 transform -translate-x-1/2 z-20 whitespace-nowrap p-3 px-6 rounded-2xl  mt-15 ${isHovered ? '' : 'hidden'}`}
-      >
-        <div>
-          <Link href={'/member/user-info'}>個人資料</Link>
+      {user.email && (
+        <div
+          className={`absolute w-fit bg-white left-1/2 transform -translate-x-1/2 z-20 whitespace-nowrap p-3 px-6 rounded-2xl  mt-15 ${isHovered ? '' : 'hidden'}`}
+        >
+          <div>
+            <Link href={'/member/user-info'}>個人資料</Link>
+          </div>
+          <div className="mt-2">
+            <Link href={'/shops/order'}>訂單資料</Link>
+          </div>
+          <div className="mt-2">
+            <button onClick={logout} className="hover:cursor-pointer ">
+              登出
+            </button>
+          </div>
         </div>
-        <div className="mt-2">
-          <Link href={'/shops/order'}>訂單資料</Link>
-        </div>
-        <div className="mt-2">
-          <button onClick={logout} className="hover:cursor-pointer ">
-            登出
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
