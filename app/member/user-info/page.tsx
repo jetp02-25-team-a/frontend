@@ -363,7 +363,7 @@ export default function UserInfoPage() {
           {/* 訊息視窗區  */}
           <OpenChatWindows openChats={openChats} setOpenChats={setOpenChats} />
         </div>
-        <div className="bg-gray-300">
+        <div className="bg-gray-300 flex flex-col h-screen">
           <FriendRecommend />
           {/* <div className="p-2.5 space-y-2.5">
             {friend_data.map((card, index) => {
@@ -381,13 +381,15 @@ export default function UserInfoPage() {
           <h4 className="text-center text-[24px] py-2.5 border-b-2 border-gray-600 bg-white">
             聯絡人
           </h4>
-          {/* 所有聯絡人區 */}
-          <ContactList
-            contact={contact}
-            userId={user ? user.id : 0}
-            openChats={openChats}
-            onOpenChat={(newChat) => existChat(openChats, newChat)}
-          />
+          {/* 所有聯絡人區 - 添加滾動容器 */}
+          <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
+            <ContactList
+              contact={contact}
+              userId={user ? user.id : 0}
+              openChats={openChats}
+              onOpenChat={(newChat) => existChat(openChats, newChat)}
+            />
+          </div>
         </div>
       </div>
     </>
