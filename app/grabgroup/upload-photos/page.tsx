@@ -52,28 +52,46 @@ export default function UploadPhotosPage() {
         <h1 className="text-4xl text-center">設定揪團照片</h1>
         <p className="text-center">上傳相關照片</p>
       </div>
-      {/* 圖片區域 */}
-      <div className="flex flex-wrap gap-[50px] w-[1100px] m-auto">
-        {images.map((img, index) => (
-          <label key={index} className="cursor-pointer">
-            {/* 預覽圖片區：若無上傳就顯示預設圖 */}
-            <Image
-              width={77}
-              height={77}
-              src={img || '/image_btn_default.png'}
-              alt="preview"
-              className="w-[150px] h-[150px] object-cover border rounded"
-            />
-
-            {/* 隱藏的 file input */}
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleImageChange(e, index)}
-            />
-          </label>
-        ))}
+      {/* 圖片區域：分成兩排三張 */}
+      <div className="flex flex-col gap-[50px] w-[1100px] m-auto">
+        <div className="flex flex-row gap-[50px] justify-center">
+          {images.slice(0, 3).map((img, index) => (
+            <label key={index} className="cursor-pointer">
+              <Image
+                width={100}
+                height={77}
+                src={img || '/image_btn_default.png'}
+                alt="preview"
+                className="w-[200px] h-[150px] object-cover border rounded"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleImageChange(e, index)}
+              />
+            </label>
+          ))}
+        </div>
+        <div className="flex flex-row gap-[50px] justify-center">
+          {images.slice(3, 6).map((img, index) => (
+            <label key={index + 3} className="cursor-pointer">
+              <Image
+                width={100}
+                height={77}
+                src={img || '/image_btn_default.png'}
+                alt="preview"
+                className="w-[200px] h-[150px] object-cover border rounded"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleImageChange(e, index + 3)}
+              />
+            </label>
+          ))}
+        </div>
       </div>
       {/* <div className="flex flex-wrap gap-[50px] w-[1100px] m-auto">
         {Array.from({ length: 6 }).map((_, index) => (
