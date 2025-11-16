@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../../../hooks/use-Auth';
+import Image from 'next/image';
+import { ARTICLE_PHOTOS_PATH } from '@/config/image-path';
+import Link from 'next/link';
 
 interface PostCardProps {
   postId: string;

@@ -1,77 +1,187 @@
+// app/article/rankingpage/page.tsx
 'use client';
 
-import React from 'react';
-import HeroImage from '../_components/HeroImage';
-import SidebarActions from '../_components/SidebarActions';
-import SectionTitle from '../_components/SectionTitle';
-// import DestinationCard from '../_components/DestinationCard';
-import ProductCard from '../_components/ProductCard';
-import destinations from '../_data/destination';
+import { useEffect, useState } from 'react';
+import PostCard from '../_components/PostCard1'; // Pastikan nama file PostCard sudah benar
+import { API_SERVER } from '@/config/api-path';
 
+// --- Konfigurasi Path Gambar ---
+// Sesuaikan dengan path server Anda. Contoh: jika gambar di /public/uploads/
+const IMAGE_UPLOAD_PREFIX = '/uploads/';
+const FALLBACK_IMAGE_PATH = '/images/default.jpg';
+
+// --- Interface Data yang Diharapkan dari Backend ---
+export interface PostRanking {
+  id: string;
+  title: string;
+  // Foto dari backend adalah array objek dengan field 'url'
+  Photos: { url: string }[];
+  Location?: { city: string };
+  _count: { Likes: number };
+}
+
+// --- Fungsi Helper untuk Validasi dan Konstruksi URL Gambar ---
+/**
+ * Memastikan URL gambar memiliki prefix yang benar ('/' untuk internal, 'http' untuk eksternal)
+ * atau kembali ke gambar default.
+ * Ini adalah solusi utama untuk error "Invalid image path detected".
+ */
+const getPostImageUrl = (post: PostRanking): string => {
+  const imageUrl = post.Photos?.[0]?.url;
+
+  if (!imageUrl || imageUrl.trim() === '') {
+    return FALLBACK_IMAGE_PATH;
+  }
+
+  // Jika URL sudah valid (sudah dimulai dengan http/https atau /), gunakan langsung
+  if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
+    return imageUrl;
+  }
+
+  // Jika hanya berupa nama file (e.g., 'f5915956-....png'), tambahkan prefix internal
+  // Ini mengasumsikan gambar disimpan di `/public/uploads/`
+  return `${IMAGE_UPLOAD_PREFIX}${imageUrl.trim()}`;
+};
+
+// --- Komponen Halaman Ranking ---
 export default function RankingPage() {
-  return (
-    <main className="min-h-screen flex flex-col items-center">
-      <HeroImage />
-      <div className="text-center mt-7 text-5xl font-bold">
-        你的旅程，不只是回憶——也是靈感的起點！
+  const [posts, setPosts] = useState<PostRanking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+
+  // 💡 Refactor: Fungsi fetching yang lebih rapi
+  async function fetchRankingData() {
+    const url = `${API_SERVER}/article/ranking`;
+    try {
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        // Logika error yang lebih informatif
+        const msg = await res.text();
+        throw new Error(
+          `Gagal memuat ranking. Status: ${res.status}. Detail: ${msg}`
+        );
+      }
+
+      const json = await res.json();
+      // Pastikan struktur respons memiliki field 'data'
+      if (!json || !Array.isArray(json.data)) {
+        throw new Error(
+          'Format data dari server tidak valid (expected "data" array).'
+        );
+      }
+
+      return json.data as PostRanking[];
+    } catch (err) {
+      // Menangkap dan melempar error
+      throw new Error(
+        `Kesalahan Fetch: ${err instanceof Error ? err.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  useEffect(() => {
+    fetchRankingData()
+      .then((fetchedPosts) => {
+        setPosts(fetchedPosts);
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []); // Hanya berjalan sekali saat mount
+
+  // --- Rendering UI State ---
+  if (loading)
+    return (
+      <div className="text-center py-20 text-gray-600">
+        <p>Memuat data ranking...</p>
       </div>
+    );
 
-      {/* Konten dengan Sidebar */}
-      <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6 p-6 w-full max-w-7xl">
-        {/* Sidebar */}
-        <aside className="md:col-span-1">
-          <SidebarActions />
-        </aside>
+  if (error)
+    return (
+      <div className="text-center py-20 text-red-600 font-medium">
+        <h2>Kesalahan Fatal</h2>
+        <p>{error}</p>
+      </div>
+    );
 
-        {/* Konten utama */}
-        <div className="md:col-span-3">
-          <SectionTitle />
-          <div className="grid gap-4">
-            {destinations.map((destination, index) => (
-              <ProductCard
-                key={destination.id ?? index}   // ← FIX key unik
-                rank={index + 1}
-                title={destination.title}
-                description={destination.description}
-                image={destination.image}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    </main>
+  // --- Rendering Konten Utama ---
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-extrabold mb-8 text-gray-900 border-b pb-2">
+        🏆 Top Ranking Posts
+      </h1>
+
+      {posts.length === 0 && (
+        <p className="text-gray-500 text-center py-10 border-t border-gray-200 mt-4">
+          Saat ini belum ada postingan yang masuk ranking.
+        </p>
+      )}
+
+      {/* Grid untuk menampilkan PostCard */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {posts.map((post) => (
+          <PostCard
+            key={post.id}
+            postId={post.id}
+            title={post.title}
+            // 💡 Menggunakan fungsi helper untuk memastikan path gambar valid
+            image={getPostImageUrl(post)}
+            likes={post._count?.Likes ?? 0}
+            destination={post.Location?.city ?? 'Unknown'}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
+// export async function getRanking() {
+//   const res = await fetch(`${process.env.NEXT_PUBLIC_API}/posts/ranking`);
 
+//   if (!res.ok) throw new Error("Failed to load ranking");
 
+//   return res.json();
+// }
 
+// export default function RankingPage() {
+//   return (
+//     <main className="min-h-screen flex flex-col items-center">
+//       <HeroImage />
+//       <div className="text-center mt-7 text-5xl font-bold">
+//         你的旅程，不只是回憶——也是靈感的起點！
+//       </div>
 
+//       {/* Konten dengan Sidebar */}
+//       <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6 p-6 w-full max-w-7xl">
+//         {/* Sidebar */}
+//         <aside className="md:col-span-1">
+//           <SidebarActions />
+//         </aside>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//         {/* Konten utama */}
+//         <div className="md:col-span-3">
+//           <SectionTitle />
+//           <div className="grid gap-4">
+//             {destinations.map((destination, index) => (
+//               <ProductCard
+//                 key={destination.id ?? index}   // ← FIX key unik
+//                 rank={index + 1}
+//                 title={destination.title}
+//                 description={destination.description}
+//                 image={destination.image}
+//               />
+//             ))}
+//           </div>
+//         </div>
+//       </section>
+//     </main>
+//   );
+// }
 
 // 'use client';
 
