@@ -6,6 +6,7 @@ import { apiFetch } from '@/app/accommodations/_lib/_api';
 import { FetchError } from '@/app/accommodations/_types';
 import { useAuth } from '@/hooks/use-Auth';
 import { toast } from 'react-hot-toast';
+import LoginModal from '../app/accommodations/_components/client/LoginModal';
 
 type FavoriteAccommodationResponse = {
   favoriteAccIds: number[];
@@ -73,6 +74,9 @@ export function FavoriteAccommodationProvider({
       }}
     >
       {children}
+      {showLoginModal && (
+        <LoginModal onClose={() => setShowLoginModal(false)} />
+      )}
     </FavoriteAccommodationContext.Provider>
   );
 }

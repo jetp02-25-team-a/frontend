@@ -124,9 +124,6 @@ export default function ActionBar({ title, accommodationId }: ActionBarProps) {
             ))}
         </div>
       </div>
-      {showLoginModal && (
-        <LoginModal onClose={() => setShowLoginModal(false)} />
-      )}
     </>
   );
 }

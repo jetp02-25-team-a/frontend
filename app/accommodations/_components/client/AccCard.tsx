@@ -116,9 +116,6 @@ export default function AccCard({
           </div>
         </div>
       </Link>
-      {showLoginModal && (
-        <LoginModal onClose={() => setShowLoginModal(false)} />
-      )}
     </>
   );
 }
