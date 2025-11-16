@@ -1,16 +1,16 @@
 import { apiFetch } from './apiFetch';
-import type { AccommodationDetail, Review, RoomTypeDetail } from '../../_types';
+import type { AccommodationDTO } from '../../_types';
 
 export async function getAccommodationDetail(
   id: number
-): Promise<AccommodationDetail> {
+): Promise<AccommodationDTO> {
   const endpoint = `/accommodations/${id}`;
 
   const options: RequestInit = {
     next: { revalidate: 3600 },
   };
 
-  const data = await apiFetch<AccommodationDetail>(endpoint, options);
+  const data = await apiFetch<AccommodationDTO>(endpoint, options);
 
   return data;
 }

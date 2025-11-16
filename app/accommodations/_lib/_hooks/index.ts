@@ -1,4 +1,4 @@
 export * from './useCarousel';
 export * from './useInfiniteScroll';
 export * from './useGeolocation';
-export * from './useAccommodationSearch';
+export * from './useAccommodationSearchInfiniteScroll';

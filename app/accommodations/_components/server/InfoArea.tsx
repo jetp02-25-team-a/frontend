@@ -1,19 +1,35 @@
-import { FaStar } from 'react-icons/fa6';
+import {
+  FaEnvelope,
+  FaFacebook,
+  FaGlobe,
+  FaLine,
+  FaPhone,
+  FaStar,
+} from 'react-icons/fa6';
 import BookingForm from '../client/BookingForm';
 import ScrollLink from '../client/ScrollLink';
 
 interface Amenity {
   id: number;
   name: string;
-  type: 'General' | 'Food' | 'Room' | string;
+  type: string;
+}
+
+interface Contact {
+  id: number;
+  type: string;
+  value: string;
 }
 
 interface InfoAreaProps {
   name: string;
   address: string;
   amenities: Amenity[];
-  averageRating: number;
+  averageRating: number | null;
   reviewCount: number;
+  checkInTime: string | null;
+  checkOutTime: string | null;
+  contacts: Contact[];
 }
 
 export default function InfoArea({
@@ -22,74 +38,136 @@ export default function InfoArea({
   amenities,
   averageRating,
   reviewCount,
+  checkInTime,
+  checkOutTime,
+  contacts,
 }: InfoAreaProps) {
   // 動態分組
   const groupedAmenities = amenities.reduce<Record<string, Amenity[]>>(
     (acc, a) => {
-      if (!acc[a.type]) acc[a.type] = [];
-      acc[a.type].push(a);
+      const key = a.type || '其他';
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(a);
       return acc;
     },
     {}
   );
 
-  // 樣式 map + fallback
-  const typeStyleMap: Record<string, { label: string; color: string }> = {
-    General: { label: '一般設施', color: 'bg-blue-100 text-blue-800' },
-    Food: { label: '餐飲', color: 'bg-green-100 text-green-800' },
-    Room: { label: '房內設施', color: 'bg-purple-100 text-purple-800' },
-  };
-  const defaultStyle = { color: 'bg-white text-gray-800' };
-
   return (
     <div className="flex flex-col lg:flex-row gap-24 w-full px-32 relative">
       {/* 左側資訊區 */}
       <div className="flex-1 flex flex-col gap-10">
-        {/* 名稱 + 評分 */}
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-4">
-            <h1 className="text-4xl font-bold">{name}</h1>
-            <p className="text-gray-700 mt-1">{address}</p>
+        {/* 上半區塊：三欄 */}
+        <div className="grid grid-cols-5 gap-8 bg-white border rounded-lg p-6 shadow-sm">
+          {/* 名稱 / 地址 / 入退房 → 佔 2 欄 */}
+          <div className="col-span-2 flex flex-col gap-2 text-left">
+            <h1 className="text-3xl font-bold text-gray-900">{name}</h1>
+            <p className="text-gray-600">{address}</p>
+            <div className="flex flex-col text-sm text-gray-500">
+              <span>入住時間：{checkInTime ?? '—'}</span>
+              <span>退房時間：{checkOutTime ?? '—'}</span>
+            </div>
           </div>
-          <div className="text-right flex flex-col gap-2">
-            <div className="text-lg font-semibold flex justify-center items-center gap-4">
+
+          {/* 留空 → 佔 1 欄 */}
+          <div className="col-span-1"></div>
+
+          {/* 聯絡資訊 → 佔 1 欄 */}
+          <div className="col-span-1 flex flex-col gap-2 text-sm text-left">
+            {contacts.map((c) => {
+              const baseClass =
+                'flex items-center gap-2 px-3 py-1 rounded-md bg-gray-50 text-gray-700 hover:bg-gray-100';
+              switch (c.type) {
+                case 'Phone':
+                  return (
+                    <a key={c.id} href={`tel:${c.value}`} className={baseClass}>
+                      <FaPhone className="text-blue-500" /> {c.value}
+                    </a>
+                  );
+                case 'Email':
+                  return (
+                    <a
+                      key={c.id}
+                      href={`mailto:${c.value}`}
+                      className={baseClass}
+                    >
+                      <FaEnvelope className="text-blue-500" /> {c.value}
+                    </a>
+                  );
+                case 'Website':
+                  return (
+                    <a
+                      key={c.id}
+                      href={c.value}
+                      target="_blank"
+                      className={baseClass}
+                    >
+                      <FaGlobe className="text-blue-500" /> 網站
+                    </a>
+                  );
+                case 'Line':
+                  return (
+                    <span key={c.id} className={baseClass}>
+                      <FaLine className="text-green-500" /> {c.value}
+                    </span>
+                  );
+                case 'Facebook':
+                  return (
+                    <a
+                      key={c.id}
+                      href={c.value}
+                      target="_blank"
+                      className={baseClass}
+                    >
+                      <FaFacebook className="text-blue-700" /> Facebook
+                    </a>
+                  );
+                default:
+                  return (
+                    <span key={c.id} className={baseClass}>
+                      {c.type}: {c.value}
+                    </span>
+                  );
+              }
+            })}
+          </div>
+
+          {/* 評分與評論 → 佔 1 欄 */}
+          <div className="col-span-1 flex flex-col gap-2 text-left">
+            <div className="text-xl font-semibold flex items-center gap-2">
               <FaStar className="text-yellow-400" />
-              <span className="text-black">{averageRating}</span>
+              <span className="text-gray-900">
+                {averageRating !== null ? averageRating.toFixed(1) : '尚無評分'}
+              </span>
             </div>
             <ScrollLink reviewCount={reviewCount} targetId="reviewArea" />
           </div>
         </div>
-        <hr className="w-full text-cg" />
+
         {/* 設施分組 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
-          {Object.entries(groupedAmenities).map(([type, list]) =>
-            list.length > 0 ? (
-              <div key={type} className="flex flex-col gap-8">
-                <h3 className="text-xl font-semibold">
-                  {typeStyleMap[type]?.label || type}
-                </h3>
-                <div className="flex flex-wrap gap-4">
-                  {list.map((a) => (
-                    <span
-                      key={a.id}
-                      className={`px-5 py-1.5 rounded-full text-sm font-medium select-none ${
-                        typeStyleMap[type]?.color || defaultStyle.color
-                      }`}
-                    >
-                      {a.name}
-                    </span>
-                  ))}
-                </div>
+          {Object.entries(groupedAmenities).map(([type, list]) => (
+            <div key={type} className="flex flex-col gap-6">
+              <h3 className="text-lg font-semibold text-gray-800">{type}</h3>
+              <div className="flex flex-wrap gap-3">
+                {list.map((a) => (
+                  <span
+                    key={a.id}
+                    className="px-4 py-1.5 rounded-full text-sm font-medium select-none border bg-blue-50 text-blue-700"
+                  >
+                    {a.name}
+                  </span>
+                ))}
               </div>
-            ) : null
-          )}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* 右側 BookingForm 暫位 */}
+      {/* 右側 BookingForm */}
       <div className="w-full lg:w-[320px] h-[400px] lg:sticky lg:top-24 self-start">
         <div className="h-full border rounded-lg p-4 bg-white shadow">
-          <h2 className="text-lg font-semibold mb-2">Booking</h2>
+          <h2 className="text-lg font-semibold mb-2 text-gray-900">Booking</h2>
           <div className="text-gray-500 text-sm">
             <BookingForm />
           </div>

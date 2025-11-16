@@ -33,17 +33,24 @@ export default async function AIDPage({ params }: AIDProps) {
         <hr className="w-full text-cg" />
       </Section>
 
-      {/* <Section className="bg-lgray">
+      <Section className="bg-lgray">
         <InfoArea
           name={data.name}
           address={data.address}
           amenities={data.amenities}
-          averageRating={data.reviewSummary.averageRating}
+          averageRating={
+            data.reviewSummary.averageRating !== null
+              ? Number(data.reviewSummary.averageRating.toFixed(1))
+              : null
+          }
           reviewCount={data.reviewSummary.reviewCount}
+          checkInTime={data.checkInTime}
+          checkOutTime={data.checkOutTime}
+          contacts={data.contacts}
         />
         <hr className="w-full text-cg" />
       </Section>
-
+      {/* 
       <Section>
         <DescriptionArea
           description={data.description}
