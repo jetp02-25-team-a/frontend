@@ -33,9 +33,11 @@ export default function OpenChatWindows({
   return (
     <div className="absolute right-0 bottom-0 flex gap-2.5 items-end z-10">
       {openChats.map((chatroom, index) => {
+        // key 用唯一值：團體聊天室用 room_id，個人聊天室用 user_id
+        const uniqueKey = chatroom.room_id ? `room_${chatroom.room_id}` : `user_${chatroom.user_id}`;
         return (
           <ChatBox
-            key={index}
+            key={uniqueKey}
             roomId={chatroom.room_id}
             roomTitle={chatroom.room_name}
             userId={chatroom.user_id}

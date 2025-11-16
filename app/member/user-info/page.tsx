@@ -178,18 +178,35 @@ export default function UserInfoPage() {
     }
   };
 
-  //卻認是否存在於小視窗清單中
+  //卻認是否存在於小視窗清單中（加強防禦，避免重複或無效聊天室）
+  // 聊天室去重邏輯：團體聊天室比對 room_id，個人聊天室比對 user_id
   const existChat = (chatsList: ChatInterface[], newChat: ChatInterface) => {
-    const exists = chatsList.some(
-      (chat) =>
-        chat.room_id === newChat.room_id && chat.user_id === newChat.user_id
-    );
-    if (exists) return;
-
-    // 標記為已讀
-    markAsRead(newChat.room_id, newChat.user_id);
-
-    setOpenChats((prev) => [...prev, newChat]);
+    // 團體聊天室（room_id 有值）
+    if (newChat.room_id) {
+      const exists = chatsList.some((chat) => chat.room_id === newChat.room_id);
+      if (exists) return;
+      markAsRead(newChat.room_id, null);
+      setOpenChats((prev) => {
+        const already = prev.some((chat) => chat.room_id === newChat.room_id);
+        if (already) return prev;
+        return [...prev, newChat];
+      });
+      return;
+    }
+    // 個人聊天室（user_id 有值）
+    if (newChat.user_id) {
+      const exists = chatsList.some((chat) => chat.user_id === newChat.user_id);
+      if (exists) return;
+      markAsRead(null, newChat.user_id);
+      setOpenChats((prev) => {
+        const already = prev.some((chat) => chat.user_id === newChat.user_id);
+        if (already) return prev;
+        return [...prev, newChat];
+      });
+      return;
+    }
+    // 其他情況不加入
+    return;
   };
 
   //取得所有行程邀請訊息
