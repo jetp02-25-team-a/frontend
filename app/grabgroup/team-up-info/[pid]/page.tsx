@@ -118,7 +118,7 @@ export default function PlacePage() {
     if (data?.success) {
       setItineraryList(data.data[0]);
     }
-    console.log('itineraryList=>', itineraryList);
+    // console.log('itineraryList=>', itineraryList);
   }, [data]);
 
   function changeTime(time: string) {
@@ -385,13 +385,16 @@ export default function PlacePage() {
         <p className="text-base">
           {itineraryList?.Itineraries?.[0]?.Article?.content}
         </p>
-        <JoinButton
-          className="mx-auto"
-          content="加入我們"
-          onClick={() => {
-            if (user) handleInvite(user?.id, Number(pid));
-          }}
-        />
+        {user && user.id !== itineraryList?.id && (
+          <JoinButton
+            className="mx-auto"
+            content="加入我們"
+            onClick={() => {
+              if (user) handleInvite(user?.id, Number(pid));
+            }}
+          />
+        )}
+
         {toast.show && (
           <Toast
             message={toast.message}
