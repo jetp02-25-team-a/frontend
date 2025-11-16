@@ -158,11 +158,11 @@ export default function UserInfoPage() {
   //標記訊息為已讀
   const markAsRead = async (roomId: number | null, userId: number | null) => {
     try {
-      const endpoint = roomId 
+      const endpoint = roomId
         ? `${API_SERVER}/chat/mark-read-room`
         : `${API_SERVER}/chat/mark-read-user`;
-      
-      const body = roomId 
+
+      const body = roomId
         ? { roomId, userId: user?.id }
         : { senderId: userId, receiverId: user?.id };
 
@@ -185,10 +185,10 @@ export default function UserInfoPage() {
         chat.room_id === newChat.room_id && chat.user_id === newChat.user_id
     );
     if (exists) return;
-    
+
     // 標記為已讀
     markAsRead(newChat.room_id, newChat.user_id);
-    
+
     setOpenChats((prev) => [...prev, newChat]);
   };
 
@@ -262,22 +262,22 @@ export default function UserInfoPage() {
               <div className="flex">
                 <ListButton
                   name="發文"
-                  active={false}
+                  active={options === '發文' ? true : false}
                   onClick={() => setOptions('發文')}
                 />
                 <ListButton
                   name="收藏景點"
-                  active={false}
+                  active={options === '收藏景點' ? true : false}
                   onClick={() => setOptions('收藏景點')}
                 />
                 <ListButton
                   name="好友"
-                  active={false}
+                  active={options === '好友' ? true : false}
                   onClick={() => setOptions('好友')}
                 />
                 <ListButton
                   name="行程"
-                  active={false}
+                  active={options === '行程' ? true : false}
                   onClick={() => {
                     setOptions('行程');
                     handelUserItineraries(); //按下後取得所有行程
@@ -285,7 +285,7 @@ export default function UserInfoPage() {
                 />
                 <ListButton
                   name="通知"
-                  active={true}
+                  active={options === '通知' ? true : false}
                   onClick={() => {
                     setOptions('通知');
                     handelAllInviteMessage(); //按下後刷新
