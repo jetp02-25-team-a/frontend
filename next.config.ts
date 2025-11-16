@@ -15,49 +15,36 @@ const nextConfig: NextConfig = {
   images: {
     // 從遠端連結圖片用的設定
     remotePatterns: [
+      // 🌐 既有的圖片來源
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'picsum.photos' },
-      {
-        protocol: 'https',
-        // ⭐️ 將 Faker 圖片的來源域名加入
-        hostname: 'loremflickr.com',
-        port: '',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3005',
-        pathname: '/**',
-      },
-      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'loremflickr.com', port: '' },
+      { protocol: 'http', hostname: 'localhost', port: '3005', pathname: '/**' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
       { protocol: 'https', hostname: 'maps.googleapis.com' },
       { protocol: 'https', hostname: 'lh4.googleusercontent.com' },
       { protocol: 'https', hostname: 'lh5.googleusercontent.com' },
-      {
-        protocol: 'https',
-        hostname: 'ws.moi.gov.tw',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'upload.wikimedia.org',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'fupo.tw',
-        port: '',
-        pathname: '/**',
-      },
+      
+      // 🏛️ 基於 SQL 檔案中景點圖片的域名配置
+      { protocol: 'https', hostname: 'ws.moi.gov.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'upload.wikimedia.org', pathname: '/**' },
+      { protocol: 'https', hostname: 'fupo.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'encrypted-tbn0.gstatic.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'media-cdn.tripadvisor.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'dynamic-media-cdn.tripadvisor.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.abic.com.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.dbnsa.gov.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.settour.com.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.taiwan.net.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'travel.nantou.gov.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.matsu-nsa.gov.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'kmweb.moa.gov.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'ezgo.ardswc.gov.tw', pathname: '/**' },
+      { protocol: 'https', hostname: 'minimiigo.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'cdntwrunning.biji.co', pathname: '/**' },
+      { protocol: 'https', hostname: 'zh.wikipedia.org', pathname: '/**' },
+      { protocol: 'https', hostname: 'commons.wikimedia.org', pathname: '/**' },
+      { protocol: 'https', hostname: 'drive.google.com', pathname: '/**' },
     ],
   },
   devIndicators: false,
