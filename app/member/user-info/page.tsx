@@ -239,7 +239,7 @@ export default function UserInfoPage() {
 
   return (
     <>
-      <div className="grid grid-cols-[80%_20%] h-screen">
+      <div className="grid grid-cols-[80%_20%] h-[calc(100vh-88px)]">
         {/* 個人資訊區 */}
         <div className="bg-light-orange relative overflow-y-auto scrollbar-hide">
           <div className="flex flex-col items-center py-16 gap-[30px]">
@@ -390,7 +390,7 @@ export default function UserInfoPage() {
           {/* 訊息視窗區  */}
           <OpenChatWindows openChats={openChats} setOpenChats={setOpenChats} />
         </div>
-        <div className="bg-gray-300 flex flex-col h-screen">
+        <div className="bg-gray-300 flex flex-col h-[calc(100vh-88px)]">
           <FriendRecommend />
           {/* <div className="p-2.5 space-y-2.5">
             {friend_data.map((card, index) => {
