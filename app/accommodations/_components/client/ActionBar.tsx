@@ -1,6 +1,6 @@
 'use client';
 
-import { JSX, useState } from 'react';
+import { JSX } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   FaHeart,
@@ -8,6 +8,9 @@ import {
   FaExclamationTriangle,
   FaCalendarPlus,
 } from 'react-icons/fa';
+
+import { useFavoriteAccommodation } from '@/contexts/FavoriteAccommodationContext';
+import LoginModal from './LoginModal';
 
 // 動作類型
 export type ActionType = 'favorite' | 'share' | 'report' | 'plan';
@@ -23,20 +26,16 @@ export interface ActionItem {
 
 interface ActionBarProps {
   title: string;
-  isFavorited: boolean;
   accommodationId: number;
 }
 
-export default function ActionBar({
-  title,
-  isFavorited: initialIsFavorited,
-  accommodationId,
-}: ActionBarProps) {
+export default function ActionBar({ title, accommodationId }: ActionBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
 
-  const [isFavorite, setIsFavorite] = useState(initialIsFavorited);
+  const { isFavorite, toggleFavorite, setShowLoginModal, showLoginModal } =
+    useFavoriteAccommodation();
 
   const handleGoBack = () => {
     if (from === 'list' && window.history.length > 1) {
@@ -46,35 +45,6 @@ export default function ActionBar({
     }
   };
 
-  // 收藏邏輯
-  const handleFavoriteClick = async () => {
-    const newStatus = !isFavorite;
-    setIsFavorite(newStatus);
-
-    try {
-      console.log(`[模擬] 後端請求: ${newStatus ? '收藏' : '取消收藏'}`);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      router.refresh();
-    } catch (error) {
-      setIsFavorite(!newStatus);
-      alert(error + '更新收藏狀態失敗，已回滾。');
-    }
-  };
-
-  // 其他動作邏輯
-  const handleShareClick = () => {
-    console.log(`[模擬] 分享住宿 ${accommodationId}`);
-  };
-
-  const handleReportClick = () => {
-    console.log(`[模擬] 報錯住宿 ${accommodationId}`);
-  };
-
-  const handlePlanClick = () => {
-    console.log(`[模擬] 加入行程 ${accommodationId}`);
-  };
-
-  // 配置化 actions
   const actions: ActionItem[] = [
     {
       type: 'favorite',
@@ -82,14 +52,14 @@ export default function ActionBar({
       icon: (
         <FaHeart
           className={
-            isFavorite
+            isFavorite(accommodationId)
               ? 'text-xl text-red-500 cursor-pointer transition-colors'
               : 'text-xl text-gray-400 hover:text-red-400 cursor-pointer transition-colors'
           }
         />
       ),
-      onClick: handleFavoriteClick,
-      enabled: true, // 已完成 → 顯示
+      onClick: () => toggleFavorite(accommodationId),
+      enabled: true,
     },
     {
       type: 'share',
@@ -97,8 +67,8 @@ export default function ActionBar({
       icon: (
         <FaShareAlt className="text-xl text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
       ),
-      onClick: handleShareClick,
-      enabled: false, // 還沒做 → 不顯示
+      onClick: () => console.log(`[模擬] 分享住宿 ${accommodationId}`),
+      enabled: false,
     },
     {
       type: 'report',
@@ -106,7 +76,7 @@ export default function ActionBar({
       icon: (
         <FaExclamationTriangle className="text-xl text-gray-400 hover:text-yellow-400 cursor-pointer transition-colors" />
       ),
-      onClick: handleReportClick,
+      onClick: () => console.log(`[模擬] 報錯住宿 ${accommodationId}`),
       enabled: false,
     },
     {
@@ -115,43 +85,48 @@ export default function ActionBar({
       icon: (
         <FaCalendarPlus className="text-xl text-gray-400 hover:text-green-400 cursor-pointer transition-colors" />
       ),
-      onClick: handlePlanClick,
+      onClick: () => console.log(`[模擬] 加入行程 ${accommodationId}`),
       enabled: false,
     },
   ];
 
   return (
-    <div className="w-full flex justify-between px-8 py-4">
-      {/* 左側 breadcrumb */}
-      <div className="text-[20px] flex gap-2.5">
-        <a
-          className="px-2.5 cursor-pointer hover:underline transition-colors text-blue-600"
-          onClick={(e) => {
-            e.preventDefault();
-            handleGoBack();
-          }}
-        >
-          Go Back
-        </a>
-        <span className="px-2.5">/</span>
-        <span className="px-2.5">{title}</span>
-      </div>
+    <>
+      <div className="w-full flex justify-between px-8 py-4">
+        {/* 左側 breadcrumb */}
+        <div className="text-[20px] flex gap-2.5">
+          <a
+            className="px-2.5 cursor-pointer hover:underline transition-colors text-blue-600"
+            onClick={(e) => {
+              e.preventDefault();
+              handleGoBack();
+            }}
+          >
+            Go Back
+          </a>
+          <span className="px-2.5">/</span>
+          <span className="px-2.5">{title}</span>
+        </div>
 
-      {/* 右側 actions */}
-      <div className="text-[20px] flex items-center gap-6">
-        {actions
-          .filter((action) => action.enabled)
-          .map((action) => (
-            <div
-              key={action.type}
-              className="flex items-center gap-2.5 cursor-pointer"
-              onClick={action.onClick}
-            >
-              <span>{action.label}</span>
-              {action.icon}
-            </div>
-          ))}
+        {/* 右側 actions */}
+        <div className="text-[20px] flex items-center gap-6">
+          {actions
+            .filter((action) => action.enabled)
+            .map((action) => (
+              <div
+                key={action.type}
+                className="flex items-center gap-2.5 cursor-pointer"
+                onClick={action.onClick}
+              >
+                <span>{action.label}</span>
+                {action.icon}
+              </div>
+            ))}
+        </div>
       </div>
-    </div>
+      {showLoginModal && (
+        <LoginModal onClose={() => setShowLoginModal(false)} />
+      )}
+    </>
   );
 }

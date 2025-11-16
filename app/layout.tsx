@@ -8,6 +8,9 @@ import { AuthProvider } from '@/hooks/use-Auth';
 // 導入 context soket
 import { SocketProvider } from '@/hooks/use-Socket';
 
+// m3 收藏
+import { FavoriteAccommodationProvider } from '../contexts/FavoriteAccommodationContext';
+
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 
@@ -48,11 +51,13 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <SocketProvider>
-            <ToastProvider>
-              <Navbar />
-              {children}
-              <Footer />
-            </ToastProvider>
+            <FavoriteAccommodationProvider>
+              <ToastProvider>
+                <Navbar />
+                {children}
+                <Footer />
+              </ToastProvider>
+            </FavoriteAccommodationProvider>
           </SocketProvider>
         </AuthProvider>
       </body>

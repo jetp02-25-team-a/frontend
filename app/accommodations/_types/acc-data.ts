@@ -30,57 +30,78 @@ export type SearchResponse = {
   };
 };
 
-// 住宿詳細資訊的頂層數據結構
-export interface AccommodationDetail {
+export interface ContactDTO {
   id: number;
-  name: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  checkInTime: string;
-  checkOutTime: string;
-  city: string;
   type: string;
-  contacts: Array<{
-    id: number;
-    type: string;
-    value: string;
-    description: string | null;
-  }>;
-  images: Array<{
-    id: number;
-    url: string;
-    caption: string;
-    isPrimary: boolean;
-    sortOrder: number;
-  }>;
-  amenities: Array<{ id: number; name: string; type: string }>;
-  roomTypes: Array<RoomTypeDetail>;
-  reviews: Array<Review>;
+  value: string;
+  description: string | null;
 }
 
-// 房間類型詳細資訊 (用於 RoomTypesArea)
-export interface RoomTypeDetail {
+export interface ImageDTO {
+  id: number;
+  url: string;
+  caption: string;
+  isPrimary: boolean;
+  sortOrder: number;
+}
+
+export interface AmenityDTO {
   id: number;
   name: string;
-  description: string;
+  type: string;
+}
+
+export interface RoomTypeDTO {
+  id: number;
+  name: string;
+  description: string | null;
   basePrice: number;
   maxCapacity: number;
   totalRooms: number;
   bedType: string;
-  amenities: Array<{ id: number; name: string; type: string }>;
+  amenities: AmenityDTO[];
 }
 
-// 評論結構
-export interface Review {
+export interface UserDTO {
+  id: number;
+  fullName: string;
+  nickname: string;
+  avatar: string;
+}
+
+export interface ReviewDTO {
   id: number;
   ratingScore: number;
   comment: string;
-  reviewDate: string;
-  user: {
-    id: number;
-    fullName: string;
-    nickname: string;
-    avatar: string;
-  };
+  reviewDate: string; // ISO string
+  user: UserDTO;
+}
+
+export interface ReviewSummaryDTO {
+  averageRating: number | null;
+  reviewCount: number;
+}
+
+export interface AccommodationDTO {
+  id: number;
+  name: string;
+  address: string;
+  description: string | null;
+
+  latitude: number | null;
+  longitude: number | null;
+
+  checkInTime: string | null;
+  checkOutTime: string | null;
+
+  city: string;
+  type: string;
+
+  contacts: ContactDTO[];
+  images: ImageDTO[];
+  amenities: AmenityDTO[];
+  roomTypes: RoomTypeDTO[];
+  reviews: ReviewDTO[];
+
+  reviewSummary: ReviewSummaryDTO;
 }
