@@ -17,11 +17,6 @@ import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 import FriendRecommend from './_components/friend-recommend';
 import { useRouter } from 'next/navigation';
 
-// const friend_data = [
-//   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
-//   { id: 2, user_name: '大衝名', avatar: 'image.png', address: '新北產業園區' },
-// ];
-
 //
 interface Member {
   id: number;
@@ -149,8 +144,8 @@ export default function UserInfoPage() {
   //有資料設定contact
   useEffect(() => {
     if (data) {
-      console.log('完整的 contact 資料:', data.data);
-      console.log('allRoomsLatestMessages:', data.data.allRoomsLatestMessages);
+      // console.log('完整的 contact 資料:', data.data);
+      // console.log('allRoomsLatestMessages:', data.data.allRoomsLatestMessages);
       setContact(data.data);
     }
   }, [data]);

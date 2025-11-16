@@ -13,6 +13,7 @@ interface MessageBoxProps {
   userId: number;
   receiverId?: number;
   senderId?: number;
+  messageType: string;
 }
 export default function MessageBox({
   title,
@@ -24,6 +25,7 @@ export default function MessageBox({
   userId,
   receiverId,
   senderId,
+  messageType,
 }: MessageBoxProps) {
   return (
     <div
@@ -60,7 +62,11 @@ export default function MessageBox({
 
       <div className="m-auto w-full">
         <p className="text-[20px] text-black">{title}</p>
-        <p className="text-base text-gray-400">{content}</p>
+        {messageType === 'image' ? (
+          <p className="text-base text-gray-400">[圖片]</p>
+        ) : (
+          <p className="text-base text-gray-400">{content}</p>
+        )}
       </div>
       <div>{time ? formatTime12Hour(time) : ''}</div>
     </div>

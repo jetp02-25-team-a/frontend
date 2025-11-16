@@ -1,14 +1,16 @@
 'use client';
 
 import Chat from './chat';
+import ChatImage from './chat-image';
+
 import Image from 'next/image';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faXmark,
   faPaperclip,
   faEllipsisVertical,
-  faXmark,
   faMinus,
 } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState, useEffect, useRef } from 'react';
 // import { io } from 'socket.io-client';
 import { useSocket } from '@/hooks/use-Socket';
@@ -16,6 +18,7 @@ import { useAuth } from '../../../hooks/use-Auth';
 import { useFetch } from '../../../hooks/useFetch';
 import { API_SERVER } from '../../../config/api-path';
 import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
+import toast from 'react-hot-toast';
 
 interface Member {
   id: number;
@@ -44,7 +47,7 @@ export default function ChatBox({
   const [allMessage, setAllMessage] = useState<any[]>([]); //歷史所有訊息
   const [message, setMessage] = useState<string>(''); //發送的訊息textarea內容
   // const [socket, setSocket] = useState<any>(null);
-
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   // const textAreaRef = useRef<HTMLTextAreaElement>(null); //dom
   const messagesRef = useRef<HTMLDivElement>(null); //dom訊息卷軸
   const { user, login, logout, getAuthHeader, isReady } = useAuth();
@@ -59,7 +62,7 @@ export default function ChatBox({
   useEffect(() => {
     if (!socket) return;
     console.log('💬 聊天連線 id=>', socket.id);
-    
+
     if (roomId) {
       //發送聊天房間號碼 - 使用不同的前綴避免與行程房間衝突
       socket.emit('joinChatRoom', roomId);
@@ -119,7 +122,7 @@ export default function ChatBox({
   //發送訊息
   const sendMessage = (msg: string) => {
     if (!socket || msg.length < 1) return; //輸入為空
-    
+
     console.log('📤 發送訊息:', msg);
     socket.emit(
       'chat',
@@ -138,12 +141,71 @@ export default function ChatBox({
     );
   };
 
+  //上傳圖片
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; // 取得第一個選擇的檔案
+    if (!file) return; //沒選檔案就直接 return
+    //http://localhost:3005/api/chat/upload
+    const url = `${API_SERVER}/chat/upload`;
+    const formData = new FormData();
+    formData.append('image', file);
+    // 傳送 receiverId 或 roomId
+    if (roomId) {
+      formData.append('roomId', String(roomId));
+    }
+    if (userId) {
+      formData.append('receiverId', String(userId));
+    }
+    try {
+      const result = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization:
+            'Bearer ' +
+            JSON.parse(localStorage.getItem('BackpackUserInfo') || '{}').token,
+        },
+        body: formData,
+      });
+      if (result.ok) {
+        refetch();
+        return;
+      } else {
+        toast.error('圖片上傳失敗');
+      }
+    } catch (err) {
+      console.error('圖片上傳失敗:', err);
+    }
+  };
+
   return (
     <div
-      className={`overflow-hidden transition-all duration-300 w-[384px] shadow-[0_4px_4px_rgba(0,0,0,0.8)]  ${
+      className={`overflow-hidden transition-all duration-300 w-[384px] shadow-[0_4px_4px_rgba(0,0,0,0.8)] ${
         isHide ? 'max-h-[1000px]' : 'max-h-12'
       }`}
     >
+      {/* 圖片預覽 */}
+      {previewImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          {/* 右上角叉叉按鈕 */}
+          <button
+            className="absolute top-6 right-8 text-white text-3xl bg-black bg-opacity-60 rounded-full p-2 hover:bg-opacity-80 z-60"
+            onClick={() => setPreviewImage(null)}
+            aria-label="關閉預覽"
+          >
+            <FontAwesomeIcon icon={faXmark} />
+          </button>
+          <div className="max-w-[90vw] max-h-[90vh] relative">
+            <Image
+              width={800}
+              height={800}
+              sizes="100%"
+              src={previewImage}
+              alt="預覽圖片"
+              className=" rounded-lg shadow-lg border-4 border-white"
+            />
+          </div>
+        </div>
+      )}
       <h2 className="text-[20px] px-[15px] py-2.5 flex  items-center justify-between bg-amber-300">
         {roomTitle ? roomTitle : ''}
         {userNickname ? userNickname : ''}
@@ -195,20 +257,43 @@ export default function ChatBox({
 
           {/* 訊息內容 */}
           <div
-            className=" bg-gray-300 py-5 px-[15px] flex flex-col min-h-10  max-h-80 overflow-y-auto"
+            className="bg-gray-300 py-5 px-[15px] flex flex-col min-h-10 max-h-80 overflow-y-auto"
             ref={messagesRef}
           >
-            {/* 訊息 */}
+            {/* 圖片預覽外層 */}
 
             {Array.isArray(allMessage) &&
               allMessage.map((message, index) => {
-                console.log('訊息資料=>', message);
-
-                // ✅ 安全檢查：處理不同的資料格式
                 const senderId = message.Sender?.id || message.senderId;
                 const senderAvatar =
                   message.Sender?.avatar || 'default-avatar.png';
                 const messageTime = message.updatedAt || message.createdAt;
+
+                // if (message.messageType === 'image') {
+                //   return (
+                //     <ChatImage
+                //       key={index}
+                //       imageUrl={`${IMAGE_PATH}chat_photos/${message.content}`}
+                //       avatar={`${AVATAR_PATH}${senderAvatar}`}
+                //       direction={senderId === user?.id ? 'right' : 'left'}
+                //     />
+                //   );
+                // }
+                if (message.messageType === 'image') {
+                  return (
+                    <ChatImage
+                      key={index}
+                      imageUrl={`${IMAGE_PATH}chat_photos/${message.content}`}
+                      avatar={`${AVATAR_PATH}${senderAvatar}`}
+                      direction={senderId === user?.id ? 'right' : 'left'}
+                      onPreview={() =>
+                        setPreviewImage(
+                          `${IMAGE_PATH}chat_photos/${message.content}`
+                        )
+                      }
+                    />
+                  );
+                }
 
                 return (
                   <Chat
@@ -223,7 +308,15 @@ export default function ChatBox({
           </div>
           {/* 輸入框 */}
           <div className="bg-gray-100 px-3 py-3 flex items-center gap-2">
-            <FontAwesomeIcon icon={faPaperclip} className="cursor-pointer" />
+            <label className="cursor-pointer">
+              <FontAwesomeIcon icon={faPaperclip} />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleImageUpload(e)}
+              />
+            </label>
             <textarea
               placeholder="輸入訊息"
               className="border border-gray-400 rounded-xl px-2 py-[5px] w-full resize-none"
@@ -239,7 +332,7 @@ export default function ChatBox({
               }}
             />
             <button
-              className="py-2 w-26 rounded-2xl bg-gray-200 border border-gray-500  cursor-pointer "
+              className="py-1.5 w-26 rounded-xl bg-gray-200 border border-gray-500  cursor-pointer "
               onClick={() => sendMessage(message)}
             >
               送出
