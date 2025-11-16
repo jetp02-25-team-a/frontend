@@ -35,7 +35,11 @@ interface NodeCardProps {
   // 新增刪除節點 callback
   onDeleteNode?: (dayIndex: number, nodeIndex: number) => void;
   // 新增時間調整 callback
-  onTimeChange?: (dayIndex: number, nodeIndex: number, newDuration: number) => void;
+  onTimeChange?: (
+    dayIndex: number,
+    nodeIndex: number,
+    newDuration: number
+  ) => void;
 }
 export default function NodeCard({
   image,
@@ -70,7 +74,10 @@ export default function NodeCard({
   // 點擊外部關閉面板
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(event.target as Node)
+      ) {
         setShowTimePanel(false);
       }
     };
@@ -177,8 +184,17 @@ export default function NodeCard({
         <p className="text-gray-400">{endTime}</p>
       </div>
       <div className="bg-white w-lg h-[97px] flex gap-2.5 p-2.5 hover:shadow-[0_0_15px_5px_rgba(250,250,250,0.7)]">
+        <div className="w-[77px] h-[77px] shrink-0 relative ">
+          <Image
+            fill
+            sizes="100%"
+            src={image}
+            alt=""
+            className="object-cover"
+          ></Image>
+        </div>
         {/* <Image width={77} height={77} src={image} alt=""></Image> */}
-        <img src={image} alt="" className="w-[77px] h-[77px]" />
+        {/* <img src={image} alt="" className="w-[77px] h-[77px]" /> */}
         <div className="w-full">
           {/* <p className="text-red-500">{getTimeCost(duration_minute)}</p> */}
           <h2>{title}</h2>
@@ -206,7 +222,7 @@ export default function NodeCard({
                 <FontAwesomeIcon icon={faClock} className="text-blue-500" />
                 <span className="text-sm font-medium">調整停留時間</span>
               </div>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <label className="text-sm text-gray-600">時間（分鐘）:</label>
@@ -219,11 +235,11 @@ export default function NodeCard({
                     className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
                   />
                 </div>
-                
+
                 <div className="text-xs text-gray-500">
                   目前: {duration_minute} 分鐘 → 新的: {tempDuration} 分鐘
                 </div>
-                
+
                 <div className="flex gap-2">
                   <button
                     onClick={handleTimeConfirm}
