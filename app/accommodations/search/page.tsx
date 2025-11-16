@@ -3,11 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import { useRef } from 'react';
 import { useAccommodationSearch } from '../_lib/_hooks';
-import {
-  useFavorites,
-  useGeolocation,
-  useInfiniteScroll,
-} from '../_lib/_hooks';
+import { useGeolocation, useInfiniteScroll } from '../_lib/_hooks';
 
 import AccCard from '../_components/client/AccCard';
 import Section from '../_components/server/Section';
@@ -17,7 +13,6 @@ export default function SearchPage() {
   const params = useSearchParams();
   const { items, meta, loading, error, setCursor } =
     useAccommodationSearch(params);
-  const { favorites, toggleFavorite } = useFavorites(items);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Infinite Scroll Hook
@@ -49,11 +44,9 @@ export default function SearchPage() {
                   id={item.id}
                   imageUrl={item.mainImage}
                   imageAlt={item.name}
-                  rating={item.averageRating}
+                  avgRating={item.averageRating}
                   name={item.name}
                   location={item.city}
-                  isFavorite={favorites.get(item.id) || false}
-                  onToggleFavorite={() => toggleFavorite(item.id)}
                 />
               ))}
             </div>

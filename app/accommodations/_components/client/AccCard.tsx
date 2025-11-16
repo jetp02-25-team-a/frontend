@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { IMAGE_PATH } from '@/config/image-path';
 
 import { useFavoriteAccommodation } from '@/contexts/FavoriteAccommodationContext';
-import LoginModal from './LoginModal';
 
 // 定義 Props 介面
 export interface AccCardProps {
@@ -28,8 +27,7 @@ export default function AccCard({
   name,
   location,
 }: AccCardProps) {
-  const { isFavorite, toggleFavorite, showLoginModal, setShowLoginModal } =
-    useFavoriteAccommodation();
+  const { isFavorite, toggleFavorite } = useFavoriteAccommodation();
   const heartClass = isFavorite(id)
     ? 'text-xl text-red-500 cursor-pointer transition-colors' // 已收藏
     : 'text-xl text-gray-400 hover:text-red-400 cursor-pointer transition-colors'; // 未收藏

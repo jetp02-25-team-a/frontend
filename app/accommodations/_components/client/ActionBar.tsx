@@ -10,7 +10,6 @@ import {
 } from 'react-icons/fa';
 
 import { useFavoriteAccommodation } from '@/contexts/FavoriteAccommodationContext';
-import LoginModal from './LoginModal';
 
 // 動作類型
 export type ActionType = 'favorite' | 'share' | 'report' | 'plan';
@@ -34,8 +33,7 @@ export default function ActionBar({ title, accommodationId }: ActionBarProps) {
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
 
-  const { isFavorite, toggleFavorite, setShowLoginModal, showLoginModal } =
-    useFavoriteAccommodation();
+  const { isFavorite, toggleFavorite } = useFavoriteAccommodation();
 
   const handleGoBack = () => {
     if (from === 'list' && window.history.length > 1) {
