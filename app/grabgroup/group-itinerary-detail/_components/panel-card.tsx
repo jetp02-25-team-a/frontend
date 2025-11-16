@@ -1,4 +1,5 @@
 'use client';
+import { de } from 'date-fns/locale';
 import Image from 'next/image';
 
 interface PanelCardProps {
@@ -6,6 +7,8 @@ interface PanelCardProps {
   title: string;
   address?: string;
   onClick: () => void;
+  description?: string;
+  displayStatus: 'stay' | 'attraction' | '';
 }
 
 export default function PanelCard({
@@ -13,6 +16,8 @@ export default function PanelCard({
   title,
   address,
   onClick,
+  description,
+  displayStatus,
 }: PanelCardProps) {
   return (
     <>
@@ -21,7 +26,7 @@ export default function PanelCard({
         onClick={onClick}
       >
         <div className="w-[100px] h-[100px] shrink-0 relative overflow-hidden">
-          {image ? (
+          {image && displayStatus === 'attraction' ? (
             <Image
               fill
               src={image}
@@ -39,6 +44,10 @@ export default function PanelCard({
         <div className="w-full">
           <h2 className="text-xl">{title}</h2>
           <p>{address && address.length > 20 ? address + '...' : address}</p>
+          {/* 有描述顯示描述 */}
+          {description && description.length > 50 && (
+            <p>{description.slice(0, 50) + '...'}</p>
+          )}
         </div>
       </div>
     </>

@@ -31,11 +31,16 @@ export interface mapPoint {
   latitude: number; //預設台北101
   longitude: number;
 }
+interface DisplayStatus {
+  state: 'stay' | 'attraction' | '';
+}
 
 export default function GroupItineraryDetailPage() {
   const params = useSearchParams().get('itineraryId');
   const itineraryId = params;
-
+  const [displayStatus, setDisplayStatus] = useState<DisplayStatus>({
+    state: '',
+  });
   const { user } = useAuth();
 
   //處理滑動
@@ -107,6 +112,10 @@ export default function GroupItineraryDetailPage() {
   // 這個函式會傳給子組件
   const handleIframeVisible = (show: boolean) => {
     setIsIframeVisible(show);
+    // 當面板關閉時，重置 displayStatus
+    if (!show) {
+      setDisplayStatus({ state: '' });
+    }
   };
 
   // 🔄 拖拽處理函數
@@ -319,6 +328,9 @@ export default function GroupItineraryDetailPage() {
     }
   }, [showNearbyMode, mapPoint.latitude, mapPoint.longitude, searchRadius]);
 
+  useEffect(() => {
+    console.log('displayStatus', displayStatus.state);
+  }, [displayStatus]);
   return (
     <>
       <ItineraryEditor itineraryData={itineraryData} />
@@ -535,12 +547,20 @@ export default function GroupItineraryDetailPage() {
                         icon={faPlus}
                         btn_name="加入行程"
                         onClick={() => {
-                          console.log('down');
                           setCurrentDayIndex(index); //設置當天日期，使用陣列索引
+                          setDisplayStatus({ state: 'attraction' });
                           setIsIframeVisible(true);
                         }}
                       />
-                      <AddItineraryButton icon={faHouse} btn_name="加入住宿" />
+                      <AddItineraryButton
+                        icon={faHouse}
+                        btn_name="加入住宿"
+                        onClick={() => {
+                          setCurrentDayIndex(index); //設置當天日期，使用陣列索引
+                          setDisplayStatus({ state: 'stay' });
+                          setIsIframeVisible(true);
+                        }}
+                      />
                     </div>
                   </div>
                 );
@@ -643,16 +663,19 @@ export default function GroupItineraryDetailPage() {
             />
           </div> */}
           {/* 彈出視窗 */}
-          {isIframeVisible && currentDayIndex !== null && (
-            <div className="absolute inset-0 z-50 flex left-3 top-3">
-              <PlacePanel
-                visible={isIframeVisible}
-                onSend={handleIframeVisible}
-                currentId={currentDayIndex}
-                onAddNode={handleAddNode}
-              />
-            </div>
-          )}
+          {isIframeVisible &&
+            currentDayIndex !== null &&
+            displayStatus.state && (
+              <div className="absolute inset-0 z-50 flex left-3 top-3">
+                <PlacePanel
+                  visible={isIframeVisible}
+                  onSend={handleIframeVisible}
+                  currentId={currentDayIndex}
+                  onAddNode={handleAddNode}
+                  displayStatus={displayStatus.state}
+                />
+              </div>
+            )}
         </div>
       </div>
     </>
