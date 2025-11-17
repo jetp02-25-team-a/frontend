@@ -1,7 +1,50 @@
+// 'use client';
+
+// import React from 'react';
+// import { ARTICLE_PHOTOS_PATH } from '../../../config/image-path';
+
+// interface DetailFormProps {
+//   article: {
+//     title?: string;
+//     location?: string;
+//     content?: string;
+//      photos?: string | string[];
+//   };
+// }
+
+// export default function DetailForm({ article }: DetailFormProps) {
+//   const photoUrl = Array.isArray(article.photos)
+//     ? article.photos[0]
+//     : article.photos;
+
+//   return (
+//     <div className="relative bg-white shadow-lg rounded-2xl p-6 overflow-hidden">
+//       {/* 🔸 Gambar di kanan atas */}
+//       {/* {http://localhost:3005/api/9840962b-43fb-4690-bf35-b3dbfefa12ed.jpg} && ( */}
+//       <div className="absolute top-4 right-4 w-32 h-32">
+//         <img
+//           // src={`${ARTICLE_PHOTOS_PATH}${photoUrl}`}
+//           alt={article.title || 'Article Photo'}
+//           className="w-full h-full object-cover rounded-lg shadow-md border"
+//         />
+//       </div>
+
+//       {/* 🔹 Konten artikel */}
+//       <div className="pr-40">
+//         {' '}
+//         {/* beri ruang untuk gambar kanan */}
+//         <h2 className="text-2xl font-bold mb-2">{article.title}</h2>
+//         <p className="text-gray-500 mb-4">📍 {article.location}</p>
+//         <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+//           {article.content}
+//         </p>
+//       </div>
+//     </div>
+//   );
+// }
 'use client';
 
 import React from 'react';
-import { ARTICLE_PHOTOS_PATH } from '../../../config/image-path';
 
 interface DetailFormProps {
   article: {
@@ -13,35 +56,31 @@ interface DetailFormProps {
 }
 
 export default function DetailForm({ article }: DetailFormProps) {
-  const photoUrl = Array.isArray(article.photos)
-    ? article.photos[0]
-    : article.photos;
-
   return (
-    <div className="relative bg-white shadow-lg rounded-2xl p-6 overflow-hidden">
-      {/* 🔸 Gambar di kanan atas */}
-      {/* {http://localhost:3005/api/9840962b-43fb-4690-bf35-b3dbfefa12ed.jpg} && ( */}
-      <div className="absolute top-4 right-4 w-32 h-32">
-        <img
-          src={`${ARTICLE_PHOTOS_PATH}${photoUrl}`}
-          alt={article.title || 'Article Photo'}
-          className="w-full h-full object-cover rounded-lg shadow-md border"
-        />
-      </div>
-
-      {/* 🔹 Konten artikel */}
-      <div className="pr-40">
-        {' '}
-        {/* beri ruang untuk gambar kanan */}
-        <h2 className="text-2xl font-bold mb-2">{article.title}</h2>
-        <p className="text-gray-500 mb-4">📍 {article.location}</p>
-        <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-          {article.content}
-        </p>
-      </div>
+    <div className="bg-white shadow-lg rounded-2xl p-6">
+      <h2 className="text-2xl font-bold mb-2">{article.title}</h2>
+      <p className="text-gray-500 mb-4">📍 {article.location}</p>
+      <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+        {article.content}
+      </p>
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // 'use client';
 
