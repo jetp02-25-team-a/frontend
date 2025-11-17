@@ -1,12 +1,12 @@
 'use client';
 
-import InfoButton from './_components/InfoButton';
-import JoinButton from '@/components/ui/join-button';
-import { addTimeWrap } from '../utils';
+// import InfoButton from './_components/InfoButton';
+// import JoinButton from '@/components/ui/join-button';
+// import { addTimeWrap } from '../utils';
 import { Children, useState } from 'react';
-import Map from './_components/GoogleMap';
-import MessageBox from './_components/MessageBox';
-import ResponseBox from './_components/ResponseBox';
+// import Map from './_components/GoogleMap';
+// import MessageBox from './_components/MessageBox';
+// import ResponseBox from './_components/ResponseBox';
 import Button from '../_components/Button';
 import { useRouter } from 'next/navigation';
 

@@ -60,7 +60,7 @@ export default function FriendRecommend() {
   }
 
   return (
-    <div className="p-2.5 space-y-2.5">
+    <div className="p-2.5 space-y-2.5 h-[360px]">
       {friendRecommend && friendRecommend.length > 0 ? (
         friendRecommend.map((friend: any, index: number) => (
           <FriendCard

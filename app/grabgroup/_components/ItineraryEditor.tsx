@@ -21,16 +21,22 @@ export function ItineraryEditor({ itineraryData }: itineraryData) {
     []
   );
 
-    // 監聽 itineraryData 改變 → 自動觸發儲存（防抖）
+  // 監聽 itineraryData 改變 → 自動觸發儲存（防抖）
   useEffect(() => {
     console.log('重新載入.............!');
     if (itineraryData && itineraryData.length > 0) {
       // ✅ 只有當資料有 ID 且不是初始載入時才保存
       const hasValidIds = itineraryData.every((day: any) => day.id);
-      const hasNodes = itineraryData.some((day: any) => day.Nodes && day.Nodes.length > 0);
-      
-      console.log('自動保存檢查:', { hasValidIds, hasNodes, dataLength: itineraryData.length });
-      
+      const hasNodes = itineraryData.some(
+        (day: any) => day.Nodes && day.Nodes.length > 0
+      );
+
+      console.log('自動保存檢查:', {
+        hasValidIds,
+        hasNodes,
+        dataLength: itineraryData.length,
+      });
+
       // 只有在有有效ID且有節點時才觸發保存，避免覆蓋資料
       if (hasValidIds && hasNodes) {
         console.log('✅ 觸發自動保存');
@@ -41,5 +47,5 @@ export function ItineraryEditor({ itineraryData }: itineraryData) {
     }
   }, [itineraryData, saveItinerary]);
 
-  return <div>行程編輯中...</div>;
+  return <div></div>;
 }

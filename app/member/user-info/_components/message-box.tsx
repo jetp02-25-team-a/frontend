@@ -30,7 +30,7 @@ export default function MessageBox({
   return (
     <div
       onClick={onClick}
-      className="w-full h-20 flex border-b-2 border-gray-600 bg-white px-2.5 py-2 gap-2"
+      className="w-full h-20 flex border-b-2 border-gray-300 bg-white px-2.5 py-2 gap-2"
     >
       {/* 綠色球 如果沒有為假就是沒有讀 翻轉做判斷*/}
       {/* 發送者如果不是我 就會顯示綠球 */}

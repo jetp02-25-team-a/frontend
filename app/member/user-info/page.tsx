@@ -16,6 +16,8 @@ import { API_SERVER } from '../../config/api-path';
 import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 import FriendRecommend from './_components/friend-recommend';
 import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 //
 interface Member {
@@ -416,10 +418,14 @@ export default function UserInfoPage() {
               );
             })}
           </div> */}
+          <div className=" flex justify-between items-center px-6 py-2.5  bg-white border-t-2 border-gray-400">
+            <h4 className="text-start text-[24px] text-gray-500">聯絡人</h4>
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              className="text-2xl cursor-pointer"
+            />
+          </div>
 
-          <h4 className="text-center text-[24px] py-2.5 border-b-2 border-gray-600 bg-white">
-            聯絡人
-          </h4>
           {/* 所有聯絡人區 - 添加滾動容器 */}
           <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
             <ContactList
