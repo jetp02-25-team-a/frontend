@@ -7,6 +7,13 @@ import Image from 'next/image';
 import { Roboto, Plus_Jakarta_Sans } from 'next/font/google';
 import InputField from '../components/ui/input-field';
 import toast from 'react-hot-toast';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faChevronLeft,
+  faChevronRight,
+} from '@fortawesome/free-solid-svg-icons';
+import AttractionCard from '../components/ui/attraction-card';
+import FoodCard from '../components/ui/food-card';
 const roboto = Roboto({
   subsets: ['latin'],
   weight: ['400', '700', '900'],
@@ -121,13 +128,13 @@ export default function Home() {
               alt=""
               className="absolute left-35 bottom-25"
             />
-            <Image
+            {/* <Image
               width={139}
               height={139}
               src="/images/message.png"
               alt=""
               className="absolute left-[35px] bottom-[25px]"
-            />
+            /> */}
             <Image
               width={247}
               height={399}
@@ -154,7 +161,7 @@ export default function Home() {
               height={139}
               src="/images/message.png"
               alt=""
-              className="absolute left-[150px] bottom-[25px]"
+              className="absolute left-[380px] bottom-[80px]"
             />
           </div>
           <div className="flex flex-col w-[461px] gap-[30px]">
@@ -202,6 +209,62 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div>
+      {/* 尋找景點 */}
+      <div className="bg-[url('/Banner.png')] bg-cover bg-center w-full h-[650px] px-[160px] py-[150px]">
+        <div className="space-y-[112px]">
+          <div className="flex justify-between">
+            <h1
+              className={`text-white text-[40px] ${jakarta.className} font-extrabold super-bold leading-[0.9] mb-0`}
+            >
+              快速了解當地景點
+            </h1>
+            <div className="flex gap-3">
+              <button className="w-12 h-12 border-white border rounded-xl mr-4 flex items-center justify-center">
+                <FontAwesomeIcon
+                  icon={faChevronLeft}
+                  className="text-3xl text-white"
+                />
+              </button>
+              <button className="w-12 h-12 border-white border rounded-xl mr-4 flex items-center justify-center">
+                <FontAwesomeIcon
+                  icon={faChevronRight}
+                  className="text-3xl text-white"
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* 卡片區 */}
+          <div className="flex gap-12">
+            <div className="space-y-[103px]">
+              <p className="text-white text-[20px]">
+                想快速掌握一個城市的魅力嗎？我們為你精選最具代表性的地標與在地特色，從文化風情到自然景觀，一次帶你看懂當地精華。無論是短暫停留或深度探索，都能在這裡找到屬於你的完美起點。
+              </p>
+              <Link href="/grabgroup/team-up">
+                <JoinButton content="瞭解更多" mode="white" />
+              </Link>
+            </div>
+
+            <AttractionCard />
+            <AttractionCard />
+          </div>
+        </div>
+      </div>
+      {/* 尋找美食 */}
+      <div className="bg-[#F28066] h-[480px] p-16">
+        <FoodCard
+          imageUrl="/images/food1.png"
+          title="金峰魯肉飯「必吃滷肉飯」"
+          avatarUrl="/avatar_default.png"
+          address="台北市中正區羅斯福路一段10號"
+        />
+        <FoodCard
+          imageUrl="/caption.jpg"
+          title="師園鹽酥雞「師園雞排必嚐」"
+          avatarUrl="/avatar_default.png"
+          address="台北市大安區師大路39巷14號"
+        />
       </div>
     </>
   );
