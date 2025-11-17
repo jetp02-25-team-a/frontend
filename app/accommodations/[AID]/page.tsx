@@ -5,6 +5,9 @@ import GalleryArea from '../_components/server/GalleryArea';
 import RoomTypesArea from '../_components/server/RoomTypesArea';
 import Section from '../_components/server/Section';
 import InfoArea from '../_components/server/InfoArea';
+import { apiFetch } from '../_lib/_api';
+import { AccommodationDTO } from '../_types';
+import { buildImageUrl } from '../_lib/_utils';
 
 interface AIDProps {
   params: { AID: string };
@@ -14,219 +17,80 @@ export default async function AIDPage({ params }: AIDProps) {
   const { AID } = await Promise.resolve(params);
   const id = +AID || 0;
 
-  const mockData = {
-    images: [
-      {
-        id: 1,
-        url: 'https://picsum.photos/id/684/800/600',
-        caption: '自由廣場主圖',
-        isPrimary: true,
-        sortOrder: 1,
-      },
-      {
-        id: 2,
-        url: 'https://picsum.photos/id/613/800/600',
-        caption: '現代建築',
-        isPrimary: false,
-        sortOrder: 2,
-      },
-      {
-        id: 3,
-        url: 'https://picsum.photos/id/681/800/600',
-        caption: '歷史建築',
-        isPrimary: false,
-        sortOrder: 3,
-      },
-      {
-        id: 4,
-        url: 'https://picsum.photos/id/134/800/600',
-        caption: '夜景街道',
-        isPrimary: false,
-        sortOrder: 4,
-      },
-      {
-        id: 5,
-        url: 'https://picsum.photos/id/1025/800/600',
-        caption: '房間內部',
-        isPrimary: false,
-        sortOrder: 5,
-      },
-      {
-        id: 6,
-        url: 'https://picsum.photos/id/1035/800/600',
-        caption: '早餐區',
-        isPrimary: false,
-        sortOrder: 6,
-      },
-    ],
-    name: '圓山超極無敵宇宙大飯店',
-    address: '106台北市大安區復興南路一段390號2樓',
-    amenities: [
-      { id: 1, name: '免費 WiFi', type: 'General' },
-      { id: 2, name: '健身房', type: 'General' },
-      { id: 3, name: '早餐供應', type: 'Food' },
-      { id: 4, name: '迷你吧', type: 'Room' },
-      { id: 5, name: '空調', type: 'Room' },
-      { id: 6, name: '24 小時櫃檯', type: 'General' },
-      { id: 7, name: '電梯', type: 'General' },
-      { id: 8, name: '浴缸', type: 'Room' },
-      { id: 9, name: '咖啡機', type: 'Room' },
-      { id: 10, name: '餐廳', type: 'Food' },
-      { id: 11, name: '游泳池', type: 'Spa' },
-      { id: 12, name: '桑拿房', type: 'Spa' },
-      { id: 13, name: '停車場', type: 'Parking' },
-      { id: 14, name: '代客泊車', type: 'Parking' },
-      { id: 15, name: '會議室', type: 'Business' },
-      { id: 16, name: '商務中心', type: 'Business' },
-      { id: 17, name: '酒吧', type: 'Entertainment' },
-      { id: 18, name: '卡拉OK', type: 'Entertainment' },
-      { id: 19, name: '花園', type: 'Outdoor' },
-      { id: 20, name: '露天陽台', type: 'Outdoor' },
-    ],
-    reviewSummary: {
-      averageRating: 4.8,
-      reviewCount: 34,
-    },
-    description:
-      '圓山超極無敵宇宙大飯店位於台北市中心，步行 5 分鐘即可抵達捷運站。飯店提供現代化設施與舒適客房，適合商務與休閒旅客。每日供應中西式早餐，並設有健身房與 24 小時櫃檯服務。',
-    checkInTime: '15:00',
-    checkOutTime: '11:00',
-    roomTypes: [
-      {
-        id: 1,
-        name: '標準雙人房',
-        price: 3200,
-        maxGuests: 2,
-        amenities: [
-          { id: 2, name: '空調', type: 'Room' },
-          { id: 3, name: '迷你吧', type: 'Room' },
-        ],
-      },
-      {
-        id: 2,
-        name: '豪華家庭房',
-        price: 5200,
-        maxGuests: 4,
-        amenities: [
-          { id: 2, name: '空調', type: 'Room' },
-          { id: 4, name: '浴缸', type: 'Room' },
-          { id: 5, name: '咖啡機', type: 'Room' },
-        ],
-      },
-      {
-        id: 3,
-        name: '商務套房',
-        price: 6800,
-        maxGuests: 2,
-        amenities: [
-          { id: 2, name: '空調', type: 'Room' },
-          { id: 3, name: '迷你吧', type: 'Room' },
-          { id: 5, name: '咖啡機', type: 'Room' },
-        ],
-      },
-      {
-        id: 4,
-        name: '景觀雙人房',
-        price: 4500,
-        maxGuests: 2,
-        amenities: [
-          { id: 6, name: '陽台', type: 'Outdoor' },
-          { id: 7, name: '電視', type: 'Room' },
-          { id: 8, name: '免費 WiFi', type: 'General' },
-        ],
-      },
-      {
-        id: 5,
-        name: '頂級套房',
-        price: 12000,
-        maxGuests: 4,
-        amenities: [
-          { id: 9, name: '私人泳池', type: 'Spa' },
-          { id: 10, name: '桑拿房', type: 'Spa' },
-          { id: 11, name: '客廳', type: 'Room' },
-        ],
-      },
-      {
-        id: 6,
-        name: '經濟單人房',
-        price: 2200,
-        maxGuests: 1,
-        amenities: [
-          { id: 12, name: '空調', type: 'Room' },
-          { id: 13, name: '書桌', type: 'Room' },
-        ],
-      },
-      {
-        id: 7,
-        name: '親子房',
-        price: 5800,
-        maxGuests: 4,
-        amenities: [
-          { id: 14, name: '遊戲區', type: 'Entertainment' },
-          { id: 15, name: '嬰兒床', type: 'Room' },
-          { id: 16, name: '微波爐', type: 'Room' },
-        ],
-      },
-      {
-        id: 8,
-        name: '和式榻榻米房',
-        price: 5000,
-        maxGuests: 3,
-        amenities: [
-          { id: 17, name: '榻榻米', type: 'Room' },
-          { id: 18, name: '日式浴衣', type: 'Room' },
-          { id: 19, name: '茶具組', type: 'Room' },
-        ],
-      },
-    ],
-    latitude: 25.033,
-    longitude: 121.543,
-  };
+  const data = await apiFetch<AccommodationDTO>(`/m3/accommodations/${id}`);
 
-  const mockFavorite = {
-    isFavorite: true,
-  };
   return (
     <>
       <Section>
         <GalleryArea
-          images={mockData.images}
-          title={mockData.name}
-          isFavorited={mockFavorite.isFavorite}
+          images={data.images.map((img) => ({
+            ...img,
+            url: buildImageUrl(img.url),
+          }))}
+          title={data.name}
           accommodationId={id}
         />
         <hr className="w-full text-cg" />
       </Section>
+
       <Section className="bg-lgray">
         <InfoArea
-          name={mockData.name}
-          address={mockData.address}
-          amenities={mockData.amenities}
-          averageRating={mockData.reviewSummary.averageRating}
-          reviewCount={mockData.reviewSummary.reviewCount}
+          name={data.name}
+          address={data.address}
+          amenities={data.amenities}
+          averageRating={
+            data.reviewSummary.averageRating !== null
+              ? Number(data.reviewSummary.averageRating.toFixed(1))
+              : null
+          }
+          reviewCount={data.reviewSummary.reviewCount}
+          checkInTime={data.checkInTime}
+          checkOutTime={data.checkOutTime}
+          contacts={data.contacts}
         />
         <hr className="w-full text-cg" />
       </Section>
+
       <Section>
-        <DescriptionArea
-          description={mockData.description}
-          checkInTime={mockData.checkInTime}
-          checkOutTime={mockData.checkOutTime}
-        />
+        <DescriptionArea description={data.description ?? ''} />
         <hr className="w-full text-cg" />
       </Section>
+
       <Section className="bg-lgray">
-        <RoomTypesArea roomTypes={mockData.roomTypes} />
+        <RoomTypesArea roomTypes={data.roomTypes} />
         <hr className="w-full text-cg" />
       </Section>
+
       <Section>
-        <MapArea latitude={mockData.latitude} longitude={mockData.longitude} />
+        <MapArea
+          id={data.id}
+          latitude={data.latitude}
+          longitude={data.longitude}
+          name={data.name}
+          city={data.city}
+        />
         <hr className="w-full text-cg" />
       </Section>
+
       <Section className="bg-lgray">
         <div id="reviewArea" className="scroll-mt-24"></div>
-        <ReviewArea accommodationId={id} />
-        <hr className="w-full text-cg" />
+        {data.reviewSummary.reviewCount > 0 ? (
+          // 情況一：有評論，渲染 ReviewArea Client Component
+          <>
+            <div id="reviewArea" className="scroll-mt-24"></div>
+            <ReviewArea
+              accommodationId={id}
+              initialReviews={data.reviews}
+              reviewCount={data.reviewSummary.reviewCount}
+            />
+            <hr className="w-full text-cg" />
+          </>
+        ) : (
+          // 情況二：無評論，渲染靜態提示
+          <p className="p-8 text-gray-500">
+            尚無用戶評論。成為第一個分享您入住體驗的人吧！
+          </p>
+        )}
       </Section>
     </>
   );

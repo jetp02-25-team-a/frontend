@@ -2,10 +2,8 @@
 
 import { AccommodationListDTO } from '../../_types';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import ComponentsAccCard from './AccCard';
+import AccCard from './AccCard';
 import { useCarousel } from '../../_lib/_hooks';
-import { useFavoritesContext } from '../../_lib/_context';
-import LoginModal from './LoginModal';
 
 export interface CarouselContentProps {
   title: string;
@@ -18,10 +16,6 @@ const GAP_WIDTH = 20; // 卡片間距 gap-5 (約 20px)
 const CARD_FULL_SIZE = CARD_WIDTH + GAP_WIDTH;
 
 export default function CarouselContent({ title, data }: CarouselContentProps) {
-  // 狀態管理：追蹤每個卡片的收藏狀態
-  const { toggleFavorite, isFavorite, showLoginModal, setShowLoginModal } =
-    useFavoritesContext();
-
   // 捲動邏輯
   const { moveCarousel, translateX, isAtStart, isAtEnd } = useCarousel(
     3, // 每次移動幾張
@@ -41,16 +35,13 @@ export default function CarouselContent({ title, data }: CarouselContentProps) {
   // 卡片渲染邏輯
   const cards = data.map((card) => (
     <div key={card.id} className="shrink-0">
-      <ComponentsAccCard
+      <AccCard
         id={card.id}
         imageUrl={card.mainImage}
         imageAlt={card.name}
-        rating={card.averageRating}
+        avgRating={card.averageRating}
         name={card.name}
         location={card.city}
-        // 傳遞狀態和事件處理函式
-        isFavorite={isFavorite(card.id)}
-        onToggleFavorite={toggleFavorite}
       />
     </div>
   ));
@@ -97,9 +88,6 @@ export default function CarouselContent({ title, data }: CarouselContentProps) {
           </div>
         </div>
       </div>
-      {showLoginModal && (
-        <LoginModal onClose={() => setShowLoginModal(false)} />
-      )}
     </>
   );
 }

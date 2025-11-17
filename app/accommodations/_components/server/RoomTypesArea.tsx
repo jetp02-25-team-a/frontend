@@ -1,16 +1,10 @@
-export interface RoomType {
-  id: number;
-  name: string;
-  price: number;
-  maxGuests: number;
-  amenities: { id: number; name: string; type: string }[];
-}
+import { RoomTypeDTO } from '../../_types';
 
 export interface RoomTypesAreaProps {
-  roomTypes: RoomType[];
+  roomTypes: RoomTypeDTO[];
 }
 
-function RoomCard({ room }: { room: RoomType }) {
+function RoomCard({ room }: { room: RoomTypeDTO }) {
   return (
     <div className="w-full h-full border rounded-lg shadow bg-white p-6 flex flex-col gap-10">
       {/* 房型名稱 */}
@@ -18,10 +12,19 @@ function RoomCard({ room }: { room: RoomType }) {
 
       {/* 價格 + 人數 */}
       <div className="flex justify-between text-gray-700">
-        <span>NT$ {room.price}</span>
-        <span>最多 {room.maxGuests} 人</span>
+        <span>價格</span>
+        <span>NT$ {room.basePrice}</span>
       </div>
 
+      <div className="flex justify-between text-gray-700">
+        <span>人數</span>
+        <span>最多 {room.maxCapacity} 人</span>
+      </div>
+
+      <div className="flex justify-between text-gray-700">
+        <span>床型</span>
+        <span>{room.bedType}</span>
+      </div>
       <hr className="w-full text-cgray" />
 
       {/* 房型設施 */}

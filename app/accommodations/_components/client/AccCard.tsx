@@ -7,33 +7,28 @@ import Link from 'next/link';
 
 import { IMAGE_PATH } from '@/config/image-path';
 
+import { useFavoriteAccommodation } from '@/contexts/FavoriteAccommodationContext';
+
 // 定義 Props 介面
-export interface ComponentsAccCardProps {
+export interface AccCardProps {
   id: number;
-  // 圖片資料
   imageUrl: string;
   imageAlt: string;
-  // 評分
-  rating: number | null;
-  // 內容資料
+  avgRating: number | null;
   name: string;
   location: string;
-  // 互動狀態與事件
-  isFavorite: boolean;
-  onToggleFavorite: (cardId: number) => void;
 }
 
-export default function ComponentsAccCard({
+export default function AccCard({
   id,
   imageUrl,
   imageAlt,
-  rating,
+  avgRating,
   name,
   location,
-  isFavorite,
-  onToggleFavorite,
-}: ComponentsAccCardProps) {
-  const heartClass = isFavorite
+}: AccCardProps) {
+  const { isFavorite, toggleFavorite } = useFavoriteAccommodation();
+  const heartClass = isFavorite(id)
     ? 'text-xl text-red-500 cursor-pointer transition-colors' // 已收藏
     : 'text-xl text-gray-400 hover:text-red-400 cursor-pointer transition-colors'; // 未收藏
 
@@ -65,7 +60,9 @@ export default function ComponentsAccCard({
               {/* 星星圖示，這裡使用 react-icons/fa 的 FaStar */}
               <FaStar className="text-yellow-400 mr-1" />
               {/* 星星顏色為黃色，右邊距 */}
-              <span>{rating != null ? rating.toFixed(1) : '尚無評分'}</span>
+              <span>
+                {avgRating != null ? avgRating.toFixed(1) : '尚無評分'}
+              </span>
             </div>
           </div>
 
@@ -107,7 +104,7 @@ export default function ComponentsAccCard({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                onToggleFavorite(id);
+                toggleFavorite(id);
               }}
             >
               <FaHeart

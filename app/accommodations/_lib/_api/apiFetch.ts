@@ -39,7 +39,7 @@ export async function apiFetch<T>(
   }
 
   // 🎯 防護 1: 網路請求級別的 try-catch 由 Hook 外層處理
-  const res = await fetch(url, options);
+  const res = await fetch(url, finalOptions);
 
   // 1. 處理 401 錯誤 (未經授權)
   if (res.status === 401) {
