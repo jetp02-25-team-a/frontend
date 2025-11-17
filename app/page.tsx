@@ -19,6 +19,7 @@ const roboto = Roboto({
   weight: ['400', '700', '900'],
   variable: '--font-roboto',
 });
+import { motion } from 'framer-motion';
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -43,18 +44,43 @@ export default function Home() {
           >
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;隨心旅行
           </h1>
-          <h2
+          <motion.h2
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.4 }}
             className={`text-[#181E4B] text-[60px] ${roboto.className} font-extrabold super-bold leading-[0.95] mt-2`}
           >
-            <span className="text-[#FF5F57]">制訂你的</span>專屬行程。
-          </h2>
+            <span className="text-[#FF5F57]">制訂你的</span>
+            專屬行程。
+          </motion.h2>
           <p>我們將美食、風景與行程串連，讓旅行回到最純粹的自由。</p>
           <InputField />
         </div>
         {/* 圖片區 */}
         <div className="relative w-[700px] shrink-0">
-          <div className="bg-[#FB864B] rounded-full w-[30px] h-[30px] absolute right-30 top-0 z-10"></div>
-          <div className="bg-[#53B2CC] rounded-full w-[51px] h-[51px] absolute right-25 top-120 z-10"></div>
+          <motion.div
+            initial={{ opacity: 1, x: 0 }}
+            animate={{ x: [15, 0, 0, 15] }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            <div className="bg-[#FB864B] rounded-full w-[30px] h-[30px] absolute right-30 top-0 z-10"></div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 1, x: 0 }}
+            animate={{ x: [0, 10, -10, 0] }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            <div className="bg-[#53B2CC] rounded-full w-[51px] h-[51px] absolute right-25 top-120 z-10"></div>
+          </motion.div>
 
           <Image
             src="/images/item1.png"
@@ -70,27 +96,51 @@ export default function Home() {
             height={120}
             className="absolute left-[30px] top-80 z-10"
           />
-          <Image
-            src="/images/item3.png"
-            alt="item3"
-            width={73}
-            height={73}
-            className="absolute left-[130px] top-6 z-10"
-          />
-          <Image
-            src="/images/item4.png"
-            alt="item1"
-            width={127}
-            height={113}
-            className="absolute mr-10 right-[30px] top-25 z-10"
-          />
-          <Image
-            src="/images/Group 593.png"
-            alt="group593"
-            width={950}
-            height={674}
-            className="absolute"
-          />
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            transition={{ duration: 0.4 }}
+          >
+            <Image
+              src="/images/item3.png"
+              alt="item3"
+              width={73}
+              height={73}
+              className="absolute left-[130px] top-6 z-10"
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 50 }}
+            transition={{ duration: 0.4 }}
+            className="z-200"
+          >
+            <Image
+              src="/images/item4.png"
+              alt="item1"
+              width={127}
+              height={113}
+              className="absolute mr-10 right-[30px] top-25 z-10"
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <Image
+              src="/images/Group 593.png"
+              alt="group593"
+              width={950}
+              height={674}
+              className="absolute"
+            />
+          </motion.div>
+
           <div
             className="absolute w-[416] h-[416] rounded-full blur-2xl -ml-40 mt-50
   bg-[radial-gradient(circle_at_center,rgba(254,188,47,0.5)_0%,rgba(254,188,47,0.3)_60%,rgba(255,255,255,255)_100%)] -z-10"
