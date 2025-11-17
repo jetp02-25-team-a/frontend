@@ -13,9 +13,10 @@ import { addMinutes } from 'date-fns';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import Link from 'next/link';
-import Toast from '../_components/Toast';
+// import Toast from '../_components/Toast';
 import { AVATAR_PATH, IMAGE_PATH } from '../../../config/image-path';
 import { API_SERVER } from '../../../config/api-path';
+import toast from 'react-hot-toast';
 
 interface Nodes {
   durationMinutes: number;
@@ -94,15 +95,15 @@ export default function PlacePage() {
     longitude: 121.5654,
   });
   //吐司
-  const [toast, setToast] = useState<{
-    show: boolean;
-    message: string;
-    type?: 'success' | 'error';
-  }>({
-    show: false,
-    message: '',
-    type: 'success',
-  });
+  // const [toast, setToast] = useState<{
+  //   show: boolean;
+  //   message: string;
+  //   type?: 'success' | 'error';
+  // }>({
+  //   show: false,
+  //   message: '',
+  //   type: 'success',
+  // });
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ show: true, message: msg, type });
@@ -173,7 +174,9 @@ export default function PlacePage() {
         body: JSON.stringify(data),
       });
 
-      if (result.ok) showToast('邀約發送', 'success');
+      // if (result.ok) showToast('邀約發送', 'success');
+      if (result.ok) toast.success('邀約發送');
+      else toast.error('已經入邀約');
     } catch (err) {
       console.log(err);
     }
