@@ -35,10 +35,16 @@ export interface mapPoint {
   latitude: number; //預設台北101
   longitude: number;
 }
+interface DisplayStatus {
+  state: 'stay' | 'attraction' | '';
+}
 
 export default function GroupItineraryDetailPage() {
   const params = useSearchParams().get('itineraryId');
   const itineraryId = params;
+  const [displayStatus, setDisplayStatus] = useState<DisplayStatus>({
+    state: '',
+  });
 
   // Socket 相關設置
   const { socket } = useSocket();
@@ -834,7 +840,16 @@ export default function GroupItineraryDetailPage() {
                           setIsIframeVisible(true);
                         }}
                       />
-                      <AddItineraryButton icon={faHouse} btn_name="加入住宿" />
+                      {/* <AddItineraryButton icon={faHouse} btn_name="加入住宿" /> */}
+                      <AddItineraryButton
+                        icon={faHouse}
+                        btn_name="加入住宿"
+                        onClick={() => {
+                          setCurrentDayIndex(index); //設置當天日期，使用陣列索引
+                          setDisplayStatus({ state: 'stay' });
+                          setIsIframeVisible(true);
+                        }}
+                      />
                     </div>
                   </div>
                 );
@@ -936,6 +951,7 @@ export default function GroupItineraryDetailPage() {
                 onSend={handleIframeVisible}
                 currentId={currentDayIndex}
                 onAddNode={handleAddNode}
+                displayStatus={displayStatus.state}
               />
             </div>
           )}

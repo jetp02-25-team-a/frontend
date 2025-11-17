@@ -1,10 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faPlus,
-  faMapMarkerAlt,
-  faClock,
-} from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faMapMarkerAlt, faClock } from '@fortawesome/free-solid-svg-icons';
 
 interface NearbyAttraction {
   id: number;
@@ -37,12 +33,12 @@ const NearbyAttractionsPanel: React.FC<NearbyAttractionsPanelProps> = ({
   onAddToItinerary,
   onAttractionClick,
 }) => {
-  // const getTypeLabel = (attraction: NearbyAttraction) => {
-  //   if (attraction.tourism) return { label: '觀光', color: 'bg-red-100 text-red-800' };
-  //   if (attraction.natural) return { label: '自然', color: 'bg-teal-100 text-teal-800' };
-  //   if (attraction.historic) return { label: '古蹟', color: 'bg-blue-100 text-blue-800' };
-  //   return { label: '景點', color: 'bg-gray-100 text-gray-800' };
-  // };
+  const getTypeLabel = (attraction: NearbyAttraction) => {
+    if (attraction.tourism) return { label: '觀光', color: 'bg-red-100 text-red-800' };
+    if (attraction.natural) return { label: '自然', color: 'bg-teal-100 text-teal-800' };
+    if (attraction.historic) return { label: '古蹟', color: 'bg-blue-100 text-blue-800' };
+    return { label: '景點', color: 'bg-gray-100 text-gray-800' };
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 max-h-96 overflow-y-auto">
@@ -62,7 +58,7 @@ const NearbyAttractionsPanel: React.FC<NearbyAttractionsPanelProps> = ({
       ) : (
         <div className="space-y-3">
           {attractions.map((attraction) => {
-            // const typeInfo = getTypeLabel(attraction);
+            const typeInfo = getTypeLabel(attraction);
             return (
               <div
                 key={attraction.id}
@@ -79,9 +75,9 @@ const NearbyAttractionsPanel: React.FC<NearbyAttractionsPanelProps> = ({
                     />
                   ) : (
                     <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <FontAwesomeIcon
-                        icon={faMapMarkerAlt}
-                        className="text-gray-400 text-lg"
+                      <FontAwesomeIcon 
+                        icon={faMapMarkerAlt} 
+                        className="text-gray-400 text-lg" 
                       />
                     </div>
                   )}
@@ -92,29 +88,29 @@ const NearbyAttractionsPanel: React.FC<NearbyAttractionsPanelProps> = ({
                       <h4 className="font-medium text-sm truncate">
                         {attraction.nameZh || attraction.name}
                       </h4>
-                    </div>
-
-                    <p className="text-xs text-gray-600 mt-1 truncate">
-                      {attraction.addrFull}
-                    </p>
-
-                    <div className="flex items-center justify-between mt-2">
-                      {/* <span className={`text-xs px-2 py-1 rounded ${typeInfo.color}`}>
-                        {typeInfo.label}
-                      </span> */}
-                      <span className="text-xs text-[#FF4646] font-medium">
-                        距離:{attraction.distance} km
-                      </span>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onAddToItinerary(attraction);
                         }}
-                        className="flex items-center gap-1 text-white yellow-orange  text-xs px-2 py-1 rounded hover:bg-blue-600 transition-colors shrink-0"
+                        className="flex items-center gap-1 bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600 transition-colors flex-shrink-0"
                       >
                         <FontAwesomeIcon icon={faPlus} />
                         加入
                       </button>
+                    </div>
+
+                    <p className="text-xs text-gray-600 mt-1 truncate">
+                      📍 {attraction.addrFull}
+                    </p>
+
+                    <div className="flex items-center justify-between mt-2">
+                      <span className={`text-xs px-2 py-1 rounded ${typeInfo.color}`}>
+                        {typeInfo.label}
+                      </span>
+                      <span className="text-xs text-blue-600 font-medium">
+                        📏 {attraction.distance} km
+                      </span>
                     </div>
                   </div>
                 </div>

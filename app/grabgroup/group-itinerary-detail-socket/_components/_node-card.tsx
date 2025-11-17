@@ -66,20 +66,6 @@ export default function NodeCard({
 }: NodeCardProps) {
   const { setItineraryData } = useItinerary(); //公共
 
-  // 驗證圖片 URL 是否有效的輔助函數
-  const isValidImageUrl = (url: string | undefined | null): string | null => {
-    if (!url || typeof url !== 'string') return null;
-    const trimmedUrl = url.trim();
-    if (!trimmedUrl) return null;
-
-    // 檢查是否為有效的 URL 格式
-    const isExternal = /^https?:\/\//i.test(trimmedUrl);
-    const isRelative = trimmedUrl.startsWith('/');
-    const isData = trimmedUrl.startsWith('data:');
-
-    return isExternal || isRelative || isData ? trimmedUrl : null;
-  };
-
   // 時間調整面板狀態
   const [showTimePanel, setShowTimePanel] = useState(false);
   const [tempDuration, setTempDuration] = useState(duration_minute);
@@ -199,19 +185,13 @@ export default function NodeCard({
       </div>
       <div className="bg-white w-lg h-[97px] flex gap-2.5 p-2.5 hover:shadow-[0_0_15px_5px_rgba(250,250,250,0.7)]">
         <div className="w-[77px] h-[77px] shrink-0 relative ">
-          {isValidImageUrl(image) ? (
-            <Image
-              fill
-              sizes="100%"
-              src={isValidImageUrl(image)!}
-              alt=""
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded">
-              <span className="text-gray-500 text-xs">無圖片</span>
-            </div>
-          )}
+          <Image
+            fill
+            sizes="100%"
+            src={image}
+            alt=""
+            className="object-cover"
+          ></Image>
         </div>
         {/* <Image width={77} height={77} src={image} alt=""></Image> */}
         {/* <img src={image} alt="" className="w-[77px] h-[77px]" /> */}
@@ -257,7 +237,7 @@ export default function NodeCard({
                 </div>
 
                 <div className="text-xs text-gray-500">
-                  目前: {duration_minute} 分鐘 → {tempDuration} 分鐘
+                  目前: {duration_minute} 分鐘 → 新的: {tempDuration} 分鐘
                 </div>
 
                 <div className="flex gap-2">
