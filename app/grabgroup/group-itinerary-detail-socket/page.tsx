@@ -310,7 +310,7 @@ export default function GroupItineraryDetailPage() {
       const datas = data.data;
       setItineraryData((prev) => [...datas]); //設定context
       // console.log('data==>', data);
-      setItineraryTitle(datas?.[0]?.Itinerary.title || '未命名行程');
+      setItineraryTitle(datas?.[0]?.Itinerary?.title || '未命名行程');
       // console.log('itineraryTitle==>', itineraryTitle);
     }
   }, [data]);
