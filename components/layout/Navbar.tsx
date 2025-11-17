@@ -12,6 +12,7 @@ import { useFetch } from '../../hooks/useFetch';
 import { API_SERVER } from '../../config/api-path';
 import { AVATAR_PATH } from '../../app/config/image-path';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const { user, login, logout, getAuthHeader, isReady } = useAuth();
@@ -123,7 +124,13 @@ export default function Navbar() {
                 {allFriendRequests &&
                   allFriendRequests?.length > 0 &&
                   showNewMessage && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-80 max-h-96 overflow-y-auto bg-white rounded-2xl shadow-lg z-50 p-4  border border-gray-200 scrollbar-hide">
+                    <motion.div
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-80 max-h-96 overflow-y-auto bg-white rounded-2xl shadow-lg z-50 p-4  border border-gray-200 scrollbar-hide"
+                    >
                       <h3 className="text-[20px] font-semibold mb-2">通知</h3>
                       <div className="flex items-center justify-between mb-3">
                         <h5 className="text-xs text-gray-500 mr-3 ">新通知</h5>
@@ -142,7 +149,7 @@ export default function Navbar() {
                           />
                         ))}
                       </div>
-                    </div>
+                    </motion.div>
                   )}
               </div>
             </>
