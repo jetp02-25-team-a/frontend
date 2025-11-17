@@ -82,7 +82,6 @@ export default function GroupItineraryDetailPage() {
     if (data && data.success) {
       const datas = data.data;
       setItineraryData((prev) => [...datas]); //設定context
-      console.log('ItineraryData==>', itineraryData);
     }
   }, [data]);
 
@@ -352,24 +351,21 @@ export default function GroupItineraryDetailPage() {
               ref={scrollRef}
             >
               {itineraryData &&
-                itineraryData.map((day: any, index: number) => {
-                  return (
-                    <DayCard
-                      key={index}
-                      id={index + 1}
-                      date={day.dayDate}
-                      // date={dayTime}
-                      active={activeId === index ? true : false}
-                      onClick={() => setActiveId(index)}
-                      onDelete={() => {
-                        const newItineraryData = itineraryData.filter(
-                          (d, i) => i !== index
-                        );
-                        setItineraryData(newItineraryData);
-                      }}
-                    />
-                  );
-                })}
+                itineraryData.map((day: any, index: number) => (
+                  <DayCard
+                    key={index}
+                    id={index + 1}
+                    date={day.dayDate}
+                    active={activeId === index}
+                    onClick={() => setActiveId(index)}
+                    onDelete={() => {
+                      const newItineraryData = itineraryData.filter(
+                        (d, i) => i !== index
+                      );
+                      setItineraryData(newItineraryData);
+                    }}
+                  />
+                ))}
             </div>
             <div
               className="bg-white border  border-gray-300 flex items-center px-2.5 rounded-tr-xl rounded-br-xl"
@@ -408,6 +404,13 @@ export default function GroupItineraryDetailPage() {
                 // 1. 先更新本地狀態
                 const updatedData = [...(itineraryData ?? []), newDay];
                 setItineraryData(updatedData);
+
+                // 新增天數後自動滾到最右
+                setTimeout(() => {
+                  if (scrollRef.current) {
+                    scrollRef.current.scrollTo({ left: scrollRef.current.scrollWidth, behavior: 'smooth' });
+                  }
+                }, 300);
 
                 // 2. 立即保存到資料庫
                 try {
