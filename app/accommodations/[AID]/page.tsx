@@ -50,13 +50,9 @@ export default async function AIDPage({ params }: AIDProps) {
         />
         <hr className="w-full text-cg" />
       </Section>
-      {/* 
+
       <Section>
-        <DescriptionArea
-          description={data.description}
-          checkInTime={data.checkInTime}
-          checkOutTime={data.checkOutTime}
-        />
+        <DescriptionArea description={data.description ?? ''} />
         <hr className="w-full text-cg" />
       </Section>
 
@@ -66,15 +62,36 @@ export default async function AIDPage({ params }: AIDProps) {
       </Section>
 
       <Section>
-        <MapArea latitude={data.latitude} longitude={data.longitude} />
+        <MapArea
+          id={data.id}
+          latitude={data.latitude}
+          longitude={data.longitude}
+          name={data.name}
+          city={data.city}
+        />
         <hr className="w-full text-cg" />
       </Section>
 
       <Section className="bg-lgray">
         <div id="reviewArea" className="scroll-mt-24"></div>
-        <ReviewArea accommodationId={id} />
-        <hr className="w-full text-cg" />
-      </Section> */}
+        {data.reviewSummary.reviewCount > 0 ? (
+          // 情況一：有評論，渲染 ReviewArea Client Component
+          <>
+            <div id="reviewArea" className="scroll-mt-24"></div>
+            <ReviewArea
+              accommodationId={id}
+              initialReviews={data.reviews}
+              reviewCount={data.reviewSummary.reviewCount}
+            />
+            <hr className="w-full text-cg" />
+          </>
+        ) : (
+          // 情況二：無評論，渲染靜態提示
+          <p className="p-8 text-gray-500">
+            尚無用戶評論。成為第一個分享您入住體驗的人吧！
+          </p>
+        )}
+      </Section>
     </>
   );
 }

@@ -13,7 +13,7 @@ export default function GalleryArea({
   accommodationId,
 }: GalleryAreaProps) {
   return (
-    <div className="w-full flex flex-col gap-8">
+    <div className="px-32 w-full flex flex-col gap-8">
       {/* 照片展示 */}
       <GalleryDisplay
         images={images}

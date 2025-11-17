@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { LatLngTuple } from 'leaflet';
+import RoutingMachine from './RoutingMachine';
 
 const defaultIcon = L.icon({
   iconUrl: '/leaflet/marker-icon.png',
@@ -24,6 +25,7 @@ type AccMapProps = {
   coords?: { lat: number; lng: number };
   zoom?: number;
   className?: string;
+  destination?: { lat: number; lng: number } | null;
 };
 
 export default function AccMap({
@@ -31,6 +33,7 @@ export default function AccMap({
   coords,
   zoom = 13,
   className,
+  destination = null,
 }: AccMapProps) {
   const validItems = items.filter(
     (item) => item.latitude != null && item.longitude != null
@@ -41,6 +44,11 @@ export default function AccMap({
     : validItems.length > 0
       ? [validItems[0].latitude!, validItems[0].longitude!]
       : [25.033, 121.565]; // fallback: 台北市中心
+
+  const startCoords: [number, number] = [center[0], center[1]];
+  const endCoords: [number, number] | null = destination
+    ? [destination.lat, destination.lng]
+    : null;
 
   return (
     <MapContainer
@@ -66,6 +74,7 @@ export default function AccMap({
           </Popup>
         </Marker>
       ))}
+      <RoutingMachine start={startCoords} end={endCoords} />
     </MapContainer>
   );
 }

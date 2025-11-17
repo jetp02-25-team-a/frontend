@@ -58,7 +58,7 @@ export default function InfoArea({
       {/* 左側資訊區 */}
       <div className="flex-1 flex flex-col gap-10">
         {/* 上半區塊：三欄 */}
-        <div className="grid grid-cols-5 gap-8 bg-white border rounded-lg p-6 shadow-sm">
+        <div className="grid grid-cols-5 gap-8">
           {/* 名稱 / 地址 / 入退房 → 佔 2 欄 */}
           <div className="col-span-2 flex flex-col gap-2 text-left">
             <h1 className="text-3xl font-bold text-gray-900">{name}</h1>
@@ -69,11 +69,8 @@ export default function InfoArea({
             </div>
           </div>
 
-          {/* 留空 → 佔 1 欄 */}
-          <div className="col-span-1"></div>
-
           {/* 聯絡資訊 → 佔 1 欄 */}
-          <div className="col-span-1 flex flex-col gap-2 text-sm text-left">
+          <div className="col-span-2 flex flex-col gap-2 text-sm text-left">
             {contacts.map((c) => {
               const baseClass =
                 'flex items-center gap-2 px-3 py-1 rounded-md bg-gray-50 text-gray-700 hover:bg-gray-100';
@@ -133,7 +130,7 @@ export default function InfoArea({
           </div>
 
           {/* 評分與評論 → 佔 1 欄 */}
-          <div className="col-span-1 flex flex-col gap-2 text-left">
+          <div className="col-span-1 flex flex-col gap-2 text-left items-end">
             <div className="text-xl font-semibold flex items-center gap-2">
               <FaStar className="text-yellow-400" />
               <span className="text-gray-900">
@@ -143,7 +140,7 @@ export default function InfoArea({
             <ScrollLink reviewCount={reviewCount} targetId="reviewArea" />
           </div>
         </div>
-
+        <hr className="w-full text-cgray" />
         {/* 設施分組 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
           {Object.entries(groupedAmenities).map(([type, list]) => (
