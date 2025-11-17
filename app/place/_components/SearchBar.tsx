@@ -62,7 +62,7 @@ export default function SearchBar({
             value={type}
             onChange={(e) => setType(e.target.value as 'spot' | 'food' | '')}
             disabled={loading}
-            className="focus:outline-none bg-transparent text-sm text-gray-700"
+            className="focus:outline-none bg-transparent text-sm text-gray-700 hover:cursor-pointer"
           >
             <option value="">全部類別</option>
             <option value="spot">景點</option>
