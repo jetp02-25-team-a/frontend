@@ -7,6 +7,7 @@ import {
   FaStar,
 } from 'react-icons/fa6';
 import BookingForm from '../client/BookingForm';
+import BookingInventoryForm from '../client/BookingInventoryForm';
 import ScrollLink from '../client/ScrollLink';
 
 interface Amenity {
@@ -22,6 +23,7 @@ interface Contact {
 }
 
 interface InfoAreaProps {
+  id: number;
   name: string;
   address: string;
   amenities: Amenity[];
@@ -33,6 +35,7 @@ interface InfoAreaProps {
 }
 
 export default function InfoArea({
+  id,
   name,
   address,
   amenities,
@@ -163,11 +166,9 @@ export default function InfoArea({
 
       {/* 右側 BookingForm */}
       <div className="w-full lg:w-[320px] h-[400px] lg:sticky lg:top-24 self-start">
-        <div className="h-full border rounded-lg p-4 bg-white shadow">
+        <div className="h-full border rounded-lg p-4 bg-white shadow flex flex-col gap-4">
           <h2 className="text-lg font-semibold mb-2 text-gray-900">Booking</h2>
-          <div className="text-gray-500 text-sm">
-            <BookingForm />
-          </div>
+          <BookingInventoryForm accommodationId={id} />
         </div>
       </div>
     </div>

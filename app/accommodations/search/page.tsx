@@ -76,7 +76,7 @@ export default function SearchPage() {
           {/* 右欄：地圖 sticky */}
           <div className="flex-1 border-gray-300">
             <div className="sticky top-0 h-screen">
-              <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-2xl">
+              <div className="py-2 w-full h-full bg-gray-100 flex items-center justify-center rounded-2xl">
                 {/* 🌟 1. 載入中 */}
                 {geoLoading && (
                   <span className="text-gray-500 animate-pulse">

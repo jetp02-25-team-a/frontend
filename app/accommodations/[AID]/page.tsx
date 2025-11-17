@@ -35,6 +35,7 @@ export default async function AIDPage({ params }: AIDProps) {
 
       <Section className="bg-lgray">
         <InfoArea
+          id={id}
           name={data.name}
           address={data.address}
           amenities={data.amenities}
