@@ -131,7 +131,7 @@ export default function AddPlaceModal({
   const [introduce, setIntroduce] = useState('');
   const [address, setAddress] = useState('');
   const [region, setRegion] = useState('');
-  const [contact, setContact] = useState('0212345678');
+  const [contact, setContact] = useState('');
   const [latitude, setLatitude] = useState<string>('');
   const [longitude, setLongitude] = useState<string>('');
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
@@ -199,6 +199,7 @@ export default function AddPlaceModal({
       setIntroduce('這是一個Demo用的地標建立測試');
       setAddress('臺北市大安區復興南路一段390號');
       setRegion('大安區');
+      setContact('02-12345678');
       setLatitude('25.0339444');
       setLongitude('121.5432777');
       setPhotoFiles([]); // 有問題
@@ -306,24 +307,39 @@ export default function AddPlaceModal({
         userId: userId,
       });
 
-      // 4) 補齊 stats 後再通知父層（避免父層拿到沒有 avg 的 place）
+      // 4) 🔍 再打一次詳情 API，把 Photos 也拉回來
+      let fullPlace: any = place;
+      try {
+        const detailRes = await fetch(`${apiBase}/api/place/${place.id}`, {
+          method: 'GET',
+        });
+        if (detailRes.ok) {
+          const detailJson = await detailRes.json();
+          if (detailJson?.data) {
+            fullPlace = detailJson.data; // 這個通常就會有 Photos
+          }
+        }
+      } catch (e) {
+        console.warn('fetch place detail failed, use basic place only', e);
+      }
+
+      // 5) 補齊 stats 後再通知父層（fullPlace 裡如果有 Photos，Drawer 就吃得到）
       const placeForUI = {
-        ...place,
-        // 你項目裡其他地方可能讀 stats.avg 或 ratingAvg，兩個都補上
-        stats: place?.stats ?? { avg: score, count: 1 },
-        ratingAvg: (place as any)?.ratingAvg ?? score,
-        ratingCount: (place as any)?.ratingCount ?? 1,
+        ...fullPlace,
+        stats: fullPlace?.stats ?? { avg: score, count: 1 },
+        ratingAvg: (fullPlace as any)?.ratingAvg ?? score,
+        ratingCount: (fullPlace as any)?.ratingCount ?? 1,
       };
 
       try {
-        onCreated?.(placeForUI); // 父層再拿去 setState
+        onCreated?.(placeForUI); // 🔥 這裡丟出去的就是「有 Photos 的版本」
         setToast({
           message: '地標已成功建立！',
           type: 'success',
         });
       } catch (e) {
         console.error('onCreated error:', e);
-        setErr('建立成功，但更新畫面時發生錯誤（缺少 avg）。'); // 不會再顯示 undefined.avg
+        setErr('建立成功，但更新畫面時發生錯誤（缺少 avg）。');
       }
     } catch (e: any) {
       setErr(e?.message ?? '發生錯誤');

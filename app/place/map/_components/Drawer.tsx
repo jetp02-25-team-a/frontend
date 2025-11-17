@@ -8,6 +8,7 @@ import {
   faStarHalfStroke,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import { buildImageUrl } from '@/config/image-path';
 
 export type DrawerPlace = {
   id: number;
@@ -38,6 +39,16 @@ export default function LeftDrawer({
     () => `absolute top-3 bottom-3 left-3 z-[1000] pointer-events-none`,
     []
   );
+
+  function getCover(p: DrawerPlace) {
+    const FALLBACK = 'https://picsum.photos/seed/drawer/640/360';
+
+    const raw = p.Photos?.[0]?.url;
+    if (!raw) return FALLBACK;
+
+    const full = buildImageUrl(raw);
+    return full || FALLBACK;
+  }
 
   // 小工具：把 0~5 分數轉成 5 顆星
   function renderStars(avg: number | undefined) {
@@ -135,10 +146,7 @@ export default function LeftDrawer({
                   >
                     <div className="w-full aspect-[16/9] bg-gray-100">
                       <img
-                        src={
-                          p.Photos?.[0]?.url ||
-                          'https://picsum.photos/seed/drawer/640/360'
-                        }
+                        src={getCover(p)}
                         alt={p.name}
                         className="w-full h-full object-cover"
                         onError={(e) =>

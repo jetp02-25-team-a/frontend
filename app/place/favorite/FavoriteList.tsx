@@ -14,6 +14,8 @@ import {
   faHeart as faHeartSolid,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+// ⭐ 新增：用同一套工具組出完整圖片網址
+import { buildImageUrl } from '@/config/image-path';
 
 export default function FavoriteList() {
   const { user, isReady } = useAuth();
@@ -132,13 +134,19 @@ export default function FavoriteList() {
           const id: number | undefined = p.id ?? p.place_id;
           const key = id ?? `${p.name}-${idx}`;
 
-          // ✅ cover：安全處理 + 預設圖片
+          // ✅ 先從回傳物件裡撈出「第一張照片」的 url
+          const rawPhotos = p.Photos ?? p.photos ?? [];
+          const first =
+            Array.isArray(rawPhotos) && rawPhotos.length
+              ? typeof rawPhotos[0] === 'string'
+                ? rawPhotos[0]
+                : rawPhotos[0]?.url
+              : null;
+
+          // ✅ 再用 buildImageUrl 補上 API_BASE / 判斷 http / fallback
           const cover =
-            Array.isArray(p.photos) && p.photos.length > 0
-              ? typeof p.photos[0] === 'string'
-                ? p.photos[0]
-                : p.photos[0].url
-              : 'https://picsum.photos/seed/default/400/300';
+            buildImageUrl(first) ||
+            'https://picsum.photos/seed/default/400/300';
 
           // ✅ 星等分數
           const rawScore =
