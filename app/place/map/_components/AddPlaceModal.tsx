@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
-import Toast from '../../_components/Toast';
+import Toast from '@/app/place/_components/Toast';
+import { useAuth } from '@/hooks/use-Auth';
 
 type OpeningRow = {
   weekday: number; // 0~6
@@ -119,13 +120,11 @@ export default function AddPlaceModal({
   onClose,
   onCreated, // 建立成功回調
   apiBase,
-  currentUserId = 10, // TODO: 之後接登入
 }: {
   open: boolean;
   onClose: () => void;
   onCreated?: (place: any) => void;
   apiBase: string;
-  currentUserId?: number;
 }) {
   const [type, setType] = useState<'food' | 'spot'>('spot');
   const [name, setName] = useState('');
@@ -153,14 +152,36 @@ export default function AddPlaceModal({
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  const { user, isReady } = useAuth();
+  const isLoggedIn = !!user.email;
+  const userId = user.id;
+
+  // 將 "HH:mm" 轉成 UTC ISO 字串，例如 "08:00" → "1970-01-01T08:00:00.000Z"
+  function timeToUtcIso(t: string | undefined | null) {
+    if (!t) return null; // 給後端判斷要不要存
+    const [h, m] = t.split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return null;
+
+    const d = new Date(Date.UTC(1970, 0, 1, h, m, 0));
+    return d.toISOString(); // e.g. "1970-01-01T08:00:00.000Z"
+  }
+
   const openingHoursPayload = useMemo(() => {
-    // 只送有意義的天；公休送 { weekday, isClosed: true }
     return hours.map((h) => {
-      if (h.isClosed) return { weekday: h.weekday, isClosed: true };
+      if (h.isClosed) {
+        return {
+          weekday: h.weekday,
+          isClosed: true,
+          openTime: null,
+          closeTime: null,
+        };
+      }
+
       return {
         weekday: h.weekday,
-        openTime: h.openTime, // "HH:mm"
-        closeTime: h.closeTime,
+        isClosed: false,
+        openTime: timeToUtcIso(h.openTime), // "HH:mm" -> ISO UTC
+        closeTime: timeToUtcIso(h.closeTime),
       };
     });
   }, [hours]);
@@ -243,6 +264,11 @@ export default function AddPlaceModal({
       form.append('introduce', introduce.trim());
       form.append('openingHours', JSON.stringify(openingHoursPayload));
 
+      const trimmedContact = contact.trim();
+      if (trimmedContact) {
+        form.append('contact', trimmedContact);
+      }
+
       if (latitude !== '' && longitude !== '') {
         form.append('latitude', latitude);
         form.append('longitude', longitude);
@@ -271,13 +297,13 @@ export default function AddPlaceModal({
       // 2) 建立評分
       await postJSON(`${apiBase}/api/place/${place.id}/ranks`, {
         score,
-        userId: currentUserId,
+        userId: userId,
       });
 
       // 3) 建立留言
       await postJSON(`${apiBase}/api/place/${place.id}/comments`, {
         content: comment.trim(),
-        userId: currentUserId,
+        userId: userId,
       });
 
       // 4) 補齊 stats 後再通知父層（避免父層拿到沒有 avg 的 place）

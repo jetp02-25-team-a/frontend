@@ -17,62 +17,59 @@ export default function MetaPanel({ spot }: { spot: any }) {
     '星期五',
     '星期六',
   ];
-  const twTime = new Intl.DateTimeFormat('zh-TW', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-    timeZone: 'Asia/Taipei',
-  });
-  const fmt = (iso?: string | null) =>
-    iso ? twTime.format(new Date(iso)) : '';
+  function isoToHHmm(iso?: string | null): string {
+    if (!iso || typeof iso !== 'string') return '';
+    // 先嘗試抓 T 後面的 HH:mm
+    const m = iso.match(/T(\d{2}):(\d{2})/);
+    if (m) return `${m[1]}:${m[2]}`;
+
+    // 若不是標準 ISO（保險一點）
+    const d = new Date(iso);
+    if (!Number.isFinite(d.getTime())) return '';
+    const h = d.getUTCHours();
+    const mm = d.getUTCMinutes();
+    return `${String(h).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+  }
+
+  function minutesFromIso(iso?: string | null): number {
+    if (!iso || typeof iso !== 'string') return 0;
+    const m = iso.match(/T(\d{2}):(\d{2})/);
+    if (m) {
+      const h = Number(m[1]);
+      const mm = Number(m[2]);
+      return h * 60 + mm;
+    }
+    const d = new Date(iso);
+    if (!Number.isFinite(d.getTime())) return 0;
+    return d.getUTCHours() * 60 + d.getUTCMinutes();
+  }
 
   const toStrings = (hours: any): string[] => {
     if (!Array.isArray(hours)) return [];
     // 1) 已是 string[]：直接回傳
     if (typeof hours[0] === 'string') return hours as string[];
-    // 2) 是原始 openingHour 物件陣列：轉字串
+
+    // 2) 是 OpeningHour 物件陣列：轉成字串
     return [...hours]
       .sort((a, b) => a.weekday - b.weekday)
       .map((h) => {
-        const { weekday, openTime, closeTime } = h ?? {};
-        if (!openTime || !closeTime) return `${weekdayName[weekday]}：休息`;
-        const o = fmt(openTime);
-        const c = fmt(closeTime);
-        // 以 UTC 分鐘數比較，避免日期不同日造成誤判
-        const toHM = (iso: string) => {
-          const d = new Date(iso);
-          return d.getUTCHours() * 60 + d.getUTCMinutes();
-        };
-        const cross = toHM(closeTime) <= toHM(openTime);
+        const { weekday, openTime, closeTime, isClosed } = h ?? {};
+
+        // 公休或沒時間 → 顯示公休
+        if (isClosed || !openTime || !closeTime) {
+          return `${weekdayName[weekday]}：公休`;
+        }
+
+        const o = isoToHHmm(openTime);
+        const c = isoToHHmm(closeTime);
+
+        const cross = minutesFromIso(closeTime) <= minutesFromIso(openTime);
+
         return `${weekdayName[weekday]}：${o}–${c}${cross ? '（跨日）' : ''}`;
       });
   };
 
   const hours: string[] = toStrings(spot.hours);
-
-  function PinIcon() {
-    return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" />
-      </svg>
-    );
-  }
-
-  function ClockIcon() {
-    return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 11h5v-2h-4V6h-2v7Z" />
-      </svg>
-    );
-  }
-
-  function PhoneIcon() {
-    return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M6.6 10.8c1.4 2.7 3.9 5.2 6.6 6.6l2.2-2.2c.3-.3.8-.4 1.1-.2 1 .5 2.1.8 3.3.8.6 0 1 .4 1 1v3.4c0 .6-.4 1-1 1C10.5 21.2 2.8 13.5 2.8 3.2c0-.6.4-1 1-1H7c.6 0 1 .4 1 1 0 1.2.3 2.3.8 3.3.2.3.2.8-.2 1.1L6.6 10.8z" />
-      </svg>
-    );
-  }
 
   return (
     <section className="flex rounded-2xl border p-4 space-y-3">
