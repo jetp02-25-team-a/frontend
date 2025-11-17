@@ -10,6 +10,7 @@ import { addMinutes } from 'date-fns';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import { useAuth } from '@/hooks/use-Auth';
+import { API_SERVER } from '@/config/api-path';
 
 interface Nodes {
   durationMinutes: number;
@@ -69,8 +70,8 @@ export default function PlacePage() {
   // const userId = useSearchParams().get('userId');
   const userId = user?.id;
   const { pid } = params;
-  console.log('userId==>', userId);
-  console.log('pid==>', pid);
+  // console.log('userId==>', userId);
+  // console.log('pid==>', pid);
   const [itineraryList, setItineraryList] = useState<ItineraryLisInterface>();
 
   const photoProviderRef = useRef<PhotoProviderRef>(null);
@@ -80,7 +81,7 @@ export default function PlacePage() {
     longitude: 121.5654,
   });
 
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/itinerary-list?itineraryId=${pid}&userId=${userId}`;
+  const url = `${API_SERVER}/itineraries/itinerary-list?itineraryId=${pid}&userId=${userId}`;
 
   const { data, refetch } = useFetch(url);
 
@@ -118,11 +119,160 @@ export default function PlacePage() {
   return (
     <div
       style={{ pointerEvents: 'none' }}
-      className="py-10 border-2 border-gray-200 m-20"
+      className="border-2 border-gray-200 "
     >
       {/* image區 */}
 
-      <PhotoProvider
+      <PhotoProvider>
+        <div className="flex gap-4 relative">
+          {images && images?.length === 2 && (
+            <div className="w-[900px] h-[250px] flex gap-4 m-auto">
+              <PhotoView src={toImgUrl(images[0].imageName)}>
+                {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                <img
+                  id="first-photo-trigger"
+                  src={toImgUrl(images[0].imageName)}
+                  alt=""
+                  className="shrink-0 w-full h-full object-cover"
+                />
+              </PhotoView>
+              <PhotoView src={toImgUrl(images[1].imageName)}>
+                {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                <img
+                  src={toImgUrl(images[1].imageName)}
+                  alt=""
+                  className="shrink-0 w-full h-full object-cover"
+                />
+              </PhotoView>
+
+              <button
+                onClick={openAll}
+                className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
+              >
+                查看所有照片
+              </button>
+            </div>
+          )}
+          {images && images?.length === 3 && (
+            <>
+              <PhotoView src={toImgUrl(images[0].imageName)}>
+                {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                <img
+                  id="first-photo-trigger"
+                  src={toImgUrl(images[0].imageName)}
+                  alt=""
+                  className="shrink-0 w-[900px] h-full object-cover"
+                />
+              </PhotoView>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4">
+                  <PhotoView src={toImgUrl(images[1].imageName)}>
+                    <div className="relative w-[300px] h-[295px]">
+                      <Image
+                        fill
+                        sizes="300px"
+                        src={toImgUrl(images[1].imageName)}
+                        alt=""
+                        className="object-cover"
+                      />
+                    </div>
+                  </PhotoView>
+                  <PhotoView src={toImgUrl(images[2].imageName)}>
+                    <div className="relative w-[300px] h-[290px]">
+                      <Image
+                        fill
+                        sizes="300px"
+                        src={toImgUrl(images[2].imageName)}
+                        alt=""
+                        className="object-cover"
+                      />
+                    </div>
+                  </PhotoView>
+                </div>
+              </div>
+
+              <button
+                onClick={openAll}
+                className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
+              >
+                查看所有照片
+              </button>
+            </>
+          )}
+          {images && images?.length >= 4 && (
+            <div className="flex h-full">
+              <div className="flex gap-4">
+                <PhotoView src={toImgUrl(images[0].imageName)}>
+                  {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                  <div className="h-full w-[770px] shrink-0">
+                    <img
+                      id="first-photo-trigger"
+                      src={toImgUrl(images[0].imageName)}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </PhotoView>
+                <div className="flex flex-col gap-4">
+                  <PhotoView src={toImgUrl(images[1].imageName)}>
+                    <div className="relative w-full h-[250px]">
+                      <Image
+                        fill
+                        sizes="510px"
+                        src={toImgUrl(images[1].imageName)}
+                        alt=""
+                        className="object-cover"
+                      />
+                    </div>
+                  </PhotoView>
+
+                  <div className="flex gap-4">
+                    <PhotoView src={toImgUrl(images[2].imageName)}>
+                      <div className="relative w-[250px] h-[250px]">
+                        <Image
+                          fill
+                          sizes="250px"
+                          src={toImgUrl(images[2].imageName)}
+                          alt=""
+                          className="object-cover"
+                        />
+                      </div>
+                    </PhotoView>
+                    <PhotoView src={toImgUrl(images[3].imageName)}>
+                      <div className="relative w-[250px] h-[250px]">
+                        <Image
+                          fill
+                          sizes="250px"
+                          src={toImgUrl(images[3].imageName)}
+                          alt=""
+                          className="object-cover"
+                        />
+                      </div>
+                    </PhotoView>
+                  </div>
+                </div>
+
+                <button
+                  onClick={openAll}
+                  className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
+                >
+                  查看所有照片
+                </button>
+              </div>
+              {/* 隱藏照片 5-6的照片 */}
+              <div className="hidden">
+                {images.slice(4, images.length).map((img, index) => (
+                  <PhotoView key={index} src={toImgUrl(img.imageName)}>
+                    <span></span>
+                  </PhotoView>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </PhotoProvider>
+
+      {/* <PhotoProvider
         //按下叉叉切換為假隱藏
         onVisibleChange={(visible: boolean) => {
           if (!visible) {
@@ -135,7 +285,7 @@ export default function PlacePage() {
             <>
               <PhotoView src={toImgUrl(images[0].imageName)}>
                 {/* ref觸發照片輪播用 */}
-                <Image
+      {/* <Image
                   width={1000}
                   height={1000}
                   src={toImgUrl(images[0].imageName)}
@@ -185,11 +335,11 @@ export default function PlacePage() {
               </button>
             </>
           )}
-        </div>
-      </PhotoProvider>
+        </div> */}
+      {/* </PhotoProvider> */}
       {/* 個人資訊 貼文內容 */}
       <section className="w-full px-[200px]">
-        <div className=" flex justify-between">
+        <div className=" flex justify-between mt-10">
           {/* 團主個人訊息 */}
           <div className="flex items-center gap-[20px]">
             <Image width={77} height={77} src={'/avatar.png'} alt="" />
@@ -198,9 +348,9 @@ export default function PlacePage() {
           </div>
           {/* 參與人數 */}
           <div className=" flex items-end gap-[30px]">
-            <p className="text-lg">
+            {/* <p className="text-lg">
               合計{itineraryList?.Itineraries?.[0]?.figure ?? 1}人
-            </p>
+            </p> */}
             <div className="flex">
               {/* {data.join_persons.map((v, i) => {
                 return (
@@ -216,7 +366,7 @@ export default function PlacePage() {
         </div>
       </section>
       {/* 揪團標題 文章 */}
-      <section className="w-full px-[200px]">
+      <section className="w-full px-[80px] mb-4">
         <h2 className="text-2xl">{itineraryList?.Itineraries?.[0].title}</h2>
         {/* 副標題 */}
         <h2 className="text-xl">
@@ -228,18 +378,16 @@ export default function PlacePage() {
         <JoinButton className="mx-auto" content="加入我們" />
       </section>
       {/* 行程 */}
-      <section className="bg-light-gray w-full h-auto py-16">
+      <section className="bg-light-gray w-full h-auto py-6">
         <div className="px-[200px] grid grid-cols-2">
           {/* 行程區 */}
           <div className="overflow-auto">
             <h2 className="text-3xl h-[97px] flex items-center">活動流程</h2>
-
             <div>
               {/* 有才顯示 */}
               {itineraryList?.Itineraries?.[0]?.Days &&
                 itineraryList?.Itineraries?.[0]?.Days.map(
                   (day: Day, dayIndex: number) => {
-                    const baseTime = day.startTime;
                     return (
                       <div key={dayIndex}>
                         {/* 天數開頭 */}
@@ -257,8 +405,8 @@ export default function PlacePage() {
                                   className="flex gap-[15px] ml-1.5 items-center cursor-pointer"
                                   onClick={() => {
                                     setMapPoint({
-                                      latitude: node.GoogleMapPlace?.lat,
-                                      longitude: node.GoogleMapPlace?.lng,
+                                      latitude: node.Attraction?.lat,
+                                      longitude: node.Attraction?.lng,
                                     });
                                   }}
                                 >
@@ -274,7 +422,7 @@ export default function PlacePage() {
                                           ).toISOString()
                                         )}
                                   </p>
-                                  <p>{node.GoogleMapPlace?.name}</p>
+                                  <p>{node.Attraction?.name}</p>
                                 </div>
 
                                 {nodeIndex === day.Nodes.length - 1 ? (

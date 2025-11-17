@@ -2,17 +2,20 @@
 import { useEffect, useState } from 'react';
 import Button from '../_components/Button';
 import DatePicker from './_components/date-picker';
+import toast from 'react-hot-toast';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { useFetch } from '@/hooks/useFetch';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faPlus, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faUserFriends } from '@fortawesome/free-solid-svg-icons';
 
 import { AVATAR_PATH } from '../../config/image-path';
 import { API_SERVER } from '../../config/api-path';
 import { useAuth } from '../../../hooks/use-Auth';
+import { ca } from 'zod/v4/locales';
 
 interface User {
   avatar?: string;
@@ -86,14 +89,14 @@ export default function CreateGroupItineraryPage() {
     <main className="w-full flex flex-col items-center py-16 gap-[30px]">
       <h1 className="text-4xl text-center">行程頁面</h1>
 
-      <p>目的地：{destination}</p>
+      {/* <p>目的地：{destination}</p> */}
       {/* <p>
         開始時間：{startDate ? new Date(startDate).toLocaleString() : '未選擇'}
       </p> */}
-      <p>目前人數：{people}</p>
+      {/* <p>目前人數：{people}</p> */}
 
       <div className="w-[920px]">
-        <div className="w-full flex">
+        {/* <div className="w-full flex">
           <button
             className={`w-full py-2.5 border-l-2 border-gray-300 ${pathname.startsWith('/grabgroup/create-group-itinerary') ? '' : 'text-white yellow-orange '}`}
           >
@@ -104,7 +107,7 @@ export default function CreateGroupItineraryPage() {
           >
             揪團行程
           </button>
-        </div>
+        </div> */}
         <div className="px-8 py-[28px border-gray-300 border-l-2 border-r-2 border-b-2 rounded-bl-2xl rounded-br-2xl  space-y-10 py-7 px-8">
           <div className="flex flex-col gap-2.5">
             <h2 className="text-3xl text-center">開始設定您的活動行程</h2>
@@ -113,32 +116,95 @@ export default function CreateGroupItineraryPage() {
             </p>
           </div>
 
-          <label htmlFor="">制定活動名稱:</label>
-          <input
-            type="text"
-            placeholder="輸入"
-            className="border-1 border-gray-300 w-full rounded-sm px-3 py-1"
-            value={itineraryTitle}
-            onChange={(e) => setItineraryTitle(e.target.value)}
-          />
-          <label htmlFor="">參加人數上限:</label>
-          <input
-            type="number"
-            max={8}
-            className="border border-gray-300 w-full rounded-sm px-3 py-1"
-            value={peopleMax}
-            onChange={(e) => {
-              setPeopleMax(+e.target.value);
-            }}
-          />
-          <label htmlFor="">每日開始時間：</label>
-          <input
-            type="time"
-            placeholder="輸入"
-            className="border border-gray-300 w-full rounded-sm px-3 py-1"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-          />
+          {/* <label htmlFor="">制定活動名稱:</label> */}
+          <div className="flex items-center mb-4 mt-2 gap-3 h-14">
+            <label
+              htmlFor="itinerary-title"
+              className="font-semibold text-lg text-gray-700 flex items-center gap-2 w-[150px] h-full justify-center"
+            >
+              <FontAwesomeIcon icon={faPlus} className="text-amber-400" />
+              制定活動名稱
+            </label>
+            <input
+              id="itinerary-title"
+              type="text"
+              placeholder="請輸入活動名稱..."
+              className="border border-amber-200 rounded-full px-4 py-2 shadow focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition text-gray-700 bg-gray-50 placeholder-gray-400 flex-1 h-full"
+              value={itineraryTitle}
+              onChange={(e) => setItineraryTitle(e.target.value)}
+            />
+          </div>
+          {/* 參加人數上限*/}
+          <div className="flex items-center mb-4 mt-2 gap-3 h-14">
+            <label
+              htmlFor="people-max"
+              className="font-semibold text-lg text-gray-700 flex items-center gap-2 w-[150px] h-full justify-center"
+            >
+              <FontAwesomeIcon
+                icon={faUserFriends}
+                className="text-amber-400"
+              />
+              參加人數上限
+            </label>
+            <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1 shadow-inner border border-amber-200 flex-1 max-w-[180px] ml-2 h-full">
+              <div className="flex items-center justify-center w-full h-full gap-2">
+                <button
+                  type="button"
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-white border border-gray-300 text-gray-500 hover:bg-amber-100 transition text-base"
+                  onClick={() =>
+                    setPeopleMax(peopleMax > 1 ? peopleMax - 1 : 1)
+                  }
+                  disabled={peopleMax <= 1}
+                >
+                  -
+                </button>
+                <input
+                  id="people-max"
+                  type="number"
+                  min={1}
+                  max={8}
+                  className="w-12 text-center bg-transparent outline-none text-gray-700 font-semibold h-7 flex items-center"
+                  value={peopleMax}
+                  onChange={(e) => {
+                    let val = +e.target.value;
+                    if (val < 1) val = 1;
+                    if (val > 8) val = 8;
+                    setPeopleMax(val);
+                  }}
+                  style={{ MozAppearance: 'textfield' }}
+                />
+                <button
+                  type="button"
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-white border border-gray-300 text-gray-500 hover:bg-amber-100 transition text-base"
+                  onClick={() =>
+                    setPeopleMax(peopleMax < 8 ? peopleMax + 1 : 8)
+                  }
+                  disabled={peopleMax >= 8}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/*   每日開始時間*/}
+          <div className="flex items-center mb-4 mt-2 gap-3 h-[56px]">
+            <label
+              htmlFor="start-time"
+              className="font-semibold text-lg text-gray-700 flex items-center gap-2 w-[150px] h-full justify-center"
+            >
+              <FontAwesomeIcon icon={faClock} className="text-amber-400" />
+              每日開始時間
+            </label>
+            <input
+              id="start-time"
+              type="time"
+              className="border border-amber-200 rounded-full px-4 py-2 shadow focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition text-gray-700 bg-gray-50 flex-1 h-full"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+            />
+          </div>
+
           <div className="w-full flex justify-end gap-2 relative">
             {/* 使用者的好友 */}
             {friendData && (
@@ -235,6 +301,14 @@ export default function CreateGroupItineraryPage() {
             <Button
               content="下一步"
               onClick={async () => {
+                if (!itineraryTitle) {
+                  toast.error('請輸入行程標題');
+                  return;
+                }
+                if (!startTime) {
+                  toast.error('請輸入每日開始時間');
+                  return;
+                }
                 const data = {
                   title: itineraryTitle,
                   area: destination || '',
@@ -244,9 +318,8 @@ export default function CreateGroupItineraryPage() {
                   figure: peopleMax,
                 };
                 const url = `${API_SERVER}/itineraries/create-itinerary`;
-
                 try {
-                  const result = await fetch(url, {
+                  const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
@@ -254,15 +327,16 @@ export default function CreateGroupItineraryPage() {
                     },
                     body: JSON.stringify(data),
                   }).then((r) => r.json());
-                  //需要拿到建立的行程id
-                  if (result) {
-                    console.log('result', result);
+                  if (!response.success) {
+                    toast.error('需要使用者登入才能建立行程');
+                    return;
+                  } else {
                     //對邀請清單的人發出邀請
                     const invitedUrl = `${API_SERVER}/itineraries/invite`;
-                    // const { itineraryId, senderId, receiverId } = req.body;
+                    //對每位好友發送邀請
                     pendingInvites.forEach(async (friendId) => {
                       const inviteData = {
-                        itineraryId: result.itineraryId,
+                        itineraryId: response.itineraryId,
                         receiverId: friendId,
                         senderId: user.id,
                       };
@@ -276,18 +350,16 @@ export default function CreateGroupItineraryPage() {
                           body: JSON.stringify(inviteData),
                         }).then((r) => r.json());
                         if (inviteResult && inviteResult.success) {
-                          console.log(`成功邀請好友ID ${friendId} 加入行程`);
+                          // console.log(`成功邀請好友ID ${friendId} 加入行程`);
+                          toast.success(`成功邀請好友加入行程`);
                         }
                       } catch (err) {
+                        toast.error('邀請好友失敗');
                         console.log(err);
                       }
                     });
-
-                    // 🔄 設置來源標記，讓目標頁面知道是從建立頁面來的
-                    sessionStorage.setItem('fromCreateGroupItinerary', 'true');
-
                     router.push(
-                      `/grabgroup/group-itinerary-detail?itineraryId=${result.itineraryId}&source=create-group-itinerary`
+                      `/grabgroup/group-itinerary-detail?itineraryId=${response.itineraryId}&source=create-group-itinerary`
                     );
                   }
                 } catch (err) {

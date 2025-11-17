@@ -1,4 +1,5 @@
 'use client';
+import { de } from 'date-fns/locale';
 import Image from 'next/image';
 
 interface PanelCardProps {
@@ -6,6 +7,8 @@ interface PanelCardProps {
   title: string;
   address?: string;
   onClick: () => void;
+  description?: string;
+  displayStatus: 'stay' | 'attraction' | '';
 }
 
 export default function PanelCard({
@@ -13,22 +16,38 @@ export default function PanelCard({
   title,
   address,
   onClick,
+  description,
+  displayStatus,
 }: PanelCardProps) {
   return (
     <>
       <div
-        className="w-full bg-white  h-[97px] flex gap-2.5 p-2.5 active:shadow-[0_0_15px_5px_rgba(250,250,250,0.7)] shadow-[0_4px_10px_rgba(0,0,0,0.4)] "
+        className="w-full bg-white  h-auto flex gap-2.5 p-2.5 active:shadow-[0_0_15px_5px_rgba(250,250,250,0.7)] shadow-[0_4px_10px_rgba(0,0,0,0.4)] "
         onClick={onClick}
       >
-        <Image
-          width={77}
-          height={77}
-          src={image ? image : '/images/image.png'}
-          alt=""
-        ></Image>
+        <div className="w-[100px] h-[100px] shrink-0 relative overflow-hidden">
+          {image && displayStatus === 'attraction' ? (
+            <Image
+              fill
+              src={image}
+              alt=""
+              className="object-cover"
+              sizes="100px"
+            />
+          ) : (
+            <div className="flex bg-gray-300 w-full h-full justify-center items-center ">
+              <p className="text-gray-500 text-sm">沒有照片</p>
+            </div>
+          )}
+        </div>
+
         <div className="w-full">
-          <h2>{title}</h2>
+          <h2 className="text-xl">{title}</h2>
           <p>{address && address.length > 20 ? address + '...' : address}</p>
+          {/* 有描述顯示描述 */}
+          {description && description.length > 50 && (
+            <p>{description.slice(0, 50) + '...'}</p>
+          )}
         </div>
       </div>
     </>

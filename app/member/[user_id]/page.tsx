@@ -12,6 +12,7 @@ import Checklist from '../user-info/_components/checklist';
 import { useFetch } from '@/hooks/useFetch';
 import { AVATAR_PATH, IMAGE_PATH } from '../../config/image-path';
 import { useAuth } from '../../../hooks/use-Auth';
+import toast from 'react-hot-toast';
 
 interface UserALLData {
   id: number;
@@ -63,11 +64,12 @@ const handleAddFriend = async (id: number) => {
 
     const result = await res.json();
     if (result.success) {
-      console.log(result.message);
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
     }
   } catch (err) {
     console.error('addFriend error', err);
-    alert('發生錯誤，請查看 console');
   }
 };
 

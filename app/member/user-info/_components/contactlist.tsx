@@ -31,6 +31,7 @@ interface RoomMessage {
     isRead: boolean;
     senderId: number;
     receiverId: number;
+    messageType?: string; // 新增
   } | null;
   members: Member[];
   roomData: RoomData;
@@ -48,6 +49,7 @@ interface PersonMessage {
     isRead: boolean;
     senderId: number;
     receiverId: number;
+    messageType?: string; // 新增
   };
   friendData: FriendData;
 }
@@ -63,7 +65,6 @@ export default function ContactList({
   openChats: ChatInterface[];
   onOpenChat: (chat: ChatInterface) => void;
 }) {
-  // console.log('contact==>', contact);
   return (
     <div>
       {/* 團體聊天室 */}
@@ -95,6 +96,7 @@ export default function ContactList({
               senderId={message.LatestMessage?.senderId}
               isRead={message.LatestMessage?.isRead}
               title={message.roomData.roomName}
+              messageType={message.LatestMessage?.messageType}
               content={
                 message.LatestMessage
                   ? message.LatestMessage.content
@@ -129,6 +131,7 @@ export default function ContactList({
               senderId={message.LatestMessage?.senderId}
               isRead={message.LatestMessage?.isRead}
               title={message.friendData.nickname}
+              messageType={message.LatestMessage?.messageType}
               content={
                 message.LatestMessage
                   ? message.LatestMessage.content

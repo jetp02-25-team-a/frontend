@@ -31,11 +31,16 @@ export interface mapPoint {
   latitude: number; //預設台北101
   longitude: number;
 }
+interface DisplayStatus {
+  state: 'stay' | 'attraction' | '';
+}
 
 export default function GroupItineraryDetailPage() {
   const params = useSearchParams().get('itineraryId');
   const itineraryId = params;
-
+  const [displayStatus, setDisplayStatus] = useState<DisplayStatus>({
+    state: '',
+  });
   const { user } = useAuth();
 
   //處理滑動
@@ -76,8 +81,18 @@ export default function GroupItineraryDetailPage() {
   useEffect(() => {
     if (data && data.success) {
       const datas = data.data;
-      setItineraryData((prev) => [...datas]); //設定context
-      console.log('ItineraryData==>', itineraryData);
+      // 住宿資料型別轉換
+      const transformed = datas.map((day: any) => ({
+        ...day,
+        StayNodes: Array.isArray(day.StayNodes)
+          ? day.StayNodes.map((stay: any) => ({
+              id: stay.id,
+              accommodationId: stay.accommodationId || stay.Accommodation?.id,
+              Accommodation: stay.Accommodation,
+            }))
+          : [],
+      }));
+      setItineraryData((prev) => [...transformed]); //設定context
     }
   }, [data]);
 
@@ -100,6 +115,7 @@ export default function GroupItineraryDetailPage() {
     if (JSON.stringify(newItineraryData) !== JSON.stringify(itineraryData)) {
       setItineraryData(newItineraryData);
     }
+    console.log('itineraryData===>', itineraryData);
   }, [itineraryData]);
 
   // 控制iframe顯示
@@ -107,6 +123,10 @@ export default function GroupItineraryDetailPage() {
   // 這個函式會傳給子組件
   const handleIframeVisible = (show: boolean) => {
     setIsIframeVisible(show);
+    // 當面板關閉時，重置 displayStatus
+    if (!show) {
+      setDisplayStatus({ state: '' });
+    }
   };
 
   // 🔄 拖拽處理函數
@@ -214,31 +234,45 @@ export default function GroupItineraryDetailPage() {
   };
 
   const handleAddNode = async (dayId: number, nodeData: any) => {
-    console.log('nodeData', itineraryData);
-
     let updatedData: any = null;
 
-    // 1. 先更新本地狀態（立即顯示）
+    // 根據 nodeData 型別判斷是住宿還是景點
+    const isStayNode =
+      nodeData?.Place?.latitude !== undefined &&
+      nodeData?.Place?.longitude !== undefined &&
+      nodeData?.Place?.address !== undefined;
+
     setItineraryData((prev) => {
       if (!prev) return prev;
       const newData = prev.map((d, index) => {
         if (index === dayId) {
-          return {
-            ...d,
-            Nodes: [...d.Nodes, nodeData],
-          };
+          if (isStayNode) {
+            // 住宿節點加到 StayNodes
+            return {
+              ...d,
+              StayNodes: [...(d.StayNodes || []), nodeData],
+            };
+          } else {
+            // 景點節點加到 Nodes
+            return {
+              ...d,
+              Nodes: [...d.Nodes, nodeData],
+            };
+          }
         }
         return d;
       });
-      updatedData = newData; // 保存更新後的資料
+      updatedData = newData;
       return newData;
     });
 
-    // 2. 保存到資料庫
-    try {
-      console.log('=== 準備保存到資料庫 ===');
-      console.log('要保存的資料:', updatedData);
+    // 打印即將送出的資料
+    console.log(
+      '🚩 發送 save 前的 itineraryData:',
+      JSON.stringify(updatedData, null, 2)
+    );
 
+    try {
       const response = await fetch(`${API_SERVER}/itineraries/save`, {
         method: 'POST',
         headers: {
@@ -250,8 +284,6 @@ export default function GroupItineraryDetailPage() {
       });
 
       const result = await response.json();
-      console.log('後端回應:', result);
-
       if (response.ok) {
         console.log('✅ 節點已保存到資料庫');
       } else {
@@ -319,6 +351,9 @@ export default function GroupItineraryDetailPage() {
     }
   }, [showNearbyMode, mapPoint.latitude, mapPoint.longitude, searchRadius]);
 
+  useEffect(() => {
+    console.log('displayStatus', displayStatus.state);
+  }, [displayStatus]);
   return (
     <>
       <ItineraryEditor itineraryData={itineraryData} />
@@ -340,24 +375,21 @@ export default function GroupItineraryDetailPage() {
               ref={scrollRef}
             >
               {itineraryData &&
-                itineraryData.map((day: any, index: number) => {
-                  return (
-                    <DayCard
-                      key={index}
-                      id={index + 1}
-                      date={day.dayDate}
-                      // date={dayTime}
-                      active={activeId === index ? true : false}
-                      onClick={() => setActiveId(index)}
-                      onDelete={() => {
-                        const newItineraryData = itineraryData.filter(
-                          (d, i) => i !== index
-                        );
-                        setItineraryData(newItineraryData);
-                      }}
-                    />
-                  );
-                })}
+                itineraryData.map((day: any, index: number) => (
+                  <DayCard
+                    key={index}
+                    id={index + 1}
+                    date={day.dayDate}
+                    active={activeId === index}
+                    onClick={() => setActiveId(index)}
+                    onDelete={() => {
+                      const newItineraryData = itineraryData.filter(
+                        (d, i) => i !== index
+                      );
+                      setItineraryData(newItineraryData);
+                    }}
+                  />
+                ))}
             </div>
             <div
               className="bg-white border  border-gray-300 flex items-center px-2.5 rounded-tr-xl rounded-br-xl"
@@ -396,6 +428,16 @@ export default function GroupItineraryDetailPage() {
                 // 1. 先更新本地狀態
                 const updatedData = [...(itineraryData ?? []), newDay];
                 setItineraryData(updatedData);
+
+                // 新增天數後自動滾到最右
+                setTimeout(() => {
+                  if (scrollRef.current) {
+                    scrollRef.current.scrollTo({
+                      left: scrollRef.current.scrollWidth,
+                      behavior: 'smooth',
+                    });
+                  }
+                }, 300);
 
                 // 2. 立即保存到資料庫
                 try {
@@ -445,7 +487,28 @@ export default function GroupItineraryDetailPage() {
             {itineraryData &&
               itineraryData.map((day, index) => {
                 let tmpTime = day.startTime;
-                if (index !== activeId) return;
+                if (index !== activeId) return null;
+                // 合併所有節點，並依照原順序混排
+                const allNodes: Array<any> = [];
+                // 景點
+                if (Array.isArray(day.Nodes)) {
+                  day.Nodes.forEach((node, idx) => {
+                    allNodes.push({ ...node, _type: 'attraction', _idx: idx });
+                  });
+                }
+                // 住宿
+                if (Array.isArray(day.StayNodes)) {
+                  day.StayNodes.forEach((node, idx) => {
+                    allNodes.push({
+                      ...node,
+                      _type: 'stay',
+                      _idx: (day.Nodes?.length ?? 0) + idx,
+                    });
+                  });
+                }
+                // 依照 _idx 排序（確保原順序）
+                allNodes.sort((a, b) => a._idx - b._idx);
+
                 return (
                   <div
                     className="flex flex-col items-center gap-3.5"
@@ -453,94 +516,144 @@ export default function GroupItineraryDetailPage() {
                   >
                     <div className="w-full">
                       <h3 className="text-start text-[24px]">{`第${index + 1}天`}</h3>
-                      {/* {itineraryData[0].startTime} */}
-                      {/* <p className="text-start text-base">{day.dayDate}</p>
-                    <p className="text-start text-base">{day.id}</p> */}
                     </div>
-
                     {/* 節點區 */}
-                    {day.Nodes.map((node, nodeIndex) => {
-                      let start;
-                      let end;
-                      if (nodeIndex === 0) {
-                        start = new Date(tmpTime); //為第一個設定開始時間為最開始時間
-                        end = addMinutes(start, node.durationMinutes); //結束時間設定為開始＋時長度
-                        tmpTime = end.toISOString(); //在將暫存時間設定為end時間提供下一次作為開始時間讀取
-                      } else {
-                        start = new Date(tmpTime);
-                        end = addMinutes(start, node.durationMinutes); //結束時間設定為開始＋時長度
-                        tmpTime = end.toISOString(); //在將暫存時間設定為end時間提供下一次作為開始時間讀取
+                    {allNodes.map((node, nodeIndex) => {
+                      let start = '';
+                      let end = '';
+                      // 景點才計算時間
+                      if (
+                        node._type === 'attraction' &&
+                        typeof node.durationMinutes === 'number'
+                      ) {
+                        start = tmpTime;
+                        end = addMinutes(
+                          new Date(tmpTime),
+                          node.durationMinutes
+                        ).toISOString();
+                        tmpTime = end;
                       }
-
-                      // 檢查是否為拖拽狀態
-                      const isDragging =
-                        draggedItem?.dayIndex === index &&
-                        draggedItem?.nodeIndex === nodeIndex;
-                      const isDragOver =
-                        dragOverItem?.dayIndex === index &&
-                        dragOverItem?.nodeIndex === nodeIndex;
-
+                      // 住宿不計算時間
                       return (
-                        <div key={nodeIndex} className="w-full">
+                        <div
+                          key={node._type + '-' + node._idx}
+                          className="w-full"
+                        >
                           <NodeCard
                             image={
-                              (node as any).Attraction?.image ||
-                              node.Place?.image ||
-                              '/default-place.jpg'
+                              node._type === 'stay'
+                                ? node.Accommodation?.Images?.[0]?.url ||
+                                  '/default-place.jpg'
+                                : node.Place?.image ||
+                                  node.Attraction?.image ||
+                                  '/default-place.jpg'
                             }
-                            duration_minute={node.durationMinutes}
+                            duration_minute={node.durationMinutes || 0}
                             title={
-                              (node as any).Attraction?.name ||
-                              node.Place?.nameZh ||
-                              '未知地點'
+                              node._type === 'stay'
+                                ? node.Accommodation?.name || '住宿'
+                                : node.Place?.nameZh ||
+                                  node.Place?.name ||
+                                  node.Attraction?.nameZh ||
+                                  node.Attraction?.name ||
+                                  '未知地點'
                             }
                             address={
-                              (node as any).Attraction?.addrFull ||
-                              node.Place?.addrFull ||
-                              '地址不詳'
+                              node._type === 'stay'
+                                ? node.Accommodation?.address || '地址不詳'
+                                : node.Place?.addrFull ||
+                                  node.Attraction?.addrFull ||
+                                  '地址不詳'
                             }
-                            start_time={start.toISOString()}
-                            end_time={end.toISOString()}
+                            start_time={start}
+                            end_time={end}
                             dayIndex={index}
                             nodeIndex={nodeIndex}
-                            // 🔄 拖拽相關屬性
-                            onDragStart={handleDragStart}
-                            onDragOver={handleDragOver}
-                            onDragEnter={handleDragEnter}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                            isDragging={isDragging}
-                            isDragOver={isDragOver}
+                            onDragStart={
+                              node._type === 'attraction'
+                                ? handleDragStart
+                                : undefined
+                            }
+                            onDragOver={
+                              node._type === 'attraction'
+                                ? handleDragOver
+                                : undefined
+                            }
+                            onDragEnter={
+                              node._type === 'attraction'
+                                ? handleDragEnter
+                                : undefined
+                            }
+                            onDragLeave={
+                              node._type === 'attraction'
+                                ? handleDragLeave
+                                : undefined
+                            }
+                            onDrop={
+                              node._type === 'attraction'
+                                ? handleDrop
+                                : undefined
+                            }
+                            isDragging={
+                              node._type === 'attraction'
+                                ? draggedItem?.dayIndex === index &&
+                                  draggedItem?.nodeIndex === nodeIndex
+                                : false
+                            }
+                            isDragOver={
+                              node._type === 'attraction'
+                                ? dragOverItem?.dayIndex === index &&
+                                  dragOverItem?.nodeIndex === nodeIndex
+                                : false
+                            }
                             onClick={() =>
                               setMapPoint({
                                 latitude:
-                                  (node as any).Attraction?.lat ||
-                                  node.Place?.lat ||
-                                  25.033964,
+                                  node._type === 'stay'
+                                    ? node.Accommodation?.latitude || 25.033964
+                                    : node.Place?.lat ||
+                                      node.Attraction?.lat ||
+                                      25.033964,
                                 longitude:
-                                  (node as any).Attraction?.lng ||
-                                  node.Place?.lng ||
-                                  121.564468,
+                                  node._type === 'stay'
+                                    ? node.Accommodation?.longitude ||
+                                      121.564468
+                                    : node.Place?.lng ||
+                                      node.Attraction?.lng ||
+                                      121.564468,
                               })
                             }
                           />
-                          <div className="bg-gray-600 w-1 h-[43px] m-auto"></div>
+                          <div
+                            className={
+                              node._type === 'attraction'
+                                ? 'bg-gray-600 w-1 h-[43px] m-auto'
+                                : 'bg-blue-400 w-1 h-[43px] m-auto'
+                            }
+                          ></div>
                         </div>
                       );
                     })}
-
                     {/* add btn  */}
                     <div className="flex gap-[30px]">
                       <AddItineraryButton
                         icon={faPlus}
                         btn_name="加入行程"
                         onClick={() => {
-                          console.log('down');
-                          setCurrentDayIndex(index); //設置當天日期，使用陣列索引
+                          setCurrentDayIndex(index);
+                          setDisplayStatus({ state: 'attraction' });
                           setIsIframeVisible(true);
                         }}
                       />
-                      <AddItineraryButton icon={faHouse} btn_name="加入住宿" />
+                      <AddItineraryButton
+                        icon={faHouse}
+                        btn_name="加入住宿"
+                        onClick={() => {
+                          setCurrentDayIndex(index);
+                          setDisplayStatus({ state: 'stay' });
+                          setIsIframeVisible(true);
+                        }}
+                      />
                     </div>
                   </div>
                 );
@@ -643,16 +756,19 @@ export default function GroupItineraryDetailPage() {
             />
           </div> */}
           {/* 彈出視窗 */}
-          {isIframeVisible && currentDayIndex !== null && (
-            <div className="absolute inset-0 z-50 flex left-3 top-3">
-              <PlacePanel
-                visible={isIframeVisible}
-                onSend={handleIframeVisible}
-                currentId={currentDayIndex}
-                onAddNode={handleAddNode}
-              />
-            </div>
-          )}
+          {isIframeVisible &&
+            currentDayIndex !== null &&
+            displayStatus.state && (
+              <div className="absolute inset-0 z-50 flex left-3 top-3">
+                <PlacePanel
+                  visible={isIframeVisible}
+                  onSend={handleIframeVisible}
+                  currentId={currentDayIndex}
+                  onAddNode={handleAddNode}
+                  displayStatus={displayStatus.state}
+                />
+              </div>
+            )}
         </div>
       </div>
     </>

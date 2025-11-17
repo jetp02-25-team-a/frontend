@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React from 'react';
 import { API_SERVER } from '../../app/config/api-path';
+import { useRouter } from 'next/navigation';
 
 interface ReceiveMessageBoxProps {
   userId: number;
@@ -77,10 +78,17 @@ export default function ReceiveMessageBox({
   time,
   onReply,
 }: ReceiveMessageBoxProps) {
+  const router = useRouter();
   // avatar may be full URL or filename; parent should normalize if needed
   return (
-    <div className="p-4 flex gap-4 items-start">
-      <div className="w-14 h-14 relative shrink-0 overflow-hidden rounded-full">
+    <div className="py-2 flex gap-4 items-start">
+      <div
+        className="w-14 h-14 relative shrink-0 overflow-hidden rounded-full"
+        onClick={() => {
+          console.log('id:', userId);
+          router.push(`/member/${userId}`);
+        }}
+      >
         {avatar ? (
           <Image src={avatar} alt={senderName} fill className="object-cover" />
         ) : (
@@ -93,20 +101,22 @@ export default function ReceiveMessageBox({
         )}
       </div>
 
-      <div className="flex-1">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium">{senderName}</h4>
-          <span className="text-xs text-gray-400">{time ?? ''}</span>
+      <div className="flex items-center justify-between w-full">
+        <div>
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium">{senderName}</h4>
+            <span className="text-xs text-gray-400">{time ?? ''}</span>
+          </div>
+          <p className="mt-1 text-sm text-gray-700">{content}</p>
         </div>
-        <p className="mt-1 text-sm text-gray-700">{content}</p>
 
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-3">
           {onReply && (
-            <div className="mt-3 flex items-center gap-2">
+            <div className="space-x-2">
               <button
                 type="button"
                 onClick={() => handleRespond(userId, 1, onReply)}
-                className="inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-full bg-[#F2F2F2] hover:bg-gray-200 shrink-0"
+                className="inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-full bg-[#F2A922] text-white hover:bg-[#ffcb6b] hover:text-white shrink-0"
               >
                 接受
               </button>

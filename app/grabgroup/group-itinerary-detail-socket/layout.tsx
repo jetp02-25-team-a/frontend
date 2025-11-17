@@ -248,12 +248,12 @@ export default function GroupItineraryDetalPage({
       <div className="relative min-h-screen">
         <div className="flex flex-col px-16 py-16 gap-[30px] pb-32">
           <div className="space-y-2.5">
-            <h1 className="text-center text-4xl">設定揪團行程</h1>
-            <p className="text-center text-base">
+            <h1 className="text-center text-4xl">編輯團體行程</h1>
+            {/* <p className="text-center text-base">
               編輯你們想去的景點和規劃你的行程
-            </p>
+            </p> */}
           </div>
-
+          {/* 
           {previousPath.includes('create-group-itinerary') && (
             <>
               <div className="flex gap-x-[21px] justify-center w-full">
@@ -268,11 +268,11 @@ export default function GroupItineraryDetalPage({
                 />
               </div>
             </>
-          )}
+          )} */}
 
           {children}
         </div>
-        
+
         {/* 固定在底部的訊息視窗區 */}
         <div className="fixed bottom-0 left-0 right-0 z-50">
           <OpenChatWindows openChats={openChats} setOpenChats={setOpenChats} />

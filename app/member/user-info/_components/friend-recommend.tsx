@@ -60,16 +60,19 @@ export default function FriendRecommend() {
   }
 
   return (
-    <div className="p-2.5 space-y-2.5">
+    <div className="p-2.5 space-y-2.5 h-auto">
       {friendRecommend && friendRecommend.length > 0 ? (
         friendRecommend.map((friend: any, index: number) => (
           <FriendCard
             key={index}
+            userId={friend.user.id}
             avatar={
               `${AVATAR_PATH}${friend.user.avatar}` || '/avatar_default.png'
             }
             name={friend.user.nickname || friend.fullName}
             address={friend.overlappedAttractions[0].name || '未提供地址'}
+            description={friend.description || '無描述'}
+            overlappedAttractions={friend.overlappedAttractions || []}
           />
         ))
       ) : (

@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import {
   GoogleMap,
   Marker,
@@ -84,9 +86,7 @@ const MapWithNearby = ({
           const attractions = result.data.attractions || [];
           setNearbyAttractions(attractions);
           onAttractionsLoaded?.(attractions);
-          console.log(
-            `🗺️ 找到 ${attractions.length} 個附近景點`
-          );
+          console.log(`🗺️ 找到 ${attractions.length} 個附近景點`);
         } else {
           console.error('❌ 搜索附近景點失敗:', result.message);
           setNearbyAttractions([]);
@@ -178,7 +178,10 @@ const MapWithNearby = ({
       {/* 景點資訊視窗 */}
       {selectedAttraction && (
         <InfoWindow
-          position={{ lat: selectedAttraction.lat, lng: selectedAttraction.lng }}
+          position={{
+            lat: selectedAttraction.lat,
+            lng: selectedAttraction.lng,
+          }}
           onCloseClick={() => setSelectedAttraction(null)}
         >
           <div className="max-w-sm">
@@ -193,12 +196,16 @@ const MapWithNearby = ({
               {selectedAttraction.nameZh || selectedAttraction.name}
             </h3>
             <p className="text-sm text-gray-600 mb-2">
-              📍 {selectedAttraction.addrFull}
+              <FontAwesomeIcon
+                icon={faMapMarkerAlt}
+                className="text-red-500 mr-1"
+              />
+              {selectedAttraction.addrFull}
             </p>
             <p className="text-sm text-blue-600 font-medium">
-              📏 距離約 {selectedAttraction.distance} 公里
+              距離約 {selectedAttraction.distance} 公里
             </p>
-            <div className="flex gap-1 mt-2">
+            {/* <div className="flex gap-1 mt-2">
               {selectedAttraction.tourism && (
                 <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
                   觀光
@@ -214,7 +221,7 @@ const MapWithNearby = ({
                   古蹟
                 </span>
               )}
-            </div>
+            </div> */}
           </div>
         </InfoWindow>
       )}

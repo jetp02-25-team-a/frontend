@@ -13,6 +13,7 @@ interface MessageBoxProps {
   userId: number;
   receiverId?: number;
   senderId?: number;
+  messageType: string;
 }
 export default function MessageBox({
   title,
@@ -24,11 +25,12 @@ export default function MessageBox({
   userId,
   receiverId,
   senderId,
+  messageType,
 }: MessageBoxProps) {
   return (
     <div
       onClick={onClick}
-      className="w-full h-20 flex border-b-2 border-gray-600 bg-white px-2.5 py-2 gap-2"
+      className="w-full h-20 flex border-b-2 border-gray-300 bg-white px-2.5 py-2 gap-2"
     >
       {/* 綠色球 如果沒有為假就是沒有讀 翻轉做判斷*/}
       {/* 發送者如果不是我 就會顯示綠球 */}
@@ -60,7 +62,11 @@ export default function MessageBox({
 
       <div className="m-auto w-full">
         <p className="text-[20px] text-black">{title}</p>
-        <p className="text-base text-gray-400">{content}</p>
+        {messageType === 'image' ? (
+          <p className="text-base text-gray-400">[圖片]</p>
+        ) : (
+          <p className="text-base text-gray-400">{content}</p>
+        )}
       </div>
       <div>{time ? formatTime12Hour(time) : ''}</div>
     </div>

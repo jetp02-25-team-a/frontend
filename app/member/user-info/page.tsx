@@ -16,11 +16,8 @@ import { API_SERVER } from '../../config/api-path';
 import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 import FriendRecommend from './_components/friend-recommend';
 import { useRouter } from 'next/navigation';
-
-// const friend_data = [
-//   { id: 1, user_name: '王小美', avatar: 'image.png', address: '台北' },
-//   { id: 2, user_name: '大衝名', avatar: 'image.png', address: '新北產業園區' },
-// ];
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 //
 interface Member {
@@ -149,8 +146,8 @@ export default function UserInfoPage() {
   //有資料設定contact
   useEffect(() => {
     if (data) {
-      console.log('完整的 contact 資料:', data.data);
-      console.log('allRoomsLatestMessages:', data.data.allRoomsLatestMessages);
+      // console.log('完整的 contact 資料:', data.data);
+      // console.log('allRoomsLatestMessages:', data.data.allRoomsLatestMessages);
       setContact(data.data);
     }
   }, [data]);
@@ -158,11 +155,11 @@ export default function UserInfoPage() {
   //標記訊息為已讀
   const markAsRead = async (roomId: number | null, userId: number | null) => {
     try {
-      const endpoint = roomId 
+      const endpoint = roomId
         ? `${API_SERVER}/chat/mark-read-room`
         : `${API_SERVER}/chat/mark-read-user`;
-      
-      const body = roomId 
+
+      const body = roomId
         ? { roomId, userId: user?.id }
         : { senderId: userId, receiverId: user?.id };
 
@@ -178,18 +175,35 @@ export default function UserInfoPage() {
     }
   };
 
-  //卻認是否存在於小視窗清單中
+  //卻認是否存在於小視窗清單中（加強防禦，避免重複或無效聊天室）
+  // 聊天室去重邏輯：團體聊天室比對 room_id，個人聊天室比對 user_id
   const existChat = (chatsList: ChatInterface[], newChat: ChatInterface) => {
-    const exists = chatsList.some(
-      (chat) =>
-        chat.room_id === newChat.room_id && chat.user_id === newChat.user_id
-    );
-    if (exists) return;
-    
-    // 標記為已讀
-    markAsRead(newChat.room_id, newChat.user_id);
-    
-    setOpenChats((prev) => [...prev, newChat]);
+    // 團體聊天室（room_id 有值）
+    if (newChat.room_id) {
+      const exists = chatsList.some((chat) => chat.room_id === newChat.room_id);
+      if (exists) return;
+      markAsRead(newChat.room_id, null);
+      setOpenChats((prev) => {
+        const already = prev.some((chat) => chat.room_id === newChat.room_id);
+        if (already) return prev;
+        return [...prev, newChat];
+      });
+      return;
+    }
+    // 個人聊天室（user_id 有值）
+    if (newChat.user_id) {
+      const exists = chatsList.some((chat) => chat.user_id === newChat.user_id);
+      if (exists) return;
+      markAsRead(null, newChat.user_id);
+      setOpenChats((prev) => {
+        const already = prev.some((chat) => chat.user_id === newChat.user_id);
+        if (already) return prev;
+        return [...prev, newChat];
+      });
+      return;
+    }
+    // 其他情況不加入
+    return;
   };
 
   //取得所有行程邀請訊息
@@ -239,7 +253,7 @@ export default function UserInfoPage() {
 
   return (
     <>
-      <div className="grid grid-cols-[80%_20%] h-screen">
+      <div className="grid grid-cols-[80%_20%] h-[calc(100vh-88px)]">
         {/* 個人資訊區 */}
         <div className="bg-light-orange relative overflow-y-auto scrollbar-hide">
           <div className="flex flex-col items-center py-16 gap-[30px]">
@@ -262,22 +276,22 @@ export default function UserInfoPage() {
               <div className="flex">
                 <ListButton
                   name="發文"
-                  active={false}
+                  active={options === '發文' ? true : false}
                   onClick={() => setOptions('發文')}
                 />
                 <ListButton
                   name="收藏景點"
-                  active={false}
+                  active={options === '收藏景點' ? true : false}
                   onClick={() => setOptions('收藏景點')}
                 />
                 <ListButton
                   name="好友"
-                  active={false}
+                  active={options === '好友' ? true : false}
                   onClick={() => setOptions('好友')}
                 />
                 <ListButton
                   name="行程"
-                  active={false}
+                  active={options === '行程' ? true : false}
                   onClick={() => {
                     setOptions('行程');
                     handelUserItineraries(); //按下後取得所有行程
@@ -285,7 +299,7 @@ export default function UserInfoPage() {
                 />
                 <ListButton
                   name="通知"
-                  active={true}
+                  active={options === '通知' ? true : false}
                   onClick={() => {
                     setOptions('通知');
                     handelAllInviteMessage(); //按下後刷新
@@ -390,7 +404,7 @@ export default function UserInfoPage() {
           {/* 訊息視窗區  */}
           <OpenChatWindows openChats={openChats} setOpenChats={setOpenChats} />
         </div>
-        <div className="bg-gray-300 flex flex-col h-screen">
+        <div className="bg-gray-300 flex flex-col h-[calc(100vh-88px)]">
           <FriendRecommend />
           {/* <div className="p-2.5 space-y-2.5">
             {friend_data.map((card, index) => {
@@ -404,10 +418,14 @@ export default function UserInfoPage() {
               );
             })}
           </div> */}
+          <div className=" flex justify-between items-center px-6 py-2.5  bg-white border-t-2 border-gray-400">
+            <h4 className="text-start text-[24px] text-gray-500">聯絡人</h4>
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              className="text-2xl cursor-pointer"
+            />
+          </div>
 
-          <h4 className="text-center text-[24px] py-2.5 border-b-2 border-gray-600 bg-white">
-            聯絡人
-          </h4>
           {/* 所有聯絡人區 - 添加滾動容器 */}
           <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
             <ContactList

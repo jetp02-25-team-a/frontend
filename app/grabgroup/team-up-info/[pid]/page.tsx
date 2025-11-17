@@ -13,9 +13,10 @@ import { addMinutes } from 'date-fns';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import Link from 'next/link';
-import Toast from '../_components/Toast';
+// import Toast from '../_components/Toast';
 import { AVATAR_PATH, IMAGE_PATH } from '../../../config/image-path';
 import { API_SERVER } from '../../../config/api-path';
+import toast from 'react-hot-toast';
 
 interface Nodes {
   durationMinutes: number;
@@ -25,10 +26,12 @@ interface Nodes {
     lng: number;
   };
 }
+
 interface Day {
   dayDate: string;
   startTime: string;
   Nodes: Nodes[];
+  StayNodes: any[];
 }
 interface ImageName {
   imageName: string;
@@ -92,15 +95,15 @@ export default function PlacePage() {
     longitude: 121.5654,
   });
   //吐司
-  const [toast, setToast] = useState<{
-    show: boolean;
-    message: string;
-    type?: 'success' | 'error';
-  }>({
-    show: false,
-    message: '',
-    type: 'success',
-  });
+  // const [toast, setToast] = useState<{
+  //   show: boolean;
+  //   message: string;
+  //   type?: 'success' | 'error';
+  // }>({
+  //   show: false,
+  //   message: '',
+  //   type: 'success',
+  // });
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ show: true, message: msg, type });
@@ -171,7 +174,9 @@ export default function PlacePage() {
         body: JSON.stringify(data),
       });
 
-      if (result.ok) showToast('邀約發送', 'success');
+      // if (result.ok) showToast('邀約發送', 'success');
+      if (result.ok) toast.success('邀約發送');
+      else toast.error('已經入邀約');
     } catch (err) {
       console.log(err);
     }
@@ -257,62 +262,74 @@ export default function PlacePage() {
             </>
           )}
           {images && images?.length >= 4 && (
-            <>
-              <PhotoView src={toImgUrl(images[0].imageName)}>
-                {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
-                <img
-                  id="first-photo-trigger"
-                  src={toImgUrl(images[0].imageName)}
-                  alt=""
-                  className="shrink-0 w-[770px] h-full object-cover"
-                />
-              </PhotoView>
-              <div className="flex flex-col gap-4">
-                <PhotoView src={toImgUrl(images[1].imageName)}>
-                  <div className="relative w-[510px] h-[250px]">
-                    <Image
-                      fill
-                      sizes="510px"
-                      src={toImgUrl(images[1].imageName)}
+            <div className="flex h-full">
+              <div className="flex gap-4">
+                <PhotoView src={toImgUrl(images[0].imageName)}>
+                  {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
+                  <div className="h-full w-[770px] shrink-0">
+                    <img
+                      id="first-photo-trigger"
+                      src={toImgUrl(images[0].imageName)}
                       alt=""
-                      className="object-cover"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 </PhotoView>
+                <div className="flex flex-col gap-4">
+                  <PhotoView src={toImgUrl(images[1].imageName)}>
+                    <div className="relative w-full h-[250px]">
+                      <Image
+                        fill
+                        sizes="510px"
+                        src={toImgUrl(images[1].imageName)}
+                        alt=""
+                        className="object-cover"
+                      />
+                    </div>
+                  </PhotoView>
 
-                <div className="flex gap-4">
-                  <PhotoView src={toImgUrl(images[2].imageName)}>
-                    <div className="relative w-[250px] h-[250px]">
-                      <Image
-                        fill
-                        sizes="250px"
-                        src={toImgUrl(images[2].imageName)}
-                        alt=""
-                        className="object-cover"
-                      />
-                    </div>
-                  </PhotoView>
-                  <PhotoView src={toImgUrl(images[3].imageName)}>
-                    <div className="relative w-[250px] h-[250px]">
-                      <Image
-                        fill
-                        sizes="250px"
-                        src={toImgUrl(images[3].imageName)}
-                        alt=""
-                        className="object-cover"
-                      />
-                    </div>
-                  </PhotoView>
+                  <div className="flex gap-4">
+                    <PhotoView src={toImgUrl(images[2].imageName)}>
+                      <div className="relative w-[250px] h-[250px]">
+                        <Image
+                          fill
+                          sizes="250px"
+                          src={toImgUrl(images[2].imageName)}
+                          alt=""
+                          className="object-cover"
+                        />
+                      </div>
+                    </PhotoView>
+                    <PhotoView src={toImgUrl(images[3].imageName)}>
+                      <div className="relative w-[250px] h-[250px]">
+                        <Image
+                          fill
+                          sizes="250px"
+                          src={toImgUrl(images[3].imageName)}
+                          alt=""
+                          className="object-cover"
+                        />
+                      </div>
+                    </PhotoView>
+                  </div>
                 </div>
-              </div>
 
-              <button
-                onClick={openAll}
-                className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
-              >
-                查看所有照片
-              </button>
-            </>
+                <button
+                  onClick={openAll}
+                  className="absolute rounded-full bg-[#05073C] text-white px-10 py-5 right-5 bottom-5 cursor-pointer"
+                >
+                  查看所有照片
+                </button>
+              </div>
+              {/* 隱藏照片 5-6的照片 */}
+              <div className="hidden">
+                {images.slice(4, images.length).map((img, index) => (
+                  <PhotoView key={index} src={toImgUrl(img.imageName)}>
+                    <span></span>
+                  </PhotoView>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </PhotoProvider>
@@ -385,13 +402,16 @@ export default function PlacePage() {
         <p className="text-base">
           {itineraryList?.Itineraries?.[0]?.Article?.content}
         </p>
-        <JoinButton
-          className="mx-auto"
-          content="加入我們"
-          onClick={() => {
-            if (user) handleInvite(user?.id, Number(pid));
-          }}
-        />
+        {user && user.id !== itineraryList?.id && (
+          <JoinButton
+            className="mx-auto"
+            content="加入我們"
+            onClick={() => {
+              if (user) handleInvite(user?.id, Number(pid));
+            }}
+          />
+        )}
+
         {toast.show && (
           <Toast
             message={toast.message}
@@ -450,10 +470,52 @@ export default function PlacePage() {
                                   <p>{node.Attraction?.name}</p>
                                 </div>
 
+                                {/* 如果是最後一個景點且有住宿，顯示藍色分隔線；否則維持原本判斷 */}
                                 {nodeIndex === day.Nodes.length - 1 ? (
-                                  <div className="h-[30px]"></div>
+                                  day.StayNodes && day.StayNodes.length > 0 ? (
+                                    <div className="ml-3.5 h-[30px] border-l-2 border-dashed border-amber-700"></div>
+                                  ) : (
+                                    <div className="h-[30px]"></div>
+                                  )
                                 ) : (
                                   <div className="ml-3.5 h-[30px] border-l-2 border-dashed border-amber-700"></div>
+                                )}
+                              </div>
+                            );
+                          })}
+                          {/* stay nodes */}
+                          {day.StayNodes.map((node: any, nodeIndex: number) => {
+                            return (
+                              <div key={nodeIndex}>
+                                <div
+                                  className="flex gap-[15px] ml-1.5 items-center cursor-pointer"
+                                  onClick={() => {
+                                    setMapPoint({
+                                      latitude: node.Accommodation?.latitude,
+                                      longitude: node.Accommodation?.longitude,
+                                    });
+                                  }}
+                                >
+                                  <div className="border-3 border-b-blue-500 rounded-full w-[18px] h-[18px]"></div>
+                                  <p>
+                                    {nodeIndex === 0
+                                      ? changeTime(day.startTime)
+                                      : changeTime(
+                                          addMinutes(
+                                            day.startTime,
+                                            day.Nodes?.[nodeIndex - 1]
+                                              ?.durationMinutes
+                                          ).toISOString()
+                                        )}
+                                  </p>
+                                  <p>{node.Accommodation?.name}</p>
+                                </div>
+
+                                {/* 判斷自己是不是最後一個 StayNode，若不是則顯示分隔線 */}
+                                {nodeIndex === day.StayNodes.length - 1 ? (
+                                  <div className="h-[30px]"></div>
+                                ) : (
+                                  <div className="ml-3.5 h-[30px] border-l-2 border-dashed border-b-blue-500"></div>
                                 )}
                               </div>
                             );
