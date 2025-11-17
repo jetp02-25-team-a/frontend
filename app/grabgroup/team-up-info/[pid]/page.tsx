@@ -25,10 +25,12 @@ interface Nodes {
     lng: number;
   };
 }
+
 interface Day {
   dayDate: string;
   startTime: string;
   Nodes: Nodes[];
+  StayNodes: any[];
 }
 interface ImageName {
   imageName: string;
@@ -118,7 +120,7 @@ export default function PlacePage() {
     if (data?.success) {
       setItineraryList(data.data[0]);
     }
-    // console.log('itineraryList=>', itineraryList);
+    console.log('itineraryList=>', itineraryList);
   }, [data]);
 
   function changeTime(time: string) {
@@ -465,10 +467,52 @@ export default function PlacePage() {
                                   <p>{node.Attraction?.name}</p>
                                 </div>
 
+                                {/* 如果是最後一個景點且有住宿，顯示藍色分隔線；否則維持原本判斷 */}
                                 {nodeIndex === day.Nodes.length - 1 ? (
-                                  <div className="h-[30px]"></div>
+                                  day.StayNodes && day.StayNodes.length > 0 ? (
+                                    <div className="ml-3.5 h-[30px] border-l-2 border-dashed border-amber-700"></div>
+                                  ) : (
+                                    <div className="h-[30px]"></div>
+                                  )
                                 ) : (
                                   <div className="ml-3.5 h-[30px] border-l-2 border-dashed border-amber-700"></div>
+                                )}
+                              </div>
+                            );
+                          })}
+                          {/* stay nodes */}
+                          {day.StayNodes.map((node: any, nodeIndex: number) => {
+                            return (
+                              <div key={nodeIndex}>
+                                <div
+                                  className="flex gap-[15px] ml-1.5 items-center cursor-pointer"
+                                  onClick={() => {
+                                    setMapPoint({
+                                      latitude: node.Accommodation?.latitude,
+                                      longitude: node.Accommodation?.longitude,
+                                    });
+                                  }}
+                                >
+                                  <div className="border-3 border-b-blue-500 rounded-full w-[18px] h-[18px]"></div>
+                                  <p>
+                                    {nodeIndex === 0
+                                      ? changeTime(day.startTime)
+                                      : changeTime(
+                                          addMinutes(
+                                            day.startTime,
+                                            day.Nodes?.[nodeIndex - 1]
+                                              ?.durationMinutes
+                                          ).toISOString()
+                                        )}
+                                  </p>
+                                  <p>{node.Accommodation?.name}</p>
+                                </div>
+
+                                {/* 判斷自己是不是最後一個 StayNode，若不是則顯示分隔線 */}
+                                {nodeIndex === day.StayNodes.length - 1 ? (
+                                  <div className="h-[30px]"></div>
+                                ) : (
+                                  <div className="ml-3.5 h-[30px] border-l-2 border-dashed border-b-blue-500"></div>
                                 )}
                               </div>
                             );

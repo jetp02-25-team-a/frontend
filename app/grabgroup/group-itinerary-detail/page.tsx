@@ -267,7 +267,10 @@ export default function GroupItineraryDetailPage() {
     });
 
     // 打印即將送出的資料
-    console.log('🚩 發送 save 前的 itineraryData:', JSON.stringify(updatedData, null, 2));
+    console.log(
+      '🚩 發送 save 前的 itineraryData:',
+      JSON.stringify(updatedData, null, 2)
+    );
 
     try {
       const response = await fetch(`${API_SERVER}/itineraries/save`, {
