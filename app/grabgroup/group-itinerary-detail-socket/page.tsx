@@ -49,8 +49,6 @@ export default function GroupItineraryDetailPage() {
   // Socket 相關設置
   const { socket } = useSocket();
   const { user } = useAuth();
-
-  //
   useEffect(() => {
     if (!socket || !itineraryId || !user?.id || !user?.nickname) return;
     // 加入房間
@@ -121,6 +119,29 @@ export default function GroupItineraryDetailPage() {
 
     //刪除節點監聽
     const handleSocketDeleteNode = (data: any) => {
+      // 新增住宿監聽
+      const handleSocketAddStayNode = (data: any) => {
+        console.log('收到增加住宿資料:', data);
+        if (data.userId !== user?.id?.toString()) {
+          setItineraryData((prev) => {
+            if (!prev) return prev;
+            const newData = prev.map((d, index) => {
+              if (index === data.dayIndex) {
+                return {
+                  ...d,
+                  StayNodes: [...(d.StayNodes || []), data.stayNodeData],
+                };
+              }
+              return d;
+            });
+            return newData;
+          });
+        }
+      };
+      socket.on('itinerary:addStayNode', (data) => {
+        console.log('收到資料增加住宿:', data);
+        handleSocketAddStayNode(data);
+      });
       console.log('收到刪除節點資料:', data);
       // 不需要檢查 userId，因為後端已經排除了發送者
       setItineraryData((prev) => {
@@ -281,12 +302,16 @@ export default function GroupItineraryDetailPage() {
 
   const url = `${API_SERVER}/itineraries/detail?itineraryId=${itineraryId}`;
   const { data, error, refetch } = useFetch(url);
+  const [itineraryTitle, setItineraryTitle] = useState<string>('');
 
+  // 從後端抓行程資料
   useEffect(() => {
     if (data && data.success) {
       const datas = data.data;
       setItineraryData((prev) => [...datas]); //設定context
-      console.log('ItineraryData==>', itineraryData);
+      // console.log('data==>', data);
+      setItineraryTitle(datas?.[0]?.Itinerary.title || '未命名行程');
+      // console.log('itineraryTitle==>', itineraryTitle);
     }
   }, [data]);
 
@@ -626,7 +651,7 @@ export default function GroupItineraryDetailPage() {
         <div className="bg-gray-200 p-[15px] space-y-3.5 overflow-auto relative">
           {/* 標題和存檔按鈕區域 */}
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-3xl">行程</h3>
+            <h3 className="text-3xl">行程:{itineraryTitle}</h3>
 
             {/* 存檔按鈕 */}
             <button
@@ -635,7 +660,7 @@ export default function GroupItineraryDetailPage() {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium ${
                 isSaving
                   ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-blue-500 hover:bg-blue-600'
+                  : 'bg-amber-400 hover:bg-amber-600'
               }`}
             >
               <FontAwesomeIcon icon={faSave} />
@@ -720,6 +745,16 @@ export default function GroupItineraryDetailPage() {
                 const updatedData = [...(itineraryData ?? []), newDay];
                 console.log('新增天數後的資料:', updatedData);
                 // const { itineraryId, dayData, userId, userName, timestamp } = data;
+                // 新增天數後自動滾到最右
+                setTimeout(() => {
+                  if (scrollRef.current) {
+                    scrollRef.current.scrollTo({
+                      left: scrollRef.current.scrollWidth,
+                      behavior: 'smooth',
+                    });
+                  }
+                }, 300);
+
                 const data = {
                   itineraryId: Number(itineraryId),
                   dayData: newDay, // 只發送新增的那一天的資料
