@@ -294,8 +294,9 @@ export default function PlacePanel({
       ? Math.max(0, durationMinutes)
       : 0;
 
+    // 統一格式：都用 Place 屬性
     const node = {
-      durationMinutes: dur,
+      durationMinutes: displayStatus === 'stay' ? dur || 480 : dur,
       Place: convertToPlace(placeData),
     };
 
@@ -306,17 +307,30 @@ export default function PlacePanel({
       return;
     }
 
-    // 否則在這裡直接更新 context
     setItineraryData((prev) => {
       const days = prev ? [...prev] : [];
       const idx = resolveDayIndex(days, currentId);
       if (idx === -1) return prev || [];
 
       const target = days[idx];
-      const next = {
-        ...target,
-        Nodes: [...(target.Nodes || []), node],
-      };
+      let next;
+      if (displayStatus === 'stay') {
+        // 住宿節點轉換為 StayNode 型別
+        const stayNode = {
+          id: Date.now(), // 前端暫時產生，後端可自動生成
+          accommodationId: node.Place.id,
+          Accommodation: node.Place,
+        };
+        next = {
+          ...target,
+          StayNodes: [...(target.StayNodes || []), stayNode],
+        };
+      } else {
+        next = {
+          ...target,
+          Nodes: [...(target.Nodes || []), node],
+        };
+      }
       days[idx] = next;
       return days;
     });
