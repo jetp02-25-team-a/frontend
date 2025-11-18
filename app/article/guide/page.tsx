@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../hooks/use-Auth';
 import { API_SERVER } from '@/config/api-path';
+import toast from 'react-hot-toast';
 
 export default function ArticleForm() {
   const [title, setTitle] = useState('');
@@ -11,35 +12,46 @@ export default function ArticleForm() {
   const [file, setFile] = useState<File | null>(null);
   const { user, getAuthHeader } = useAuth();
 
-  // router
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    //fake userId
-    // formData.append('userId', user.id);
+    const toastId = toast.loading('正在送出文章...');
 
-    formData.append('title', title);
-    formData.append('locationId', location);
-    formData.append('content', content);
-    if (file) formData.append('photo', file);
+    try {
+      const formData = new FormData();
 
-    const res = await fetch(`${API_SERVER}/article`, {
-      method: 'POST',
-      headers: {
-        ...getAuthHeader(),
-      },
-      body: formData,
-    });
+      formData.append('title', title);
+      formData.append('locationId', location);
+      formData.append('content', content);
+      if (file) formData.append('photo', file);
 
-    const data = await res.json();
-    console.log('✅ Article saved:', data);
-    alert('Article submitted successfully!');
-    console.log(data.post.id);
-    //redirect to frontend path
-    router.push(`/article/detail?id=${data.post.id}`);
+      const res = await fetch(`${API_SERVER}/article`, {
+        method: 'POST',
+        headers: {
+          ...getAuthHeader(),
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        toast.error(`Submit failed (${res.status})`);
+        toast.dismiss(toastId);
+        return;
+      }
+
+      const data = await res.json();
+      console.log('✅ Article saved:', data);
+
+      toast.success('文章已成功送出！🎉', { id: toastId });
+
+      router.push(`/article/detail?id=${data.post.id}`);
+    } catch (err) {
+      console.error('❌ Submit error:', err);
+      toast.error('送出失敗，請稍後再試');
+      toast.dismiss(toastId);
+    }
   };
 
   return (
@@ -52,6 +64,7 @@ export default function ArticleForm() {
         onChange={(e) => setTitle(e.target.value)}
         className="border p-2"
       />
+
       <select
         name="location"
         value={location}
@@ -76,6 +89,7 @@ export default function ArticleForm() {
         <option value="15">台東</option>
         <option value="16">花蓮</option>
       </select>
+
       <textarea
         name="content"
         value={content}
@@ -83,31 +97,17 @@ export default function ArticleForm() {
         placeholder="寫下你的旅遊筆記..."
         className="border p-2 h-32"
       />
-      {/* <input
-        type="file"
-        name="image"
-        onChange={(e) => setFile(e.target.files?.[0] || null)} */}
-      {/* 圖片上傳 */}
+
       <input
-        type="file" // Asumsi ada type="file" di baris sebelumnya
+        type="file"
         name="photo"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
-      />{' '}
-      {/* 圖片上傳 - Pindahkan komentar ke luar tag input */}
+      />
+
       <label className="block text-sm font-medium text-gray-700 pt-4">
         Upload Foto (限制上傳2張)
       </label>
-      {/* <label className="block text-sm font-medium text-gray-700 pt-4">
-           Upload Foto (最多上傳5張 - 主圖 + 4張副圖)
-        </label>
-        <input
-        type="file"
-        multiple
-                  accept="image/*"
-        onChange={handleImageChange}
-           className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
-         /> */}
-      {/* /> */}
+
       <button
         type="submit"
         className="bg-amber-700 text-white py-2 px-4 rounded hover:bg-orange-600"
@@ -117,6 +117,146 @@ export default function ArticleForm() {
     </form>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//// 'use client';
+// import React, { useState } from 'react';
+// import { useRouter } from 'next/navigation';
+// import { useAuth } from '../../../hooks/use-Auth';
+// import { API_SERVER } from '@/config/api-path';
+// import toast from 'react-hot-toast';
+
+// export default function ArticleForm() {
+//   const [title, setTitle] = useState('');
+//   const [location, setLocation] = useState('');
+//   const [content, setContent] = useState('');
+//   const [file, setFile] = useState<File | null>(null);
+//   const { user, getAuthHeader } = useAuth();
+
+//   // router
+//   const router = useRouter();
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+
+//     const formData = new FormData();
+//     //fake userId
+//     // formData.append('userId', user.id);
+
+//     formData.append('title', title);
+//     formData.append('locationId', location);
+//     formData.append('content', content);
+//     if (file) formData.append('photo', file);
+
+//     const res = await fetch(`${API_SERVER}/article`, {
+//       method: 'POST',
+//       headers: {
+//         ...getAuthHeader(),
+//       },
+//       body: formData,
+//     });
+
+//     const data = await res.json();
+//     console.log('✅ Article saved:', data);
+//     alert('Article submitted successfully!');
+//     console.log(data.post.id);
+//     //redirect to frontend path
+//     router.push(`/article/detail?id=${data.post.id}`);
+//   };
+
+//   return (
+//     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4">
+//       <input
+//         type="text"
+//         name="title"
+//         value={title}
+//         placeholder="文章標題"
+//         onChange={(e) => setTitle(e.target.value)}
+//         className="border p-2"
+//       />
+//       <select
+//         name="location"
+//         value={location}
+//         onChange={(e) => setLocation(e.target.value)}
+//         className="border p-2"
+//       >
+//         <option value="">選擇地點</option>
+//         <option value="1">台北</option>
+//         <option value="2">桃園</option>
+//         <option value="3">新竹</option>
+//         <option value="4">苗栗</option>
+//         <option value="5">台中</option>
+//         <option value="6">彰化</option>
+//         <option value="7">嘉義</option>
+//         <option value="8">台南</option>
+//         <option value="9">高雄</option>
+//         <option value="10">屏東</option>
+//         <option value="11">金門</option>
+//         <option value="12">澎湖</option>
+//         <option value="13">南投</option>
+//         <option value="14">雲林</option>
+//         <option value="15">台東</option>
+//         <option value="16">花蓮</option>
+//       </select>
+//       <textarea
+//         name="content"
+//         value={content}
+//         onChange={(e) => setContent(e.target.value)}
+//         placeholder="寫下你的旅遊筆記..."
+//         className="border p-2 h-32"
+//       />
+//       {/* <input
+//         type="file"
+//         name="image"
+//         onChange={(e) => setFile(e.target.files?.[0] || null)} */}
+//       {/* 圖片上傳 */}
+//       <input
+//         type="file" // Asumsi ada type="file" di baris sebelumnya
+//         name="photo"
+//         onChange={(e) => setFile(e.target.files?.[0] || null)}
+//       />{' '}
+//       {/* 圖片上傳 - Pindahkan komentar ke luar tag input */}
+//       <label className="block text-sm font-medium text-gray-700 pt-4">
+//         Upload Foto (限制上傳2張)
+//       </label>
+//       {/* <label className="block text-sm font-medium text-gray-700 pt-4">
+//            Upload Foto (最多上傳5張 - 主圖 + 4張副圖)
+//         </label>
+//         <input
+//         type="file"
+//         multiple
+//                   accept="image/*"
+//         onChange={handleImageChange}
+//            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
+//          /> */}
+//       {/* /> */}
+//       <button
+//         type="submit"
+//         className="bg-amber-700 text-white py-2 px-4 rounded hover:bg-orange-600"
+//       >
+//         Send Article 送出文章
+//       </button>
+//     </form>
+//   );
+// }
 
 // 'use client';
 

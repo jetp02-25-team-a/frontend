@@ -7,6 +7,7 @@ import IntroText from './_components/IntroText';
 import SidebarAction from './_components/SidebarActions';
 import DestinationCard from './_components/DestinationCard';
 import { API_SERVER } from '../config/api-path';
+import toast from 'react-hot-toast';
 interface DestType {
   title: string;
   location: string;
