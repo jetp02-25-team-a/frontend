@@ -113,6 +113,18 @@ export default function TeamUpPage() {
           onClick={() => setArea('新竹市')}
         />
         <AreaButton
+          image="/taichyu.jpg"
+          area_name="台中市"
+          active={area === '台中市' ? true : false}
+          onClick={() => setArea('台中市')}
+        />
+        <AreaButton
+          image="/twofuen.jpg"
+          area_name="台南市"
+          active={area === '台南市' ? true : false}
+          onClick={() => setArea('台南市')}
+        />
+        <AreaButton
           image="/kaohsiung.png"
           area_name="高雄市"
           active={area === '高雄市' ? true : false}

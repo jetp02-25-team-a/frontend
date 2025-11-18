@@ -9,6 +9,7 @@ import { Children, useState } from 'react';
 // import ResponseBox from './_components/ResponseBox';
 import Button from '../_components/Button';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const googleMapNode = {};
 
@@ -29,7 +30,10 @@ export default function TeamUpInfoPage({
           <Button content="回上一頁" onClick={() => router.back()} />
           <Button
             content="下一頁"
-            onClick={() => router.push(`/grabgroup/team-up`)}
+            onClick={() => {
+              toast.success('行程建立完成');
+              router.push(`/grabgroup/team-up`);
+            }}
           />
         </div>
       </div>

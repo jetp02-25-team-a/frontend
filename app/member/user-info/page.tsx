@@ -18,7 +18,12 @@ import FriendRecommend from './_components/friend-recommend';
 import FavoriteList from '@/app/place/favorite/FavoriteList';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import {
+  faMagnifyingGlass,
+  faTrashCan,
+} from '@fortawesome/free-solid-svg-icons';
+import toast from 'react-hot-toast';
+import DeleteConfirmModal from './_components/deleteConfirmModal';
 
 //
 interface Member {
@@ -119,6 +124,8 @@ export default function UserInfoPage() {
   const [openChats, setOpenChats] = useState<ChatInterface[]>([]); //所有聊天室資訊 小視窗
   const [options, setOptions] = useState<string>('通知');
   const [allInviteMessage, setAllInviteMessage] = useState<InviteMessage>();
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+
   const router = useRouter();
   //分romms 跟 all_friends
   const [contact, setContact] = useState<any>({
@@ -332,6 +339,7 @@ export default function UserInfoPage() {
                             <p className="text-center min-w-[80px]">
                               {itinerary.Itinerary?.figure} 人/團體
                             </p>
+
                             <p className="text-xl font-semibold text-center min-w-[120px] text-gray-400">
                               {(() => {
                                 const dateValue =
@@ -352,6 +360,21 @@ export default function UserInfoPage() {
                             >
                               詳細頁面
                             </button>
+                            {/* 刪除行程按鈕 */}
+                            <div>
+                              <FontAwesomeIcon
+                                icon={faTrashCan}
+                                onClick={() =>
+                                  setDeleteId(itinerary.Itinerary?.id)
+                                }
+                              />
+                            </div>
+                            {/* modal */}
+                            <DeleteConfirmModal
+                              itineraryId={itinerary.itineraryId}
+                              isOpen={deleteId === itinerary.Itinerary?.id}
+                              onRequestClose={() => setDeleteId(null)}
+                            />
                             {/* 顯示更多行程資訊 */}
                           </div>
                         ))
