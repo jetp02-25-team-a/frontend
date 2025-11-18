@@ -1,11 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useEffectEvent } from 'react';
 import Image from 'next/image';
 import ButtonO from './button-orange';
 import RegularButton from '@/components/ui/regular-button';
 import { AVATAR_PATH } from '../../config/image-path';
 import { string } from 'zod';
+// import { console } from 'inspector';
+import { API_SERVER } from '../../config/api-path';
+import { useState } from 'react';
+import { de } from 'date-fns/locale';
 
 interface ComponentsUserCardProps {
   avatar: string;
@@ -15,6 +19,19 @@ interface ComponentsUserCardProps {
   state: 'self' | 'other' | 'isFriend';
   addFriend?: (id: number) => void;
 }
+
+interface UserDetail {
+  followers: number;
+  friends: number;
+  itineraries: number;
+  posts: number;
+}
+const defaultUserDetail: UserDetail = {
+  followers: 0,
+  friends: 0,
+  itineraries: 0,
+  posts: 0,
+};
 
 export default function ComponentsUserCard({
   avatar,
@@ -36,6 +53,28 @@ export default function ComponentsUserCard({
     // 否則加上 AVATAR_PATH 前綴
     return `${AVATAR_PATH}${avatarStr}`;
   };
+
+  const getUserDetailUrl = async (userId: number) => {
+    if (!userId) return;
+    //http://localhost:3005/api/friendships/user-activity?userId=55
+    const url = `${API_SERVER}/friendships/user-activity?userId=${userId}`;
+    const result = await fetch(url);
+    if (!result.ok) {
+      console.error('Failed to fetch user details');
+      return;
+    }
+    const data = await result.json();
+    // console.log('User Details:', data.data);
+    return data;
+  };
+
+  const [userDetail, setUserDetail] = useState<UserDetail>(defaultUserDetail);
+
+  useEffect(() => {
+    getUserDetailUrl(id).then((data) => {
+      if (data && data.data) setUserDetail(data.data);
+    });
+  }, []);
 
   return (
     <>
@@ -76,10 +115,10 @@ export default function ComponentsUserCard({
           </div>
         </div>
         <div className="flex w-full">
-          <p className="w-full text-center">發文</p>
-          <p className="w-full text-center">旅行</p>
-          <p className="w-full text-center">朋友</p>
-          <p className="w-full text-center">追蹤</p>
+          <p className="w-full text-center">發文 {userDetail.posts}</p>
+          <p className="w-full text-center">旅行 {userDetail.itineraries}</p>
+          <p className="w-full text-center">朋友 {userDetail.friends}</p>
+          <p className="w-full text-center">追蹤 {userDetail.followers}</p>
         </div>
       </div>
     </>

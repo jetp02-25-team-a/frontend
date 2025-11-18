@@ -75,7 +75,7 @@ export default function Navbar() {
                 pathname.startsWith('/accommodations') ? 'text-white' : ''
               }`}
             >
-              住宿交通
+              住宿查詢
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link
