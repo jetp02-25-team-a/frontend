@@ -12,8 +12,7 @@ import { useItinerary } from '@/hooks/use-itinerart';
 import { ItineraryData } from '../../_types/itineraryTypes';
 import Image from 'next/image';
 import { API_SERVER } from '../../../config/api-path';
-import { is } from 'date-fns/locale';
-import { isSea } from 'node:sea';
+
 import { IMAGE_PATH } from '../../../config/image-path';
 import { image } from '@uiw/react-md-editor';
 
@@ -84,7 +83,7 @@ export default function PlacePanel({
   displayStatus,
 }: IframeProps) {
   // 打印displayStatus
-  console.log('PlacePanel displayStatus:', displayStatus);
+  // console.log('PlacePanel displayStatus:', displayStatus);
   // 驗證圖片 URL 是否有效的輔助函數
   const isValidImageUrl = (url: string | undefined | null): string | null => {
     if (!url || typeof url !== 'string') return null;

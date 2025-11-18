@@ -81,7 +81,7 @@ export default function CreateGroupItineraryPage() {
     if (data && data.success) setFriendDate(data.data);
   }, [data]);
 
-  const backend = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
+  // const backend = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}`;
 
   const [pendingInvites, setPendingInvites] = useState<number[]>([]); // 儲存好友ID
 

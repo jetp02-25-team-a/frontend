@@ -1,6 +1,7 @@
 'use client';
-import { de } from 'date-fns/locale';
+
 import Image from 'next/image';
+import { IMAGE_PATH } from '../../../config/image-path';
 
 interface PanelCardProps {
   image?: string;
@@ -30,6 +31,19 @@ export default function PanelCard({
             <Image
               fill
               src={image}
+              alt=""
+              className="object-cover"
+              sizes="100px"
+            />
+          ) : (
+            <div className="flex bg-gray-300 w-full h-full justify-center items-center ">
+              <p className="text-gray-500 text-sm">沒有照片</p>
+            </div>
+          )}
+          {image && displayStatus === 'stay' ? (
+            <Image
+              fill
+              src={`${IMAGE_PATH}${image}`}
               alt=""
               className="object-cover"
               sizes="100px"

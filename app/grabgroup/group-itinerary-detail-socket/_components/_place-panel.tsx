@@ -9,6 +9,7 @@ import PanelCard from './_panel-card';
 import { useFetch } from '@/hooks/useFetch';
 import { useItinerary } from '@/hooks/use-itinerart';
 import { ItineraryData } from '../../_types/itineraryTypes';
+import { API_SERVER } from '../../../config/api-path';
 
 interface IframeProps {
   visible: boolean;
@@ -53,7 +54,7 @@ export default function PlacePanel({
   // 觸發搜尋
   const handleSearch = (keyword: string) => {
     if (!keyword.trim()) return;
-    const finUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/search?place=${encodeURIComponent(
+    const finUrl = `${API_SERVER}/itineraries/search?place=${encodeURIComponent(
       keyword.trim()
     )}`;
     setUrl(finUrl);
