@@ -1,3 +1,4 @@
+import { API_URL } from '@/config/api-path';
 type OpeningHour = {
   weekday: number;
   openTime: string | null;
@@ -21,7 +22,7 @@ type ApiPlace = {
 };
 
 export async function getSpotDetail(placeId: number) {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL!;
+  const base = API_URL;
   const res = await fetch(`${base}/api/place/${placeId}`, {
     cache: 'no-store',
   });

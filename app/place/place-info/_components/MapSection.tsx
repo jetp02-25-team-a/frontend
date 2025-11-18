@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+import { API_URL } from '@/config/api-path';
 
 // ---- 用 dynamic 匯入 LeafletMap ----
 // ssr: false → 禁用伺服端渲染，避免 window 未定義
@@ -19,10 +20,7 @@ export default function MapSectionWrapper({ placeId }: { placeId: number }) {
         <div className="w-full h-[360px] bg-neutral-200 animate-pulse rounded-xl" />
       }
     >
-      <LeafletMap
-        placeId={placeId}
-        apiBase={process.env.NEXT_PUBLIC_API_BASE_URL || ''}
-      />
+      <LeafletMap placeId={placeId} apiBase={API_URL || ''} />
     </Suspense>
   );
 }

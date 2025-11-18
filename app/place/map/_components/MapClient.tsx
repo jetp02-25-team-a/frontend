@@ -18,8 +18,9 @@ import Drawer from './Drawer';
 import AddPlaceModal from './AddPlaceModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRotateRight, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { API_URL } from '@/config/api-path';
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API = API_URL;
 // 預設中心（沒輸入時）
 const MAP_HEIGHT = 'calc(100dvh - 100px)';
 const DEFAULT_CENTER: [number, number] = [25.0339, 121.5648]; // 資展

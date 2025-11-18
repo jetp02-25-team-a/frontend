@@ -1,4 +1,5 @@
-const BASE = process.env.NEXT_PUBLIC_API_BASE_URL!;
+import { API_URL } from '@/config/api-path';
+const BASE = API_URL;
 // 讀 env 並轉 number；沒有就丟明確錯誤，避免 NaN
 
 // 新增或覆寫（有 @@unique([userId, placeId]) 就 upsert）

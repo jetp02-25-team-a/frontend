@@ -1,4 +1,5 @@
-const API = process.env.NEXT_PUBLIC_API_BASE_URL!;
+import { API_URL } from '@/config/api-path';
+const API = API_URL;
 
 // ⭐ 新增收藏
 export async function addFavorite(userId: number, placeId: number) {
