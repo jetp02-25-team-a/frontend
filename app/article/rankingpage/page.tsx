@@ -1,77 +1,214 @@
-'use client';
-
-import React from 'react';
+// app/article/rankingpage/page.tsx
+'use client'; // PENTING: Untuk mengaktifkan useState dan useEffect
+// import { useEffect, useState } from 'react';
 import HeroImage from '../_components/HeroImage';
-import SidebarActions from '../_components/SidebarActions';
-import SectionTitle from '../_components/SectionTitle';
-import DestinationCard from '../_components/DestinationCard';
-import ProductCard from '../_components/ProductCard';
-import destinations from '../_data/destination';
+import HeroSection from '../_components/HeroSection';
+import IntroText from '../_components/IntroText';
+import SidebarAction from '../_components/SidebarActions';
+import React, { useState, useEffect } from 'react';
+import RankingCard from '../_components/RankingCard';
+import { ArticleRankingItem, RankingAPIResponse } from '../_components/type'; // Sesuaikan jalur import
+import axios from 'axios';
 
-export default function RankingPage() {
-  return (
-    <main className="min-h-screen flex flex-col items-center">
-      <HeroImage />
-      <div className="text-center mt-7 text-5xl font-bold">
-        你的旅程，不只是回憶——也是靈感的起點！
+// 🚀 KOREKSI URL AKURAT BERDASARKAN HASIL POSTMAN 🚀
+const API_BASE_URL = 'http://localhost:3005/api/article';
+const ARTICLES_PER_PAGE = 10;
+
+const ArticleRankingPage: React.FC = () => {
+  const [rankingData, setRankingData] = useState<ArticleRankingItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalArticles, setTotalArticles] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchRanking = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // URL FINAL YANG PASTI BERHASIL MENGHINDARI 404:
+        // Cth: http://localhost:3005/api/article/ranking?limit=10&page=1
+        const url = `${API_BASE_URL}/ranking?limit=${ARTICLES_PER_PAGE}&page=${currentPage}`;
+
+        const response = await axios.get<RankingAPIResponse>(url);
+        const data = response.data;
+
+        if (data.success) {
+          setRankingData(data.data);
+          setTotalArticles(data.total);
+        } else {
+          setError(data.message || 'Failed to retrieve ranking data.');
+        }
+      } catch (err) {
+        console.error('Error fetching ranking:', err);
+        const errorMessage = axios.isAxiosError(err)
+          ? `Gagal koneksi atau status ${err.response?.status}: Cek Backend!`
+          : 'Terjadi kesalahan tidak terduga.';
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRanking();
+  }, [currentPage]);
+
+  const totalPages = Math.ceil(totalArticles / ARTICLES_PER_PAGE);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  if (loading)
+    return (
+      <div style={{ textAlign: 'center', padding: '50px', fontSize: '1.2em' }}>
+        ⏳ Loading Article Rankings...
       </div>
+    );
+  if (error)
+    return (
+      <div
+        style={{
+          color: 'white',
+          backgroundColor: '#e53e3e',
+          padding: '20px',
+          textAlign: 'center',
+          borderRadius: '8px',
+        }}
+      >
+        ❌ Error: {error}
+      </div>
+    );
 
-      {/* Konten dengan Sidebar */}
-      <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6 p-6 w-full max-w-7xl">
-        {/* Sidebar */}
-        <aside className="md:col-span-1">
-          <SidebarActions />
-        </aside>
+  return (
+    <div
+      style={{
+        maxWidth: '900px',
+        margin: '30px auto',
+        padding: '0 15px',
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
+      <h1
+        style={{
+          textAlign: 'center',
+          borderBottom: '3px solid #3182ce',
+          paddingBottom: '15px',
+          color: '#2b6cb0',
+        }}
+      >
+        🏆 Popular Article Ranking Based on Score
+      </h1>
 
-        {/* Konten utama */}
-        <div className="md:col-span-3">
-          <SectionTitle />
-          <div className="grid gap-4">
-            {destinations.map((destination, index) => (
-              <ProductCard
-                key={destination.id ?? index}   // ← FIX key unik
-                rank={index + 1}
-                title={destination.title}
-                description={destination.description}
-                image={destination.image}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    </main>
+      {rankingData.length === 0 ? (
+        <p style={{ textAlign: 'center', marginTop: '40px', color: '#4a5568' }}>
+          There are no articles to rank at this time..
+        </p>
+      ) : (
+        rankingData.map((article: ArticleRankingItem) => (
+          <RankingCard key={article.id} article={article} />
+        ))
+      )}
+
+      {/* Pagination */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '30px',
+          padding: '10px 0',
+        }}
+      >
+        <button
+          onClick={handlePrevPage}
+          disabled={currentPage === 1}
+          style={buttonStyle(currentPage === 1)}
+        >
+          &larr; Last page
+        </button>
+        <span style={{ fontWeight: 'bold', color: '#2d3748' }}>
+          Page **{currentPage}** dari **{totalPages}** ({totalArticles} total
+          article)
+        </span>
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages || totalPages === 0}
+          style={buttonStyle(currentPage === totalPages || totalPages === 0)}
+        >
+          Next page &rarr;
+        </button>
+      </div>
+    </div>
   );
-}
+};
 
+// Helper style untuk tombol
+const buttonStyle = (isDisabled: boolean): React.CSSProperties => ({
+  padding: '10px 15px',
+  cursor: isDisabled ? 'not-allowed' : 'pointer',
+  backgroundColor: isDisabled ? '#ccc' : '#3182ce',
+  color: 'white',
+  border: 'none',
+  borderRadius: '6px',
+  fontWeight: 'bold',
+  opacity: isDisabled ? 0.6 : 1,
+});
 
+export default ArticleRankingPage;
 
+/// 'use client';
 
+// import React from 'react';
+// import HeroImage from '../_components/HeroImage';
+// import SidebarActions from '../_components/SidebarActions';
+// import SectionTitle from '../_components/SectionTitle';
+// import DestinationCard from '../_components/DestinationCard';
+// import ProductCard from '../_components/ProductCard';
+// import destinations from '../_data/destination';
 
+// export default function RankingPage() {
+//   return (
+//     <main className="min-h-screen flex flex-col items-center">
+//       <HeroImage />
+//       <div className="text-center mt-7 text-5xl font-bold">
+//         你的旅程，不只是回憶——也是靈感的起點！
+//       </div>
 
+//       {/* Konten dengan Sidebar */}
+//       <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6 p-6 w-full max-w-7xl">
+//         {/* Sidebar */}
+//         <aside className="md:col-span-1">
+//           <SidebarActions />
+//         </aside>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//         {/* Konten utama */}
+//         <div className="md:col-span-3">
+//           <SectionTitle />
+//           <div className="grid gap-4">
+//             {destinations.map((destination, index) => (
+//               <ProductCard
+//                 key={destination.id ?? index}   // ← FIX key unik
+//                 rank={index + 1}
+//                 title={destination.title}
+//                 description={destination.description}
+//                 image={destination.image}
+//               />
+//             ))}
+//           </div>
+//         </div>
+//       </section>
+//     </main>
+//   );
+// }
 
 // 'use client';
 
