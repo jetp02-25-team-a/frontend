@@ -125,11 +125,13 @@ export default function DatePicker({
             {getMonthDays(monthOffset).map((date) => {
               const isSelected = date === startDate || date === endDate;
               const inRange = isInRange(date);
+              const isPast = moment(date).isBefore(today, 'day');
 
               return (
                 <button
                   key={date}
                   onClick={() => handleSelect(date)}
+                  disabled={isPast}
                   className={`w-8 h-8 flex items-center justify-center rounded-full 
                     ${
                       isSelected
@@ -137,7 +139,9 @@ export default function DatePicker({
                         : inRange
                           ? 'bg-orange-200'
                           : 'hover:bg-gray-200'
-                    }`}
+                    }
+                    ${isPast ? 'text-gray-400 cursor-not-allowed bg-gray-100' : ''}
+                  `}
                 >
                   {moment(date).date()}
                 </button>
