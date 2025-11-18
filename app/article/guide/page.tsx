@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../hooks/use-Auth';
+import { API_SERVER } from '@/config/api-path';
 
 export default function ArticleForm() {
   const [title, setTitle] = useState('');
@@ -25,7 +26,7 @@ export default function ArticleForm() {
     formData.append('content', content);
     if (file) formData.append('photo', file);
 
-    const res = await fetch('http://localhost:3005/api/article', {
+    const res = await fetch(`${API_SERVER}/article`, {
       method: 'POST',
       headers: {
         ...getAuthHeader(),
@@ -38,7 +39,7 @@ export default function ArticleForm() {
     alert('Article submitted successfully!');
     console.log(data.post.id);
     //redirect to frontend path
-    router.push(`http://localhost:3000/article/detail?id=${data.post.id}`);
+    router.push(`/article/detail?id=${data.post.id}`);
   };
 
   return (
