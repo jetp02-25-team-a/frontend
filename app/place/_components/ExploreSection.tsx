@@ -6,8 +6,9 @@ import {
   faArrowDownShortWide,
   faArrowUpShortWide,
 } from '@fortawesome/free-solid-svg-icons';
+import { API_URL } from '../../../config/api-path';
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL!;
+const API = API_URL;
 
 type Raw = any;
 type Front = {
