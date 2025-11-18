@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { API_SERVER } from '../../config/api-path';
 import z from 'zod';
-import SimpleModal from '../_components/modal';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const signupSchema = z
   .object({
@@ -24,19 +24,7 @@ export default function SignUpPage() {
     password: '',
     passwordsec: '',
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
   const router = useRouter();
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setModalMessage('');
-  };
-
-  const showModalWithMessage = (message: string) => {
-    setModalMessage(message);
-    setIsModalOpen(true);
-  };
 
   //表單通用輸入處理
   const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +38,7 @@ export default function SignUpPage() {
     if (!validationResult.success) {
       // 驗證失敗：取得第一個錯誤訊息並顯示 Modal
       const firstError = validationResult.error.issues[0];
-      showModalWithMessage(firstError.message);
+      toast.error(firstError.message);
       return; // 阻止 API 呼叫
     }
 
@@ -74,7 +62,7 @@ export default function SignUpPage() {
       const resultData = await response.json();
 
       if (response.ok && resultData.id) {
-        showModalWithMessage('註冊成功，將返回登入頁');
+        toast.success('註冊成功，將返回登入頁');
 
         // 💡 修正 1: 使用 setTimeout 導向
         setTimeout(() => {
@@ -86,17 +74,17 @@ export default function SignUpPage() {
 
       // 處理後端傳回的失敗訊息 (例如: 重複電子郵件)
       if (resultData && resultData.success === false && resultData.message) {
-        showModalWithMessage(resultData.message); // 顯示後端傳回的錯誤訊息
+        toast.error(resultData.message); // 顯示後端傳回的錯誤訊息
         return;
       }
 
       // 處理其他未預期的錯誤或非 200 OK 的狀態碼
-      showModalWithMessage('註冊失敗，請稍後再試。');
+      toast.error('註冊失敗，請稍後再試。');
       return;
     } catch (error) {
       // 捕捉網路錯誤、JSON 解析錯誤等
       console.error('註冊過程中發生錯誤:', error);
-      showModalWithMessage('網路連線或伺服器發生異常');
+      toast.error('網路連線或伺服器發生異常');
     }
   };
 
@@ -159,12 +147,6 @@ export default function SignUpPage() {
           </div>
         </form>
       </div>
-
-      <SimpleModal
-        isOpen={isModalOpen}
-        message={modalMessage}
-        onClose={closeModal}
-      />
     </>
   );
 }

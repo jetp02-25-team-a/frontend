@@ -8,6 +8,7 @@ import ProductCard from '../../_components/productCard';
 import Slider from 'react-slick';
 import { useCart } from '../../../../hooks/use-Cart';
 import ShoppingCart from '../../_components/shoppingCart';
+import { IoIosArrowForward } from 'react-icons/io';
 
 interface ProductVariant {
   id: number;
@@ -65,6 +66,13 @@ export default function IdPage() {
   const [mainImageSrc, setMainImageSrc] = useState<string | undefined>(
     undefined
   );
+
+  const breadcrumbs = [
+    { name: '商城首頁', href: '/shops' },
+    { name: '所有產品', href: '/shops/product' }, // 假設這是產品列表的基礎路徑
+    { name: data?.keyword, href: `/shops/product?keyword=${data?.keyword}` },
+    { name: data?.productName, href: '#' },
+  ];
 
   const productTab = data?.ProductVariants.map((item) => ({
     key: String(item.id),
@@ -139,6 +147,27 @@ export default function IdPage() {
 
   return (
     <>
+      <nav
+        className="w-full bg-[#F2CEAE] h-16 flex items-center  px-25"
+        aria-label="Breadcrumb"
+      >
+        <div>
+          <ol className="flex items-center space-x-2">
+            {breadcrumbs.map((crumb, index) => (
+              <li key={index} className="flex items-center">
+                <a
+                  href={crumb.href}
+                  className={`text-sm mr-2  font-medium ${index === breadcrumbs.length - 1 ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  {crumb.name}
+                </a>
+                {/* 只有當它不是最後一個元素時才顯示分隔符 */}
+                {index < breadcrumbs.length - 1 && <IoIosArrowForward />}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </nav>
       <div className="bg-[#FBE7C1]">
         <div className="flex pt-8 w-7/8 mx-auto ">
           <div className="w-5/8 flex flex-col items-center">
@@ -220,7 +249,7 @@ export default function IdPage() {
           </div>
         </div>
         <div className="flex justify-center items-center my-16">
-          {data?.description}
+          <div dangerouslySetInnerHTML={{ __html: data?.description || '' }} />
         </div>
         <div className="flex justify-center items-center my-16 text-3xl font-bold">
           <p className="">相似商品</p>

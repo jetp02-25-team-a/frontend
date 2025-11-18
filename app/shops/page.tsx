@@ -7,6 +7,7 @@ import { useCart } from '../../hooks/use-Cart';
 import Slider from 'react-slick';
 import ShoppingCart from './_components/shoppingCart';
 import ProductCard from './_components/productCard';
+import Link from 'next/link';
 import { GrLinkNext } from 'react-icons/gr';
 
 const ProductInit: ApiResponse = {
@@ -179,10 +180,12 @@ export default function M6Page() {
             })}
           </Slider>
         </div>
-        <h1 className="text-4xl font-bold text-center mt-16 flex items-center justify-center space-x-2 ">
-          所有商品
-          <GrLinkNext />
-        </h1>
+        <Link href={'/shops/product'}>
+          <h1 className="text-4xl font-bold text-center mt-16 flex items-center justify-center space-x-2 ">
+            所有商品
+            <GrLinkNext />
+          </h1>
+        </Link>
         <ShoppingCart totalItems={cart.totalItems} />
       </div>
     </>
