@@ -371,9 +371,10 @@ export default function UserInfoPage() {
                             </div>
                             {/* modal */}
                             <DeleteConfirmModal
-                              itineraryId={itinerary.itineraryId}
+                              itineraryId={itinerary.Itinerary?.id}
                               isOpen={deleteId === itinerary.Itinerary?.id}
                               onRequestClose={() => setDeleteId(null)}
+                              onDeleted={handelUserItineraries}
                             />
                             {/* 顯示更多行程資訊 */}
                           </div>

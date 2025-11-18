@@ -9,12 +9,14 @@ interface DeleteConfirmModalProps {
   itineraryId: number;
   isOpen: boolean;
   onRequestClose: () => void;
+  onDeleted?: () => void;
 }
 
 export default function DeleteConfirmModal({
   itineraryId,
   isOpen,
   onRequestClose,
+  onDeleted,
 }: DeleteConfirmModalProps) {
   // const [isOpen, setIsOpen] = useState(false);
   useEffect(() => {
@@ -44,11 +46,9 @@ export default function DeleteConfirmModal({
 
       if (result.success) {
         toast.success('成功刪除行程');
-        // 刪除後重新取得行程列表
-        // handelUserItineraries();
+        onDeleted?.();
       } else {
         toast.error('刪除行程失敗');
-        // handelUserItineraries();
       }
     } catch (err) {
       console.log(err);
@@ -88,8 +88,8 @@ export default function DeleteConfirmModal({
               background: '#F87171',
               color: '#fff',
             }}
-            onClick={() => {
-              deleteItineraryById(itineraryId);
+            onClick={async () => {
+              await deleteItineraryById(itineraryId);
               onRequestClose();
             }}
           >
