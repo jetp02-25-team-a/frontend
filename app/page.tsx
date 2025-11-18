@@ -304,7 +304,7 @@ export default function Home() {
                 <Image
                   width={71}
                   height={71}
-                  src="/images/Frame 19.png"
+                  src="/images/Frame 20.png"
                   alt=""
                   className="w-[71px] h-[71px]"
                 />
