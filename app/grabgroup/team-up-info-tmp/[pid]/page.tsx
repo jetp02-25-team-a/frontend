@@ -11,6 +11,7 @@ import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import { useAuth } from '@/hooks/use-Auth';
 import { API_SERVER } from '@/config/api-path';
+import { IMAGE_PATH } from '@/config/image-path';
 
 interface Nodes {
   durationMinutes: number;
@@ -106,7 +107,7 @@ export default function PlacePage() {
   const images = itineraryList?.Itineraries?.[0].Images;
   const comments = itineraryList?.Itineraries?.[0].ItineraryComments;
   const toImgUrl = (fileName: string) => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/images/itineraries_photo/${fileName}`;
+    return `${IMAGE_PATH}itineraries_photo/${fileName}`;
   };
   const [showAll, setShowAll] = useState(false);
   const btnRef = useRef<HTMLImageElement>(null); //抓img
