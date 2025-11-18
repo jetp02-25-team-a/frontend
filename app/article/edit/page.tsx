@@ -29,6 +29,10 @@ const locationOptions = [
   { label: '屏東', value: '10' },
   { label: '金門', value: '11' },
   { label: '澎湖', value: '12' },
+  { label: '南投', value: '13' },
+  { label: '雲林', value: '14' },
+  { label: '台東', value: '15' },
+  { label: '花蓮', value: '16' },
 ];
 
 export default function EditArticlePage() {
@@ -139,7 +143,6 @@ export default function EditArticlePage() {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        
         {/* Title */}
         <div>
           <label className="block text-gray-700 font-medium mb-2">Title</label>
@@ -212,35 +215,6 @@ export default function EditArticlePage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //// 'use client';
 
