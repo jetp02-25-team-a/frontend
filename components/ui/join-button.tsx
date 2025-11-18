@@ -5,7 +5,7 @@ interface JoinButtonProps {
   content: string;
   className?: string;
   onClick?: () => void;
-  mode?: 'white';
+  mode?: 'white' | 'orange';
 }
 export default function JoinButton({
   content,
