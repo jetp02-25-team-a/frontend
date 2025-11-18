@@ -267,7 +267,7 @@ export default function ReviewArticlePage() {
   const router = useRouter();
   const pid = searchParams.get('id');
 
-  const { user, getAuthHeader } = useAuth();   // ⬅⬅⬅ tambah user
+  const { user, getAuthHeader } = useAuth(); // ⬅⬅⬅ tambah user
   const isAuthenticated = !!user?.id;
 
   const [article, setArticle] = useState<Article>({
@@ -284,8 +284,7 @@ export default function ReviewArticlePage() {
   const [isLiking, setIsLiking] = useState(false);
 
   // 🟢 Jika user.id adalah number dan article.userId string → convert
-  const isOwner =
-    isAuthenticated && Number(article.userId) === Number(user.id);
+  const isOwner = isAuthenticated && Number(article.userId) === Number(user.id);
 
   const getArticle = useCallback(async (articleId: string) => {
     try {
@@ -334,7 +333,9 @@ export default function ReviewArticlePage() {
       }));
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : 'Terjadi kesalahan tidak terduga saat like.';
+        err instanceof Error
+          ? err.message
+          : 'Terjadi kesalahan tidak terduga saat like.';
       console.error('Like Error:', err);
       alert(errorMessage);
     } finally {
@@ -369,10 +370,12 @@ export default function ReviewArticlePage() {
       }
 
       alert('Article successfully deleted.');
-      router.push('/article/list');
+      router.push('/article/');
     } catch (err) {
       console.error('Delete Error:', err);
-      alert(err instanceof Error ? err.message : 'Unexpected error during deletion.');
+      alert(
+        err instanceof Error ? err.message : 'Unexpected error during deletion.'
+      );
     }
   }, [article.id, getAuthHeader, router]);
 
@@ -396,7 +399,6 @@ export default function ReviewArticlePage() {
       </aside>
 
       <main className="relative flex-grow max-w-4xl bg-white rounded-2xl shadow-md p-6 md:p-10">
-        
         {/* 🔥 HANYA MUNCUL JIKA PEMILIK ARTIKEL */}
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
           {isOwner && (
@@ -455,7 +457,8 @@ export default function ReviewArticlePage() {
             ) : (
               <img
                 src={
-                  typeof article.photos === 'string' && article.photos.trim() !== ''
+                  typeof article.photos === 'string' &&
+                  article.photos.trim() !== ''
                     ? `${ARTICLE_PHOTOS_PATH}${article.photos}`
                     : '/no-image.png'
                 }
@@ -474,52 +477,6 @@ export default function ReviewArticlePage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // 'use client';
 
