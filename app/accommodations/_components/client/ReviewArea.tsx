@@ -10,6 +10,7 @@ import { useReviews } from '../../_lib/_hooks';
 import { useAuth } from '../../../../hooks/use-Auth';
 import { useState } from 'react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 // 🚨 2. 調整 Props 結構以符合 useReviews 的參數
 export interface ReviewAreaProps {
@@ -87,6 +88,7 @@ export default function ReviewArea({
   const handleSubmit = async () => {
     if (!comment.trim() || rating === 0) return;
     await createReview({ content: comment, rating });
+    toast.success('發表成功');
     setComment('');
     setRating(0);
   };

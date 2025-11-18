@@ -165,9 +165,8 @@ export default function InfoArea({
       </div>
 
       {/* 右側 BookingForm */}
-      <div className="w-full lg:w-[320px] h-[400px] lg:sticky lg:top-24 self-start">
-        <div className="h-full border rounded-lg p-4 bg-white shadow flex flex-col gap-4">
-          <h2 className="text-lg font-semibold mb-2 text-gray-900">Booking</h2>
+      <div className="w-[320px] lg:sticky lg:top-24 self-start">
+        <div className="h-full flex flex-col gap-4">
           <BookingInventoryForm accommodationId={id} />
         </div>
       </div>

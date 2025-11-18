@@ -1,127 +1,92 @@
-// 文件名: components/BookingInventoryForm.tsx
-
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useAuth } from '../../../../hooks/use-Auth';
+import LoginModal from './LoginModal';
 
-// 🌟 匯入 Hook
-import { useRoomTypeInventory } from '../../_lib/_hooks';
-// 💡 請根據您的實際路徑調整
-
-export default function BookingInventoryForm({
-  accommodationId,
-}: {
+interface BookingLauncherProps {
+  // 只需要住宿 ID 來構建目標 URL
   accommodationId: number;
-}) {
+}
+
+/**
+ * BookingLauncher 是一個極簡的導航按鈕元件。
+ * 點擊後會導航到該住宿點的通用預訂頁面。
+ */
+export default function BookingLauncher({
+  accommodationId,
+}: BookingLauncherProps) {
   const router = useRouter();
-  const [checkInDate, setCheckInDate] = useState('');
-  const [selectedRoomTypeId, setSelectedRoomTypeId] = useState<number | null>(
-    null
-  );
+  const { isAuthenticated } = useAuth();
 
-  // 1. 🌟 使用 Hook 查詢可用的房型
-  const {
-    availableRoomTypes,
-    isLoadingRoomTypes: isLoading,
-    roomTypeError: error,
-  } = useRoomTypeInventory(accommodationId, checkInDate);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // 2. 排序房型：依照最早有庫存的日期排序 (保留在元件中)
-  const sortedRoomTypes = availableRoomTypes.sort((a, b) => {
-    // 找出最早有庫存的日期
-    const aDate = a.availability.find((a) => a.availableCount > 0)?.date;
-    const bDate = b.availability.find((b) => b.availableCount > 0)?.date;
-    // 使用 new Date(0) 來處理找不到日期的情況
-    return new Date(aDate || 0).getTime() - new Date(bDate || 0).getTime();
-  });
+  const MODAL_MESSAGE = '您需要登入才能繼續預訂流程。';
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedRoomTypeId || !checkInDate) return;
+  const handleLogin = () => {
+    setShowLoginModal(false);
 
-    // 導航到預訂頁面，帶上選定的參數
-    router.push(
-      `/accommodations/booking?accommodationId=${accommodationId}&roomTypeId=${selectedRoomTypeId}&checkInDate=${checkInDate}`
-    );
+    // 導航到登入頁面，並附帶 redirect 參數
+    const redirectUrl = encodeURIComponent(window.location.pathname);
+    router.push(`/member/login?redirect=${redirectUrl}`);
   };
 
-  // 💡 提示: 這裡可以整合 useDateInventory 來禁用日曆中 checkInDate 前後的日期。
+  const handleBookingClick = () => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+    router.push(`/accommodations/${accommodationId}/booking`);
+  };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex h-full flex-col gap-8 justify-between "
-    >
-      {/* 日期欄位 */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          入住日期
-        </label>
-        <input
-          type="date"
-          value={checkInDate}
-          // 重設日期時，也清空已選房型
-          onChange={(e) => {
-            setCheckInDate(e.target.value);
-            setSelectedRoomTypeId(null);
-          }}
-          className="mt-1 w-full border rounded px-2 py-1"
-        />
+    <>
+      <div className="p-4 rounded-xl bg-white shadow-xl border border-gray-100">
+        <button
+          type="button"
+          onClick={handleBookingClick}
+          // 按鈕永遠啟用，因為跳轉不需要任何前置條件
+          className={`w-full text-white font-semibold py-3 rounded-lg transition-colors shadow-md 
+                bg-brand hover:bg-brand-dark cursor-pointer 
+            `}
+        >
+          立即預訂 (Order Now)
+        </button>
       </div>
-
-      {/* 房型選單 */}
-      {isLoading && checkInDate && (
-        <p className="text-sm text-gray-500">
-          正在查詢 {checkInDate} 的可用房型...
-        </p>
-      )}
-      {error && (
-        <p className="text-sm text-red-500">查庫存失敗：{error.message}</p>
-      )}
-      {/* 根據排序後的房型列表渲染選單 */}
-      {sortedRoomTypes.length > 0 ? (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            房型
-          </label>
-          <select
-            className="mt-1 w-full border rounded px-2 py-1"
-            value={selectedRoomTypeId ?? ''}
-            onChange={(e) => setSelectedRoomTypeId(Number(e.target.value))}
+      {showLoginModal && (
+        // 背景覆蓋層 (點擊背景時關閉)
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setShowLoginModal(false)}
+        >
+          {/* 模態框內容 */}
+          <div
+            className="bg-white rounded-lg p-6 w-[90%] max-w-md shadow-2xl"
+            onClick={(e) => e.stopPropagation()} // 阻止點擊內容時關閉 Modal
           >
-            <option value="">
-              請選擇房型 ({sortedRoomTypes.length} 種可用)
-            </option>
-            {sortedRoomTypes.map((rt) => (
-              <option key={rt.roomTypeId} value={rt.roomTypeId}>
-                {rt.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      ) : (
-        // 只有在日期選定且載入完成後才顯示無庫存訊息
-        checkInDate &&
-        !isLoading && (
-          <p className="text-sm text-amber-500">
-            在 {checkInDate} 沒有可預訂的房型。
-          </p>
-        )
-      )}
+            <h2 className="text-xl font-bold mb-4">請先登入</h2>
 
-      {/* Order Now 按鈕 */}
-      <button
-        type="submit"
-        disabled={!selectedRoomTypeId || !checkInDate || isLoading}
-        className={`mt-4 w-full text-white font-semibold py-2 rounded transition-colors ${
-          !selectedRoomTypeId || !checkInDate || isLoading
-            ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-brand hover:bg-brand-dark cursor-pointer'
-        }`}
-      >
-        Order Now
-      </button>
-    </form>
+            {/* 提示訊息 */}
+            <p className="mb-6">{MODAL_MESSAGE}</p>
+
+            <div className="flex justify-end gap-4">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                onClick={() => setShowLoginModal(false)} // 取消按鈕
+              >
+                取消
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onClick={handleLogin} // 登入按鈕 (觸發導航)
+              >
+                登入
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

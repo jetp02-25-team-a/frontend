@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../hooks/use-Auth';
 import { useRoomTypeInventory } from '../../_lib/_hooks';
 import { apiFetch } from '../../_lib/_api';
+import toast from 'react-hot-toast';
 
 // 預設入住天數和價格假設
 const DEFAULT_NIGHTS = 1;
@@ -96,7 +97,7 @@ export default function BookingPage() {
       !guestName ||
       !guestEmail
     ) {
-      alert('請檢查預訂資訊或庫存是否足夠。');
+      toast('請檢查預訂資訊或庫存是否足夠。');
       setLoading(false);
       return;
     }
@@ -123,11 +124,10 @@ export default function BookingPage() {
         } as HeadersInit,
         body: JSON.stringify(payload),
       });
-      alert('訂單已建立成功！');
+      toast.success('訂單已建立成功！');
       router.push(`/bookings/success`);
     } catch (err) {
-      console.error(err);
-      alert('建立訂單失敗');
+      toast.error('建立訂單失敗');
     } finally {
       setLoading(false);
     }
@@ -171,7 +171,7 @@ export default function BookingPage() {
       className="max-w-xl mx-auto p-6 bg-white rounded-xl shadow-2xl flex flex-col gap-8 my-8"
     >
       <h1 className="text-3xl font-extrabold text-gray-900 border-b pb-3">
-        🏨 預訂流程 (住宿點 ID: {accommodationId})
+        預訂流程
       </h1>
 
       {/* 🌟 步驟 1: 選擇日期 */}
@@ -196,7 +196,7 @@ export default function BookingPage() {
           required
         />
         <p className="mt-3 text-sm text-gray-600">
-          預計退房日期: {checkOutDate || '待定'} ({DEFAULT_NIGHTS} 晚)
+          預計退房日期: {checkOutDate || '待定'}
         </p>
       </div>
 
@@ -209,7 +209,7 @@ export default function BookingPage() {
             htmlFor="roomType"
             className="block text-lg font-bold text-green-700 mb-3"
           >
-            步驟 2: 🛏️ 選擇房型與數量
+            步驟 2: 選擇房型與數量
           </label>
 
           {roomTypeStatusMessage}
@@ -245,7 +245,7 @@ export default function BookingPage() {
         <>
           <div className="p-5 border-2 border-blue-400 rounded-xl bg-blue-50/50">
             <h2 className="text-lg font-bold text-blue-700 mb-4">
-              步驟 3: 💰 訂單確認與數量
+              步驟 3: 訂單確認與數量
             </h2>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <p className="col-span-2 text-xl font-semibold border-b pb-2">
@@ -253,9 +253,6 @@ export default function BookingPage() {
               </p>
               <p className="text-green-700 font-bold">
                 單晚價格: NT$ {roomPrice.toLocaleString()}
-              </p>
-              <p className="text-gray-600 font-bold text-right">
-                該日庫存: **{maxQuantity}** 間
               </p>
             </div>
 
@@ -283,7 +280,7 @@ export default function BookingPage() {
 
           <div className="p-5 border-2 border-purple-400 rounded-xl bg-purple-50/50">
             <h2 className="text-lg font-bold text-purple-700 mb-4">
-              步驟 4: 👤 入住者資訊
+              步驟 4: 入住者資訊
             </h2>
 
             {/* 入住者資訊 */}
@@ -329,7 +326,7 @@ export default function BookingPage() {
           {/* 總金額與按鈕 */}
           <div className="text-right pt-4">
             <p className="text-3xl font-extrabold text-gray-900 mb-6">
-              總金額：NT$ **{totalPrice.toLocaleString()}**
+              總金額：NT$ {totalPrice.toLocaleString()}
             </p>
 
             <button
@@ -341,7 +338,7 @@ export default function BookingPage() {
                 !guestName ||
                 !guestEmail
               }
-              className="w-full px-8 py-4 rounded-xl bg-orange-500 text-white text-xl font-bold hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-300 shadow-lg hover:shadow-xl"
+              className="w-full px-8 py-4 rounded-xl bg-brand text-white text-xl font-bold hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-300 shadow-lg hover:shadow-xl"
             >
               {loading ? '🚀 訂單處理中...' : '✅ 確認並立即預訂'}
             </button>
