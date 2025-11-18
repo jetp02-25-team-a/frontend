@@ -3,6 +3,7 @@
 import React from 'react';
 import Card from './Card';
 import FadeIn from '../_components/FadeIn';
+import { buildImageUrl } from '@/config/image-path';
 
 export default function Grid({ data }: { data: any[] }) {
   // 你目前每頁是 12 筆，讓錯落依照「該批的 index」做 0~330ms 的延遲
@@ -22,7 +23,10 @@ export default function Grid({ data }: { data: any[] }) {
                 : p.photos[0]?.url) || ''
             : '';
 
-        const cover = first || 'https://picsum.photos/seed/default/400/300';
+        const raw = first || '';
+        const cover = raw
+          ? buildImageUrl(raw)
+          : 'https://picsum.photos/seed/default/400/300';
 
         // 讓每批的 12 張有輕微錯落，避免全部同時跳出
         const delay = (idx % PAGE_SIZE) * STAGGER_BASE;

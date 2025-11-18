@@ -3,7 +3,10 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
-import Toast from '../../_components/Toast';
+import Toast from '@/app/place/_components/Toast';
+import { useAuth } from '@/hooks/use-Auth';
+import { createOrUpsertRank } from '@/app/place/lib/rankAdaptor';
+import { createOrUpsertComment } from '@/app/place/lib/commentAdaptor';
 
 type OpeningRow = {
   weekday: number; // 0~6
@@ -119,20 +122,18 @@ export default function AddPlaceModal({
   onClose,
   onCreated, // 建立成功回調
   apiBase,
-  currentUserId = 10, // TODO: 之後接登入
 }: {
   open: boolean;
   onClose: () => void;
   onCreated?: (place: any) => void;
   apiBase: string;
-  currentUserId?: number;
 }) {
   const [type, setType] = useState<'food' | 'spot'>('spot');
   const [name, setName] = useState('');
   const [introduce, setIntroduce] = useState('');
   const [address, setAddress] = useState('');
   const [region, setRegion] = useState('');
-  const [contact, setContact] = useState('0212345678');
+  const [contact, setContact] = useState('');
   const [latitude, setLatitude] = useState<string>('');
   const [longitude, setLongitude] = useState<string>('');
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
@@ -153,14 +154,37 @@ export default function AddPlaceModal({
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  const { user, isReady } = useAuth();
+  const isLoggedIn = !!user.email;
+  const userId = user.id;
+  const token = user?.token;
+
+  // 將 "HH:mm" 轉成 UTC ISO 字串，例如 "08:00" → "1970-01-01T08:00:00.000Z"
+  function timeToUtcIso(t: string | undefined | null) {
+    if (!t) return null; // 給後端判斷要不要存
+    const [h, m] = t.split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return null;
+
+    const d = new Date(Date.UTC(1970, 0, 1, h, m, 0));
+    return d.toISOString(); // e.g. "1970-01-01T08:00:00.000Z"
+  }
+
   const openingHoursPayload = useMemo(() => {
-    // 只送有意義的天；公休送 { weekday, isClosed: true }
     return hours.map((h) => {
-      if (h.isClosed) return { weekday: h.weekday, isClosed: true };
+      if (h.isClosed) {
+        return {
+          weekday: h.weekday,
+          isClosed: true,
+          openTime: null,
+          closeTime: null,
+        };
+      }
+
       return {
         weekday: h.weekday,
-        openTime: h.openTime, // "HH:mm"
-        closeTime: h.closeTime,
+        isClosed: false,
+        openTime: timeToUtcIso(h.openTime), // "HH:mm" -> ISO UTC
+        closeTime: timeToUtcIso(h.closeTime),
       };
     });
   }, [hours]);
@@ -178,6 +202,7 @@ export default function AddPlaceModal({
       setIntroduce('這是一個Demo用的地標建立測試');
       setAddress('臺北市大安區復興南路一段390號');
       setRegion('大安區');
+      setContact('02-12345678');
       setLatitude('25.0339444');
       setLongitude('121.5432777');
       setPhotoFiles([]); // 有問題
@@ -195,22 +220,6 @@ export default function AddPlaceModal({
       setLoading(false);
     }
   }, [open]);
-
-  async function postJSON(url: string, body: any) {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const text = await res.text().catch(() => '');
-    if (!res.ok)
-      throw new Error(`${url} ${res.status}: ${text || 'Request failed'}`);
-    try {
-      return JSON.parse(text);
-    } catch {
-      return {};
-    }
-  }
 
   function appendFiles(files: FileList | File[]) {
     const arr = Array.from(files);
@@ -243,6 +252,11 @@ export default function AddPlaceModal({
       form.append('introduce', introduce.trim());
       form.append('openingHours', JSON.stringify(openingHoursPayload));
 
+      const trimmedContact = contact.trim();
+      if (trimmedContact) {
+        form.append('contact', trimmedContact);
+      }
+
       if (latitude !== '' && longitude !== '') {
         form.append('latitude', latitude);
         form.append('longitude', longitude);
@@ -254,8 +268,11 @@ export default function AddPlaceModal({
       });
 
       // 1) 建立地標 — multipart/form-data
+
+      console.log('token =', token);
       const res = await fetch(`${apiBase}/api/place`, {
         method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: form,
       });
 
@@ -269,35 +286,45 @@ export default function AddPlaceModal({
       if (!place?.id) throw new Error('建立成功但未取得 place.id');
 
       // 2) 建立評分
-      await postJSON(`${apiBase}/api/place/${place.id}/ranks`, {
-        score,
-        userId: currentUserId,
-      });
+
+      await createOrUpsertRank(place.id, score, userId);
 
       // 3) 建立留言
-      await postJSON(`${apiBase}/api/place/${place.id}/comments`, {
-        content: comment.trim(),
-        userId: currentUserId,
-      });
+      await createOrUpsertComment(place.id, comment.trim(), userId);
 
-      // 4) 補齊 stats 後再通知父層（避免父層拿到沒有 avg 的 place）
+      // 4) 🔍 再打一次詳情 API，把 Photos 也拉回來
+      let fullPlace: any = place;
+      try {
+        const detailRes = await fetch(`${apiBase}/api/place/${place.id}`, {
+          method: 'GET',
+        });
+        if (detailRes.ok) {
+          const detailJson = await detailRes.json();
+          if (detailJson?.data) {
+            fullPlace = detailJson.data; // 這個通常就會有 Photos
+          }
+        }
+      } catch (e) {
+        console.warn('fetch place detail failed, use basic place only', e);
+      }
+
+      // 5) 補齊 stats 後再通知父層（fullPlace 裡如果有 Photos，Drawer 就吃得到）
       const placeForUI = {
-        ...place,
-        // 你項目裡其他地方可能讀 stats.avg 或 ratingAvg，兩個都補上
-        stats: place?.stats ?? { avg: score, count: 1 },
-        ratingAvg: (place as any)?.ratingAvg ?? score,
-        ratingCount: (place as any)?.ratingCount ?? 1,
+        ...fullPlace,
+        stats: fullPlace?.stats ?? { avg: score, count: 1 },
+        ratingAvg: (fullPlace as any)?.ratingAvg ?? score,
+        ratingCount: (fullPlace as any)?.ratingCount ?? 1,
       };
 
       try {
-        onCreated?.(placeForUI); // 父層再拿去 setState
+        onCreated?.(placeForUI); // 🔥 這裡丟出去的就是「有 Photos 的版本」
         setToast({
           message: '地標已成功建立！',
           type: 'success',
         });
       } catch (e) {
         console.error('onCreated error:', e);
-        setErr('建立成功，但更新畫面時發生錯誤（缺少 avg）。'); // 不會再顯示 undefined.avg
+        setErr('建立成功，但更新畫面時發生錯誤（缺少 avg）。');
       }
     } catch (e: any) {
       setErr(e?.message ?? '發生錯誤');

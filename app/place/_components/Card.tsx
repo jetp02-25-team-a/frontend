@@ -7,6 +7,7 @@ import {
   faStarHalfStroke,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import { buildImageUrl } from '@/config/image-path';
 
 export default function Card({ spot, photo }: { spot: any; photo: string }) {
   const name: string = spot?.name ?? '';
@@ -17,9 +18,11 @@ export default function Card({ spot, photo }: { spot: any; photo: string }) {
     ? Number(ratingRaw)
     : 0;
 
+  const dbUrl = spot?.Photos?.[0]?.url;
+
   const cover =
     photo ||
-    spot?.photos?.[0]?.url ||
+    buildImageUrl(dbUrl) ||
     'https://picsum.photos/seed/default/400/300';
 
   // 小工具：把 0~5 分數轉成 5 顆星

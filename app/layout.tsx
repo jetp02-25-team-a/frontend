@@ -13,6 +13,7 @@ import { FavoriteAccommodationProvider } from '../contexts/FavoriteAccommodation
 
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import BackToTop from '@/components/ui/BackToTop';
 
 import { Noto_Sans_TC, Roboto } from 'next/font/google';
 import ToastProvider from '../components/ui/ToastProvider';

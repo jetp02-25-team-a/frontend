@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import ReviewList from './ReviewList';
 import ReviewComposer from './ReviewComposer';
 import SuccessModal from './SuccessModal';
+import { API_URL } from '@/config/api-path';
 
 type ReviewItem = {
   id: number;
@@ -28,7 +29,7 @@ export default function SpotReviewsPanel({
   const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
   // ✅ env → number；若 props 有給就用 props，否則用 env
-  const envUidRaw = process.env.NEXT_PUBLIC_MOCK_USER_ID;
+  const envUidRaw = API_URL;
   const envUid = envUidRaw ? Number(envUidRaw) : undefined;
   const uid = typeof currentUserId === 'number' ? currentUserId : envUid;
 

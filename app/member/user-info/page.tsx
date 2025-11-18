@@ -15,6 +15,7 @@ import { ApiResponse } from '../_interfaces/userData';
 import { API_SERVER } from '../../config/api-path';
 import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 import FriendRecommend from './_components/friend-recommend';
+import FavoriteList from '@/app/place/favorite/FavoriteList';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
@@ -310,7 +311,7 @@ export default function UserInfoPage() {
                 {/* 顯示區域 */}
                 <div>
                   {options === '發文' && <>發表文章</>}
-                  {options === '收藏景點' && <>收藏景點</>}
+                  {options === '收藏景點' && <FavoriteList />}
                   {options === '好友' && <></>}
                   {options === '行程' && (
                     <>

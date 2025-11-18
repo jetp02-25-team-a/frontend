@@ -1,12 +1,12 @@
-import { getSpotDetail } from '@/app/place/lib/singlePlaceAdapter';
-
-const API = process.env.NEXT_PUBLIC_API_BASE_URL!;
+import { API_URL } from '@/config/api-path';
+const API = API_URL;
 
 // ⭐ 新增收藏
 export async function addFavorite(userId: number, placeId: number) {
+  const uidStr = String(userId);
   const res = await fetch(`${API}/api/favorite`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-user-id': uidStr },
     body: JSON.stringify({ userId, placeId }),
   });
 
@@ -19,9 +19,10 @@ export async function addFavorite(userId: number, placeId: number) {
 
 // ⭐ 取消收藏
 export async function removeFavorite(userId: number, placeId: number) {
+  const uidStr = String(userId);
   const res = await fetch(`${API}/api/favorite/${placeId}`, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-user-id': uidStr },
     body: JSON.stringify({ userId, placeId }),
   });
 
