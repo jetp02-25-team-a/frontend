@@ -5,6 +5,8 @@ import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import Toast from '@/app/place/_components/Toast';
 import { useAuth } from '@/hooks/use-Auth';
+import { createOrUpsertRank } from '@/app/place/lib/rankAdaptor';
+import { createOrUpsertComment } from '@/app/place/lib/commentAdaptor';
 
 type OpeningRow = {
   weekday: number; // 0~6
@@ -155,6 +157,7 @@ export default function AddPlaceModal({
   const { user, isReady } = useAuth();
   const isLoggedIn = !!user.email;
   const userId = user.id;
+  const token = user?.token;
 
   // 將 "HH:mm" 轉成 UTC ISO 字串，例如 "08:00" → "1970-01-01T08:00:00.000Z"
   function timeToUtcIso(t: string | undefined | null) {
@@ -218,22 +221,6 @@ export default function AddPlaceModal({
     }
   }, [open]);
 
-  async function postJSON(url: string, body: any) {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const text = await res.text().catch(() => '');
-    if (!res.ok)
-      throw new Error(`${url} ${res.status}: ${text || 'Request failed'}`);
-    try {
-      return JSON.parse(text);
-    } catch {
-      return {};
-    }
-  }
-
   function appendFiles(files: FileList | File[]) {
     const arr = Array.from(files);
     if (!arr.length) return;
@@ -281,8 +268,11 @@ export default function AddPlaceModal({
       });
 
       // 1) 建立地標 — multipart/form-data
+
+      console.log('token =', token);
       const res = await fetch(`${apiBase}/api/place`, {
         method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: form,
       });
 
@@ -296,16 +286,11 @@ export default function AddPlaceModal({
       if (!place?.id) throw new Error('建立成功但未取得 place.id');
 
       // 2) 建立評分
-      await postJSON(`${apiBase}/api/place/${place.id}/ranks`, {
-        score,
-        userId: userId,
-      });
+
+      await createOrUpsertRank(place.id, score, userId);
 
       // 3) 建立留言
-      await postJSON(`${apiBase}/api/place/${place.id}/comments`, {
-        content: comment.trim(),
-        userId: userId,
-      });
+      await createOrUpsertComment(place.id, comment.trim(), userId);
 
       // 4) 🔍 再打一次詳情 API，把 Photos 也拉回來
       let fullPlace: any = place;
