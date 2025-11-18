@@ -1,13 +1,17 @@
 // app/article/rankingpage/page.tsx
-"use client"; // PENTING: Untuk mengaktifkan useState dan useEffect
-
+'use client'; // PENTING: Untuk mengaktifkan useState dan useEffect
+// import { useEffect, useState } from 'react';
+import HeroImage from '../_components/HeroImage';
+import HeroSection from '../_components/HeroSection';
+import IntroText from '../_components/IntroText';
+import SidebarAction from '../_components/SidebarActions';
 import React, { useState, useEffect } from 'react';
 import RankingCard from '../_components/RankingCard';
-import { ArticleRankingItem, RankingAPIResponse } from '../../types'; // Sesuaikan jalur import
+import { ArticleRankingItem, RankingAPIResponse } from '../_components/type'; // Sesuaikan jalur import
 import axios from 'axios';
 
 // 🚀 KOREKSI URL AKURAT BERDASARKAN HASIL POSTMAN 🚀
-const API_BASE_URL = 'http://localhost:3005/api/article'; 
+const API_BASE_URL = 'http://localhost:3005/api/article';
 const ARTICLES_PER_PAGE = 10;
 
 const ArticleRankingPage: React.FC = () => {
@@ -25,7 +29,7 @@ const ArticleRankingPage: React.FC = () => {
         // URL FINAL YANG PASTI BERHASIL MENGHINDARI 404:
         // Cth: http://localhost:3005/api/article/ranking?limit=10&page=1
         const url = `${API_BASE_URL}/ranking?limit=${ARTICLES_PER_PAGE}&page=${currentPage}`;
-        
+
         const response = await axios.get<RankingAPIResponse>(url);
         const data = response.data;
 
@@ -33,12 +37,12 @@ const ArticleRankingPage: React.FC = () => {
           setRankingData(data.data);
           setTotalArticles(data.total);
         } else {
-          setError(data.message || 'Gagal mengambil data ranking.');
+          setError(data.message || 'Failed to retrieve ranking data.');
         }
       } catch (err) {
-        console.error("Error fetching ranking:", err);
-        const errorMessage = axios.isAxiosError(err) 
-          ? `Gagal koneksi atau status ${err.response?.status}: Cek Backend!` 
+        console.error('Error fetching ranking:', err);
+        const errorMessage = axios.isAxiosError(err)
+          ? `Gagal koneksi atau status ${err.response?.status}: Cek Backend!`
           : 'Terjadi kesalahan tidak terduga.';
         setError(errorMessage);
       } finally {
@@ -63,17 +67,51 @@ const ArticleRankingPage: React.FC = () => {
     }
   };
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '50px', fontSize: '1.2em' }}>⏳ Memuat Ranking Artikel...</div>;
-  if (error) return <div style={{ color: 'white', backgroundColor: '#e53e3e', padding: '20px', textAlign: 'center', borderRadius: '8px' }}>❌ Error: {error}</div>;
+  if (loading)
+    return (
+      <div style={{ textAlign: 'center', padding: '50px', fontSize: '1.2em' }}>
+        ⏳ Loading Article Rankings...
+      </div>
+    );
+  if (error)
+    return (
+      <div
+        style={{
+          color: 'white',
+          backgroundColor: '#e53e3e',
+          padding: '20px',
+          textAlign: 'center',
+          borderRadius: '8px',
+        }}
+      >
+        ❌ Error: {error}
+      </div>
+    );
 
   return (
-    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 15px', fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ textAlign: 'center', borderBottom: '3px solid #3182ce', paddingBottom: '15px', color: '#2b6cb0' }}>
-        🏆 Peringkat Artikel Populer Berdasarkan Score
+    <div
+      style={{
+        maxWidth: '900px',
+        margin: '30px auto',
+        padding: '0 15px',
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
+      <h1
+        style={{
+          textAlign: 'center',
+          borderBottom: '3px solid #3182ce',
+          paddingBottom: '15px',
+          color: '#2b6cb0',
+        }}
+      >
+        🏆 Popular Article Ranking Based on Score
       </h1>
 
       {rankingData.length === 0 ? (
-        <p style={{ textAlign: 'center', marginTop: '40px', color: '#4a5568' }}>Tidak ada artikel yang dapat di-ranking saat ini.</p>
+        <p style={{ textAlign: 'center', marginTop: '40px', color: '#4a5568' }}>
+          There are no articles to rank at this time..
+        </p>
       ) : (
         rankingData.map((article: ArticleRankingItem) => (
           <RankingCard key={article.id} article={article} />
@@ -81,23 +119,32 @@ const ArticleRankingPage: React.FC = () => {
       )}
 
       {/* Pagination */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px', padding: '10px 0' }}>
-        <button 
-          onClick={handlePrevPage} 
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '30px',
+          padding: '10px 0',
+        }}
+      >
+        <button
+          onClick={handlePrevPage}
           disabled={currentPage === 1}
           style={buttonStyle(currentPage === 1)}
         >
-          &larr; Halaman Sebelumnya
+          &larr; Last page
         </button>
         <span style={{ fontWeight: 'bold', color: '#2d3748' }}>
-          Halaman **{currentPage}** dari **{totalPages}** ({totalArticles} total artikel)
+          Page **{currentPage}** dari **{totalPages}** ({totalArticles} total
+          article)
         </span>
-        <button 
-          onClick={handleNextPage} 
+        <button
+          onClick={handleNextPage}
           disabled={currentPage === totalPages || totalPages === 0}
           style={buttonStyle(currentPage === totalPages || totalPages === 0)}
         >
-          Halaman Berikutnya &rarr;
+          Next page &rarr;
         </button>
       </div>
     </div>
@@ -117,20 +164,6 @@ const buttonStyle = (isDisabled: boolean): React.CSSProperties => ({
 });
 
 export default ArticleRankingPage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /// 'use client';
 
@@ -176,36 +209,6 @@ export default ArticleRankingPage;
 //     </main>
 //   );
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // 'use client';
 
