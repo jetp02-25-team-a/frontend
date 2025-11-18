@@ -5,7 +5,6 @@ import { useAuth, useAuthRequired } from '../../../hooks/use-Auth';
 import { useCart } from '../../../hooks/use-Cart';
 import { API_SERVER } from '../../config/api-path';
 import CartCard from '../_components/cartCard';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface ProductVariants {
@@ -33,18 +32,53 @@ interface Product {
 
 export default function CartPage() {
   useAuthRequired();
-  const { user } = useAuth();
+  const { user, getAuthHeader } = useAuth();
   const { cart, addToCart, clearCart, removeFromCart } = useCart();
   const [items, setItems] = useState<Product[]>([]);
+  const [points, setPoints] = useState(0);
+  const [pointUsedInput, setPointUsedInput] = useState<number | ''>('');
+  const [finalPointUsed, setFinalPointUsed] = useState<number | ''>('');
   let totalprice = 0;
   let allProductNames = '';
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFinalPointUsed(pointUsedInput);
 
+    const pointInput = e.currentTarget.elements.namedItem(
+      'point'
+    ) as HTMLInputElement;
+    const pointUsedHiddenInput = e.currentTarget.elements.namedItem(
+      'pointused'
+    ) as HTMLInputElement;
+
+    if (pointInput && pointUsedHiddenInput) {
+      const usedValue = parseInt(pointInput.value) || 0;
+      pointUsedHiddenInput.value = usedValue.toString();
+    }
     clearCart();
-
     e.currentTarget.submit();
+  };
+
+  const handlePointInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 限制輸入只能是數字
+    const value = e.target.value.replace(/[^0-9]/g, '');
+
+    if (value === '') {
+      setPointUsedInput(''); // 如果用戶清空，我們設定為空字串，讓輸入框清空
+      return;
+    }
+
+    // 限制不能超過用戶擁有的點數
+    const maxPoints = points;
+    let numericValue = parseInt(value) || 0;
+
+    if (numericValue > maxPoints) {
+      numericValue = maxPoints;
+    }
+
+    // 設置用戶輸入的值
+    setPointUsedInput(numericValue);
   };
 
   useEffect(() => {
@@ -83,7 +117,25 @@ export default function CartPage() {
     }
     // 修正 2: 將 cart.items 加入依賴項
   }, [cart.items]);
+
+  useEffect(() => {
+    const getPoint = async () => {
+      try {
+        const data = await fetch(`${API_SERVER}/point`, {
+          headers: {
+            ...getAuthHeader(),
+          },
+        });
+        const userPoint = await data.json();
+        setPoints(userPoint.data.point);
+      } catch (error) {}
+    };
+    getPoint();
+  }, [user.id, getAuthHeader]);
+
   const isCartEmpty = !cart.items || cart.items.length === 0;
+  const pointsToDeduct = pointUsedInput;
+  const finalAmount = totalprice - pointsToDeduct;
 
   return (
     <>
@@ -145,20 +197,44 @@ export default function CartPage() {
         <div className="flex justify-center">
           <div className="bg-[#F8D28C] w-4/5 p-8">
             <div className="flex flex-row justify-between">
-              <span className="text-xl font-bold">總計</span>
-              <span className="text-xl font-bold">{totalprice}</span>
+              <span className="text-xl font-bold">原始總計</span>
+              <span className="text-xl font-bold line-through">
+                {totalprice}
+              </span>
+            </div>
+
+            <div className="flex flex-row justify-between mt-2">
+              <span className="text-xl font-bold">點數折抵</span>
+              <span className="text-xl font-bold text-red-600">
+                - {pointUsedInput}
+              </span>
+            </div>
+
+            <hr className="my-4 border-t border-gray-500" />
+
+            <div className="flex flex-row justify-between">
+              <span className="text-2xl font-extrabold text-blue-800">
+                應付總金額
+              </span>
+              <span className="text-2xl font-extrabold text-blue-800">
+                {finalAmount}
+              </span>
             </div>
             <div className="flex justify-between">
               <div>
-                <button className="mt-8 p-1 px-6 border rounded-2xl mr-3">
-                  折價券
-                </button>
-                <button className="mt-8 p-1 px-6 border rounded-2xl mr-3">
-                  折價券
-                </button>
-                <button className="mt-8 p-1 px-6 border rounded-2xl mr-3">
-                  折價券
-                </button>
+                <p className="mt-1">可用點數: {points}</p>
+                <p className="mt-1">
+                  使用
+                  <input
+                    type="number"
+                    name="point"
+                    className="ml-2 w-16 [&::-webkit-outer-spin-button]:appearance-none 
+    [&::-webkit-inner-spin-button]:appearance-none
+    [-moz-appearance:textfield] bg-white rounded-xs"
+                    value={pointUsedInput}
+                    onChange={handlePointInputChange}
+                  />
+                </p>
               </div>
               <div>
                 <form
@@ -173,6 +249,7 @@ export default function CartPage() {
                     value={allProductNames.trim()}
                   />
                   <input type="hidden" name="userid" value={user.id} />
+                  <input type="hidden" name="pointused" />
                   {cart.items?.map((item, index) => {
                     return (
                       <div key={item.variant_id}>
