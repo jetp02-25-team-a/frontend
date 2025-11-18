@@ -1,8 +1,8 @@
 'use client';
 import Image from 'next/image';
-import { getTimeCost } from '../../utils';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { reduceTimeWrap } from '../../utils';
+
 import {
   faTrashCan,
   faEllipsis,
@@ -13,6 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { ItineraryContext, useItinerary } from '@/hooks/use-itinerart';
 import { useState, useRef, useEffect } from 'react';
+import { IMAGE_PATH } from '../../../config/image-path';
 
 interface NodeCardProps {
   duration_minute: number;
@@ -208,9 +209,16 @@ export default function NodeCard({
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded">
-              <span className="text-gray-500 text-xs">無圖片</span>
-            </div>
+            // <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded">
+            //   <span className="text-gray-500 text-xs">無圖片</span>
+            // </div>
+            <Image
+              fill
+              sizes="100%"
+              src={`${IMAGE_PATH}${image}`}
+              alt=""
+              className="object-cover"
+            />
           )}
         </div>
         {/* <Image width={77} height={77} src={image} alt=""></Image> */}

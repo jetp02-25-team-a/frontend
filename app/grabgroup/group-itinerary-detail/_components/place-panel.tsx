@@ -12,8 +12,8 @@ import { useItinerary } from '@/hooks/use-itinerart';
 import { ItineraryData } from '../../_types/itineraryTypes';
 import Image from 'next/image';
 import { API_SERVER } from '../../../config/api-path';
-import { is } from 'date-fns/locale';
-import { isSea } from 'node:sea';
+
+import { IMAGE_PATH } from '../../../config/image-path';
 
 interface IframeProps {
   visible: boolean;
@@ -193,7 +193,7 @@ export default function PlacePanel({
   ) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}:${process.env.NEXT_PUBLIC_BACKEND_API_PORT}/api/itineraries/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
+        `${API_SERVER}/itineraries/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
       );
       const result = await response.json();
 
@@ -436,43 +436,84 @@ export default function PlacePanel({
       {/* 詳情 + 加入行程 */}
       {placeData && !isSearching && (
         <div className="overflow-y-auto scroll-none max-h-[650px]">
-          {('image' in placeData && placeData.image) ||
-          ('Images' in placeData &&
-            placeData.Images &&
-            placeData.Images.length > 0) ? (
-            <div className="w-full h-[264px] relative">
-              <Image
-                src={(() => {
-                  let imageUrl: string | null = null;
-
-                  if ('image' in placeData && placeData.image) {
-                    imageUrl = isValidImageUrl(placeData.image);
-                  } else if (
-                    'Images' in placeData &&
+          {/* 圖片顯示區塊，根據 displayStatus 分流 */}
+          {(() => {
+            switch (displayStatus) {
+              case 'attraction':
+                return ('image' in placeData && placeData.image) ||
+                  ('Images' in placeData &&
                     placeData.Images &&
-                    placeData.Images.length > 0
-                  ) {
-                    imageUrl = isValidImageUrl(placeData.Images[0].url);
-                  }
-
-                  return imageUrl || '/images/place-default.jpg';
-                })()}
-                alt={
-                  'nameZh' in placeData
-                    ? placeData.nameZh || placeData.name
-                    : placeData.name
-                }
-                fill
-                sizes="100%"
-                className="object-cover rounded-lg"
-              />
-            </div>
-          ) : (
-            <div className="w-full h-[244px] flex items-center justify-center bg-gray-200 rounded-lg">
-              <span className="text-gray-600 text-sm">這個地點沒有圖片</span>
-            </div>
-          )}
-
+                    placeData.Images.length > 0) ? (
+                  <div className="w-full h-[264px] relative">
+                    <Image
+                      src={(() => {
+                        let imageUrl: string | null = null;
+                        if ('image' in placeData && placeData.image) {
+                          imageUrl = isValidImageUrl(placeData.image);
+                        } else if (
+                          'Images' in placeData &&
+                          placeData.Images &&
+                          placeData.Images.length > 0
+                        ) {
+                          imageUrl = isValidImageUrl(placeData.Images[0].url);
+                        }
+                        return imageUrl || '/images/place-default.jpg';
+                      })()}
+                      alt={
+                        'nameZh' in placeData
+                          ? placeData.nameZh || placeData.name
+                          : placeData.name
+                      }
+                      fill
+                      sizes="100%"
+                      className="object-cover rounded-lg"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-[244px] flex items-center justify-center bg-gray-200 rounded-lg">
+                    <span className="text-gray-600 text-sm">
+                      這個地點沒有圖片
+                    </span>
+                  </div>
+                );
+              case 'stay':
+                return ('image' in placeData && placeData.image) ||
+                  ('Images' in placeData &&
+                    placeData.Images &&
+                    placeData.Images.length > 0) ? (
+                  <div className="w-full h-[264px] relative">
+                    <Image
+                      src={(() => {
+                        let imageUrl: string | null = null;
+                        if ('Images' in placeData && placeData.Images) {
+                          imageUrl = placeData.Images[0].url;
+                        }
+                        return (
+                          `${IMAGE_PATH}${imageUrl}` ||
+                          '/images/place-default.jpg'
+                        );
+                      })()}
+                      alt={
+                        'nameZh' in placeData
+                          ? placeData.nameZh || placeData.name
+                          : placeData.name
+                      }
+                      fill
+                      sizes="100%"
+                      className="object-cover rounded-lg"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-[244px] flex items-center justify-center bg-gray-200 rounded-lg">
+                    <span className="text-gray-600 text-sm">
+                      這個地點沒有圖片
+                    </span>
+                  </div>
+                );
+              default:
+                return null;
+            }
+          })()}
           <div className="mt-4 flex items-center">
             <FontAwesomeIcon icon={faCalendar} className="text-2xl mr-3" />
             <label className="text-sm text-gray-600 mr-3">
@@ -488,7 +529,6 @@ export default function PlacePanel({
               placeholder="分鐘"
             />
           </div>
-
           {/* 名稱和位置 */}
           <div className="m-5">
             <h1 className="text-[20px] font-semibold">
@@ -512,7 +552,6 @@ export default function PlacePanel({
                 <p className="text-sm text-gray-600">{placeData.description}</p>
               </div>
             )}
-
           <RagularButton
             content="加入行程"
             onClick={addNodeToDay}

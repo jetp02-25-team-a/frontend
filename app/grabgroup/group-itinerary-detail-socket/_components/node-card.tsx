@@ -1,8 +1,8 @@
 'use client';
 import Image from 'next/image';
-import { getTimeCost } from '../../utils';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { reduceTimeWrap } from '../../utils';
+
 import {
   faTrashCan,
   faEllipsis,

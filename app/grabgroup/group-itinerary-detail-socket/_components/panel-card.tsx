@@ -1,5 +1,5 @@
 'use client';
-import { de } from 'date-fns/locale';
+
 import Image from 'next/image';
 import { IMAGE_PATH } from '../../../config/image-path';
 
