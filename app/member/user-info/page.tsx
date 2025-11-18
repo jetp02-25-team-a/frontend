@@ -1,7 +1,7 @@
 'use client';
-import MessageBox from '../_components/message-box';
-import FriendCard from '../_components/friend-card';
-import ChatBox from '../_components/chat-box';
+// import MessageBox from '../_components/message-box';
+// import FriendCard from '../_components/friend-card';
+// import ChatBox from '../_components/chat-box';
 import { useState, useEffect } from 'react';
 //引入hooks(自定義)
 import { useFetch } from '@/hooks/useFetch';
@@ -285,11 +285,11 @@ export default function UserInfoPage() {
                   active={options === '收藏景點' ? true : false}
                   onClick={() => setOptions('收藏景點')}
                 />
-                <ListButton
+                {/* <ListButton
                   name="好友"
                   active={options === '好友' ? true : false}
                   onClick={() => setOptions('好友')}
-                />
+                /> */}
                 <ListButton
                   name="行程"
                   active={options === '行程' ? true : false}
@@ -311,50 +311,47 @@ export default function UserInfoPage() {
                 {/* 顯示區域 */}
                 <div>
                   {options === '發文' && <>發表文章</>}
-                  {options === '收藏景點' && <FavoriteList />}
-                  {options === '好友' && <></>}
+                  {options === '收藏景點' && <>收藏景點</>}
+                  {/* {options === '好友' && <></>} */}
                   {options === '行程' && (
                     <>
                       {userItineraries && userItineraries.length > 0 ? (
                         userItineraries.map((itinerary, index) => (
                           <div
                             key={index}
-                            className="border-b-2 border-gray-300 py-4 flex gap-3 items-center justify-between"
+                            className="border-b-2 border-gray-300 py-4 flex items-center justify-between gap-8"
                           >
-                            <div className="flex">
-                              <p className="text-gray-600">
+                            <div className="flex flex-col items-center min-w-[120px]">
+                              <p className="text-gray-600 text-center">
                                 {itinerary.Itinerary?.area || '未指定區域'}
                               </p>
-                              <h3 className="text-xl font-semibold">
+                              <h3 className="text-xl font-semibold text-center">
                                 {itinerary.Itinerary?.title || '無標題'}
                               </h3>
                             </div>
-                            <div className="flex items-center gap-5">
-                              <p>{itinerary.Itinerary?.figure} 人/團體</p>
-                              <p className="text-xl font-semibold mr-40">
-                                {(() => {
-                                  const dateValue =
-                                    itinerary.Itinerary?.Days?.[0]?.dayDate;
-                                  if (!dateValue) return '無日期';
-
-                                  const date = new Date(dateValue);
-                                  if (isNaN(date.getTime())) return '無效日期';
-
-                                  return date.toLocaleDateString('zh-TW');
-                                })()}
-                              </p>{' '}
-                              <button
-                                className="border-2 border-amber-600 p-2 rounded-xl"
-                                onClick={() =>
-                                  router.push(
-                                    `/grabgroup/group-itinerary-detail-socket?itineraryId=${itinerary.Itinerary?.id}`
-                                  )
-                                }
-                              >
-                                詳細頁面
-                              </button>
-                            </div>
-
+                            <p className="text-center min-w-[80px]">
+                              {itinerary.Itinerary?.figure} 人/團體
+                            </p>
+                            <p className="text-xl font-semibold text-center min-w-[120px] text-gray-400">
+                              {(() => {
+                                const dateValue =
+                                  itinerary.Itinerary?.Days?.[0]?.dayDate;
+                                if (!dateValue) return '無日期';
+                                const date = new Date(dateValue);
+                                if (isNaN(date.getTime())) return '無效日期';
+                                return date.toLocaleDateString('zh-TW');
+                              })()}
+                            </p>
+                            <button
+                              className="border-2 yellow-orange text-white p-2 rounded-xl min-w-[100px]"
+                              onClick={() =>
+                                router.push(
+                                  `/grabgroup/group-itinerary-detail-socket?itineraryId=${itinerary.Itinerary?.id}`
+                                )
+                              }
+                            >
+                              詳細頁面
+                            </button>
                             {/* 顯示更多行程資訊 */}
                           </div>
                         ))
