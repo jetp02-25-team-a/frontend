@@ -13,6 +13,7 @@ import { useFetch } from '@/hooks/useFetch';
 import { AVATAR_PATH, IMAGE_PATH } from '../../config/image-path';
 import { useAuth } from '../../../hooks/use-Auth';
 import toast from 'react-hot-toast';
+import FavoriteListOther from '../../place/favorite/FavoriteListOther';
 import { useSocket } from '@/hooks/use-Socket';
 
 interface UserALLData {
@@ -150,7 +151,11 @@ export default function UserIdPage() {
             {/* 顯示區域 */}
             <div>
               {options === '發文' && <>發表文章</>}
-              {options === '收藏景點' && <>收藏景點</>}
+              {options === '收藏景點' && (
+                <>
+                  <FavoriteListOther />
+                </>
+              )}
               {options === '好友' && (
                 <>
                   {userData.FriendshipsFriend.length > 0 &&

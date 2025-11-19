@@ -14,6 +14,7 @@ import {
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import { buildImageUrl } from '@/config/image-path';
 
 type ReviewItem = {
   id: number;
@@ -131,7 +132,11 @@ export default function ReviewList({
             className="rounded-2xl border p-4 bg-white relative"
           >
             <div className="flex items-center gap-3">
-              <img src={r.avatar} className="h-8 w-8 rounded-full" />
+              <img
+                src={r.avatar ? buildImageUrl(r.avatar) : '/default-avatar.png'}
+                className="h-8 w-8 rounded-full object-cover"
+              />
+
               <div className="font-semibold">{r.name}</div>
               <div className="text-sm opacity-70">
                 {new Date(r.date)
