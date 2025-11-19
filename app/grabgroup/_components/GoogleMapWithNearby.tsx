@@ -67,7 +67,7 @@ const MapWithNearby = ({
   }
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLEMAP_API_KEY ?? '',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLEMAP_API_KEY ?? '',
   });
 
   // 搜索附近景點

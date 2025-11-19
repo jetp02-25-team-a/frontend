@@ -1,8 +1,8 @@
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
 const containerStyle = {
-  width: "586px",
-  height: "586px",
+  width: '586px',
+  height: '586px',
 };
 
 const center = {
@@ -17,7 +17,7 @@ interface MapProps {
 
 const Map = ({ latitude, longitude }: MapProps) => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLEMAP_API_KEY ?? "",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLEMAP_API_KEY ?? '',
   });
 
   if (!isLoaded) return <div>Loading...</div>;
