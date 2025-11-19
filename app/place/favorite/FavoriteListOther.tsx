@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/use-Auth';
 import {
   getFavoritePlaces,
   removeFavorite,
@@ -20,7 +19,7 @@ import { useParams } from 'next/navigation';
 
 export default function FavoriteListOther() {
   const params = useParams();
-  const userId = Number(params.userId);
+  const userId = Number(params.user_id);
 
   // 載入收藏列表
   const [loadingList, setLoadingList] = useState(false);
