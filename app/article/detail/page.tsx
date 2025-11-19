@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 import SidebarAction from '../_components/SidebarActions';
 import DetailForm from '../_components/DetailForms';
@@ -12,7 +13,6 @@ import StatusDisplay from '../_components/StatusDisplay';
 import { ARTICLE_PHOTOS_PATH } from '../../../config/image-path';
 import { API_SERVER } from '@/app/config/api-path';
 import { useAuth } from '../../../hooks/use-Auth';
-import toast from 'react-hot-toast';
 
 interface Article {
   id?: string;
@@ -31,7 +31,7 @@ interface LikeResponse {
   isLikedByMe?: boolean;
 }
 
-export default function ReviewArticlePage() {
+export default function DetailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pid = searchParams.get('id');
@@ -54,10 +54,12 @@ export default function ReviewArticlePage() {
 
   const isOwner = isAuthenticated && Number(article.userId) === Number(user.id);
 
+  /** Fetch Article */
   const getArticle = useCallback(async (articleId: string) => {
     try {
       const res = await fetch(`${API_SERVER}/article/${articleId}`);
       if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+
       const data = await res.json();
       if (!data?.id) throw new Error('Invalid article data');
       setArticle(data);
@@ -70,6 +72,7 @@ export default function ReviewArticlePage() {
     }
   }, []);
 
+  /** Handle Like */
   const handleLike = useCallback(async () => {
     if (!article.id || isLiking) return;
     setIsLiking(true);
@@ -86,14 +89,10 @@ export default function ReviewArticlePage() {
       if (!res.ok) {
         const errorText = await res.text();
         console.error('Like failed:', res.status, errorText);
-        throw new Error('文章按讚失敗。.');
+        throw new Error('文章按讚失敗。');
       }
 
       const result: LikeResponse = await res.json();
-      if (typeof result.newLikesCount !== 'number') {
-        throw new Error('後端回應無效：缺少 newLikesCount 值。');
-      }
-
       setArticle((prev) => ({
         ...prev,
         likes: result.newLikesCount,
@@ -102,27 +101,16 @@ export default function ReviewArticlePage() {
 
       toast.success('您喜歡這篇文章！');
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : '按讚時發生意外錯誤。';
       console.error('Like Error:', err);
-      toast.error(errorMessage);
+      toast.error(err instanceof Error ? err.message : '按讚時發生意外錯誤。');
     } finally {
       setIsLiking(false);
     }
   }, [article.id, isLiking, getAuthHeader]);
 
+  /** Handle Delete */
   const handleDelete = useCallback(async () => {
     if (!article.id) return;
-    // toast((t) => (
-    //   <>
-    //     <span>are you sure you want to delete this article</span>{' '}
-    //     <button></button>
-    //     <button onClick={()=> toast.dismiss(t.id)}>
-
-    //     </button>
-    //   </>
-    // ));
-    // if (!confirm('您確定要刪除這篇文章嗎？')) return;
 
     const headers = {
       'Content-Type': 'application/json',
@@ -150,81 +138,43 @@ export default function ReviewArticlePage() {
       router.push('/article/');
     } catch (err) {
       console.error('Delete Error:', err);
-      toast.error(
-        err instanceof Error ? err.message : 'Unexpected error during deletion.'
-      );
+      toast.error(err instanceof Error ? err.message : 'Unexpected error.');
     }
   }, [article.id, getAuthHeader, router]);
 
-  useEffect(() => {
-    if (pid) {
-      getArticle(pid);
-    } else {
-      setIsLoading(false);
-    }
-  }, [pid, getArticle]);
-
+  /** Confirm Delete */
   const showConfirmToast = () => {
-    const toastId = toast.custom(
+    toast.custom(
       (t) => (
-        <div
-          style={{
-            backgroundColor: 'white',
-            padding: '16px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-          }}
-        >
-          <p style={{ margin: 0, fontWeight: 'bold' }}>
-            ⚠️ 你確定要執行這個操作嗎？
-          </p>
-
-          <div
-            style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}
-          >
-            {/* 1. 取消按鈕：只關閉吐司 */}
+        <div className="bg-white p-4 rounded-lg shadow-lg flex flex-col gap-3">
+          <p className="font-bold">⚠️ 你確定要刪除這篇文章嗎？</p>
+          <div className="flex gap-3 justify-end">
             <button
               onClick={() => toast.dismiss(t.id)}
-              style={{
-                padding: '8px 12px',
-                border: 'none',
-                backgroundColor: '#eee',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
+              className="bg-gray-200 px-3 py-1 rounded"
             >
               取消
             </button>
-
-            {/* 2. 確認按鈕：執行功能 AND 關閉吐司 */}
             <button
               onClick={() => {
-                handleDelete(); // <--- 執行你的功能
-                toast.dismiss(t.id); // <--- 關閉吐司
+                handleDelete();
+                toast.dismiss(t.id);
               }}
-              style={{
-                padding: '8px 12px',
-                border: 'none',
-                backgroundColor: '#007bff',
-                color: 'white',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
+              className="bg-red-600 text-white px-3 py-1 rounded"
             >
-              確認執行
+              確認刪除
             </button>
           </div>
         </div>
       ),
-      {
-        duration: Infinity, // <--- 設置為無限長，直到使用者點擊按鈕才關閉
-        position: 'top-center',
-      }
+      { duration: Infinity, position: 'top-center' }
     );
   };
+
+  useEffect(() => {
+    if (pid) getArticle(pid);
+    else setIsLoading(false);
+  }, [pid, getArticle]);
 
   if (isLoading) return <StatusDisplay message="Loading article details..." />;
   if (!pid) return <StatusDisplay message="Cannot find article ID." />;
@@ -233,24 +183,25 @@ export default function ReviewArticlePage() {
 
   return (
     <div className="relative max-w-7xl mx-auto py-10 px-4 flex flex-col md:flex-row gap-8">
-      <aside className="w-full md:w-80 flex-shrink-0 pt-10 border-r border-gray-200 md:pr-6">
+      <aside className="w-full md:w-80 pt-10 border-r border-gray-200 md:pr-6">
         <SidebarAction />
       </aside>
 
       <main className="relative flex-grow max-w-4xl bg-white rounded-2xl shadow-md p-6 md:p-10">
+        {/* TOP ACTION BUTTONS */}
         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
           {isOwner && (
             <>
               <Link
                 href={`/article/edit?id=${article.id}`}
-                className="bg-amber-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-200 hover:scale-105"
+                className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
               >
                 ✏️ Edit
               </Link>
 
               <button
                 onClick={showConfirmToast}
-                className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-200 hover:scale-105"
+                className="bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold"
               >
                 🗑️ Delete
               </button>
@@ -260,18 +211,20 @@ export default function ReviewArticlePage() {
           <button
             onClick={handleLike}
             disabled={isLiking}
-            className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-200 hover:scale-105 disabled:opacity-50"
+            className="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
           >
             ❤️ {isLiking ? 'Liking...' : `Like (${article.likes || 0})`}
           </button>
         </div>
 
-        <h1 className="text-3xl font-extrabold text-gray-800 mb-6 text-center md:text-left">
+        {/* ARTICLE TITLE */}
+        <h1 className="text-3xl font-extrabold mb-6 text-center md:text-left">
           {article.title}
         </h1>
 
         <DetailForm article={article} />
 
+        {/* PHOTOS */}
         {article?.photos && (
           <div className="mt-10">
             <h2 className="text-2xl font-bold mb-4">📸 Travel Photos</h2>
@@ -285,7 +238,6 @@ export default function ReviewArticlePage() {
                         ? photo
                         : `${ARTICLE_PHOTOS_PATH}${photo}`
                     }
-                    alt={`photo-${idx}`}
                     className="rounded-xl shadow-md w-full object-cover"
                     onError={(e) => (e.currentTarget.src = '/no-image.png')}
                   />
@@ -299,7 +251,6 @@ export default function ReviewArticlePage() {
                     ? `${ARTICLE_PHOTOS_PATH}${article.photos}`
                     : '/no-image.png'
                 }
-                alt="article-photo"
                 className="rounded-xl shadow-md w-full object-cover"
                 onError={(e) => (e.currentTarget.src = '/no-image.png')}
               />
@@ -307,6 +258,7 @@ export default function ReviewArticlePage() {
           </div>
         )}
 
+        {/* MessageBoard (ONLY ONE) */}
         <div className="mt-10">
           <MessageBoard articleId={article.id} />
         </div>
@@ -314,6 +266,298 @@ export default function ReviewArticlePage() {
     </div>
   );
 }
+// interface Article {
+//   id?: string;
+//   userId: string;
+//   title: string;
+//   location: string;
+//   content: string;
+//   photos?: string | string[];
+//   likes?: number;
+//   isLikedByMe?: boolean;
+// }
+
+// interface LikeResponse {
+//   newLikesCount: number;
+//   message: string;
+//   isLikedByMe?: boolean;
+// }
+
+// export default function DetailPage() {
+//   const searchParams = useSearchParams();
+//   const router = useRouter();
+//   const pid = searchParams.get('id');
+
+//   const { user, getAuthHeader } = useAuth();
+//   const isAuthenticated = !!user?.id;
+
+//   const [article, setArticle] = useState<Article>({
+//     userId: '',
+//     title: 'Loading...',
+//     location: '',
+//     content: '',
+//     photos: '',
+//     likes: 0,
+//     isLikedByMe: false,
+//   });
+
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [isLiking, setIsLiking] = useState(false);
+
+//   const isOwner = isAuthenticated && Number(article.userId) === Number(user.id);
+
+//   // Fetch article details
+//   const getArticle = useCallback(async (articleId: string) => {
+//     try {
+//       const res = await fetch(`${API_SERVER}/article/${articleId}`);
+//       if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+//       const data = await res.json();
+//       if (!data?.id) throw new Error('Invalid article data');
+//       setArticle(data);
+//     } catch (err) {
+//       console.error('Fetch Error:', err);
+//       toast.error('Failed to get article data.');
+//       setArticle((prev) => ({ ...prev, title: 'Article Not Found' }));
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   }, []);
+
+//   // Handle Like toggle
+//   const handleLike = useCallback(async () => {
+//     if (!article.id || isLiking) return;
+//     setIsLiking(true);
+
+//     try {
+//       const res = await fetch(`${API_SERVER}/article/${article.id}/like`, {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           ...getAuthHeader(),
+//         },
+//       });
+
+//       if (!res.ok) {
+//         const errorText = await res.text();
+//         console.error('Like failed:', res.status, errorText);
+//         throw new Error('文章按讚失敗。');
+//       }
+
+//       const result: LikeResponse = await res.json();
+//       setArticle((prev) => ({
+//         ...prev,
+//         likes: result.newLikesCount,
+//         isLikedByMe: result.isLikedByMe ?? prev.isLikedByMe,
+//       }));
+
+//       toast.success('您喜歡這篇文章！');
+//     } catch (err) {
+//       const errorMessage =
+//         err instanceof Error ? err.message : '按讚時發生意外錯誤。';
+//       console.error('Like Error:', err);
+//       toast.error(errorMessage);
+//     } finally {
+//       setIsLiking(false);
+//     }
+//   }, [article.id, isLiking, getAuthHeader]);
+
+//   // Handle Delete article
+//   const handleDelete = useCallback(async () => {
+//     if (!article.id) return;
+
+//     const headers = {
+//       'Content-Type': 'application/json',
+//       ...getAuthHeader(),
+//     };
+
+//     if (!headers.Authorization) {
+//       toast.error('您必須登入才能刪除這篇文章。');
+//       return;
+//     }
+
+//     try {
+//       const res = await fetch(`${API_SERVER}/article/${article.id}`, {
+//         method: 'DELETE',
+//         headers,
+//       });
+
+//       if (!res.ok) {
+//         const errorText = await res.text();
+//         console.error('Delete failed:', res.status, errorText);
+//         throw new Error(`Failed to delete article: ${res.status}`);
+//       }
+
+//       toast.success('文章已成功刪除.');
+//       router.push('/article/');
+//     } catch (err) {
+//       console.error('Delete Error:', err);
+//       toast.error(
+//         err instanceof Error ? err.message : 'Unexpected error during deletion.'
+//       );
+//     }
+//   }, [article.id, getAuthHeader, router]);
+
+//   // Show confirm toast before deletion
+//   const showConfirmToast = () => {
+//     toast.custom(
+//       (t) => (
+//         <div
+//           style={{
+//             backgroundColor: 'white',
+//             padding: '16px',
+//             borderRadius: '8px',
+//             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+//             display: 'flex',
+//             flexDirection: 'column',
+//             gap: '10px',
+//           }}
+//         >
+//           <p style={{ margin: 0, fontWeight: 'bold' }}>
+//             ⚠️ 你確定要刪除這篇文章嗎？
+//           </p>
+
+//           <div
+//             style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}
+//           >
+//             <button
+//               onClick={() => toast.dismiss(t.id)}
+//               style={{
+//                 padding: '8px 12px',
+//                 border: 'none',
+//                 backgroundColor: '#eee',
+//                 borderRadius: '4px',
+//                 cursor: 'pointer',
+//               }}
+//             >
+//               取消
+//             </button>
+
+//             <button
+//               onClick={() => {
+//                 handleDelete();
+//                 toast.dismiss(t.id);
+//               }}
+//               style={{
+//                 padding: '8px 12px',
+//                 border: 'none',
+//                 backgroundColor: '#d33',
+//                 color: 'white',
+//                 borderRadius: '4px',
+//                 cursor: 'pointer',
+//               }}
+//             >
+//               確認刪除
+//             </button>
+//           </div>
+//         </div>
+//       ),
+//       { duration: Infinity, position: 'top-center' }
+//     );
+//   };
+
+//   // Load article on mount
+//   useEffect(() => {
+//     if (pid) getArticle(pid);
+//     else setIsLoading(false);
+//   }, [pid, getArticle]);
+
+//   if (isLoading) return <StatusDisplay message="Loading article details..." />;
+//   if (!pid) return <StatusDisplay message="Cannot find article ID." />;
+//   if (article.title === 'Article Not Found')
+//     return <StatusDisplay message="Article Not Found (404)" />;
+
+//   return (
+//     <div className="relative max-w-7xl mx-auto py-10 px-4 flex flex-col md:flex-row gap-8">
+//       <aside className="w-full md:w-80 flex-shrink-0 pt-10 border-r border-gray-200 md:pr-6">
+//         <SidebarAction />
+//       </aside>
+
+//       <main className="relative flex-grow max-w-4xl bg-white rounded-2xl shadow-md p-6 md:p-10">
+//         <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
+//           {isOwner && (
+//             <>
+//               <Link
+//                 href={`/article/edit?id=${article.id}`}
+//                 className="bg-amber-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-200 hover:scale-105"
+//               >
+//                 ✏️ Edit
+//               </Link>
+
+//               <button
+//                 onClick={showConfirmToast}
+//                 className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-200 hover:scale-105"
+//               >
+//                 🗑️ Delete
+//               </button>
+//             </>
+//           )}
+
+//           <button
+//             onClick={handleLike}
+//             disabled={isLiking}
+//             className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition-all duration-200 hover:scale-105 disabled:opacity-50"
+//           >
+//             ❤️ {isLiking ? 'Liking...' : `Like (${article.likes || 0})`}
+//           </button>
+//         </div>
+
+//         {/* MessageBoard Component */}
+//         <div className="mt-10">
+//           <MessageBoard articleId={article.id} />
+//         </div>
+
+//         <h1 className="text-3xl font-extrabold text-gray-800 mb-6 text-center md:text-left">
+//           {article.title}
+//         </h1>
+
+//         <DetailForm article={article} />
+
+//         {article?.photos && (
+//           <div className="mt-10">
+//             <h2 className="text-2xl font-bold mb-4">📸 Travel Photos</h2>
+//             {Array.isArray(article.photos) ? (
+//               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+//                 {article.photos.map((photo, idx) => (
+//                   <img
+//                     key={idx}
+//                     src={
+//                       photo.startsWith('http')
+//                         ? photo
+//                         : `${ARTICLE_PHOTOS_PATH}${photo}`
+//                     }
+//                     alt={`photo-${idx}`}
+//                     className="rounded-xl shadow-md w-full object-cover"
+//                     onError={(e) => (e.currentTarget.src = '/no-image.png')}
+//                   />
+//                 ))}
+//               </div>
+//             ) : (
+//               <img
+//                 src={
+//                   typeof article.photos === 'string' &&
+//                   article.photos.trim() !== ''
+//                     ? `${ARTICLE_PHOTOS_PATH}${article.photos}`
+//                     : '/no-image.png'
+//                 }
+//                 alt="article-photo"
+//                 className="rounded-xl shadow-md w-full object-cover"
+//                 onError={(e) => (e.currentTarget.src = '/no-image.png')}
+//               />
+//             )}
+//           </div>
+//         )}
+
+//         {/* MessageBoard Component */}
+//         <div className="mt-10">
+//           <MessageBoard articleId={article.id} />
+//         </div>
+//       </main>
+//     </div>
+//   );
+// }
+
+
+
 
 // 'use client';
 
