@@ -6,7 +6,6 @@ import {
   FaPhone,
   FaStar,
 } from 'react-icons/fa6';
-import BookingForm from '../client/BookingForm';
 import BookingInventoryForm from '../client/BookingInventoryForm';
 import ScrollLink from '../client/ScrollLink';
 
