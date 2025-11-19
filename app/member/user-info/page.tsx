@@ -319,7 +319,11 @@ export default function UserInfoPage() {
                 {/* 顯示區域 */}
                 <div>
                   {options === '發文' && <>發表文章</>}
-                  {options === '收藏景點' && <>收藏景點</>}
+                  {options === '收藏景點' && (
+                    <>
+                      <FavoriteList />
+                    </>
+                  )}
                   {/* {options === '好友' && <></>} */}
                   {options === '行程' && (
                     <>
