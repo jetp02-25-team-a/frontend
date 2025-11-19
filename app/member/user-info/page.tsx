@@ -409,7 +409,7 @@ export default function UserInfoPage() {
                           return (
                             <Checklist
                               key={i}
-                              title={`申請${e.itinerary.title}`}
+                              title={`加入${e.itinerary.title}`}
                               snederName={e.receiver.nickname}
                               senderAvatar={e.receiver.avatar}
                               refresh={handelAllInviteMessage}

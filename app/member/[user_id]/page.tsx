@@ -13,6 +13,7 @@ import { useFetch } from '@/hooks/useFetch';
 import { AVATAR_PATH, IMAGE_PATH } from '../../config/image-path';
 import { useAuth } from '../../../hooks/use-Auth';
 import toast from 'react-hot-toast';
+import { useSocket } from '@/hooks/use-Socket';
 
 interface UserALLData {
   id: number;
@@ -40,39 +41,6 @@ const userALLDataDefault: UserALLData = {
   FriendshipsFriend: [],
 };
 
-const handleAddFriend = async (id: number) => {
-  // 加好友的邏輯（加入授權、錯誤處理與偵錯輸出）
-  try {
-    const url = `${API_SERVER}/friendships/add`;
-
-    const token = localStorage.getItem('BackpackUserInfo');
-    let auth;
-    if (token) auth = 'Bearer ' + JSON.parse(token).token;
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(auth ? { Authorization: auth } : {}),
-      },
-      body: JSON.stringify({ friendId: id }),
-    });
-
-    if (!res.ok) {
-      return;
-    }
-
-    const result = await res.json();
-    if (result.success) {
-      toast.success(result.message);
-    } else {
-      toast.error(result.message);
-    }
-  } catch (err) {
-    console.error('addFriend error', err);
-  }
-};
-
 export default function UserIdPage() {
   const { user_id } = useParams();
   const [userData, setUserData] = useState<UserALLData>(userALLDataDefault);
@@ -82,6 +50,8 @@ export default function UserIdPage() {
   const [options, setOptions] = useState<string>('發文');
   const url = `${API_SERVER}/friendships/userinfo?userId=${user_id}`;
   const { data, loading, error, refetch } = useFetch(url);
+
+  const { socket } = useSocket();
   //資料拿取
   useEffect(() => {
     refetch();
@@ -105,6 +75,43 @@ export default function UserIdPage() {
 
     checkIsFriend(userData.id, user.id).then((r) => setIsFriend(r));
   }, [userData]);
+
+  const handleAddFriend = async (id: number) => {
+    // 加好友的邏輯（加入授權、錯誤處理與偵錯輸出）
+    try {
+      const url = `${API_SERVER}/friendships/add`;
+
+      const token = localStorage.getItem('BackpackUserInfo');
+      let auth;
+      if (token) auth = 'Bearer ' + JSON.parse(token).token;
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(auth ? { Authorization: auth } : {}),
+        },
+        body: JSON.stringify({ friendId: id }),
+      });
+
+      if (!res.ok) {
+        return;
+      }
+
+      const result = await res.json();
+      if (result.success) {
+        if (socket) {
+          socket.emit('addFriend', { receiveId: id });
+          console.log('emit addFriend', { receiveId: id });
+        }
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (err) {
+      console.error('addFriend error', err);
+    }
+  };
 
   return (
     <div className="bg-light-orange ">
