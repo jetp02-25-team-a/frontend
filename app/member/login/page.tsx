@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../hooks/use-Auth';
 import Link from 'next/link';
-import SimpleModal from '../_components/modal';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 export default function Page() {
   const [data, setData] = useState({
@@ -12,19 +12,7 @@ export default function Page() {
     password: '',
   });
   const { login, isReady, user } = useAuth();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
   const router = useRouter();
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setModalMessage('');
-  };
-
-  const showModalWithMessage = (message: string) => {
-    setModalMessage(message);
-    setIsModalOpen(true);
-  };
 
   //表單通用輸入處理
   const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +27,7 @@ export default function Page() {
   useEffect(() => {
     // 只有當 isReady 為 true (表示驗證或登入流程完成) 且 user.id 存在時，才代表成功登入
     if (isReady && user?.id) {
-      showModalWithMessage('成功登入');
+      toast.success('成功登入');
       const timer = setInterval(() => {
         router.push('/member/user-info');
       }, 1000);
@@ -108,11 +96,6 @@ export default function Page() {
           </div>
         </form>
       </div>
-      <SimpleModal
-        isOpen={isModalOpen}
-        message={modalMessage}
-        onClose={closeModal}
-      />
     </>
   );
 }

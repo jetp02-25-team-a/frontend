@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 //引入hooks(自定義)
 import { useFetch } from '@/hooks/useFetch';
-import { useAuth } from '../../../hooks/use-Auth';
+import { useAuth, useAuthRequired } from '../../../hooks/use-Auth';
 import ListButton from './_components/list-button';
 import Checklist from './_components/checklist';
 import ContactList from './_components/contactlist';
@@ -125,6 +125,7 @@ export default function UserInfoPage() {
   const [options, setOptions] = useState<string>('通知');
   const [allInviteMessage, setAllInviteMessage] = useState<InviteMessage>();
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  useAuthRequired();
 
   const router = useRouter();
   //分romms 跟 all_friends

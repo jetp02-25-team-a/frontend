@@ -8,7 +8,7 @@ import { API_SERVER } from '../../../config/api-path';
 import Image from 'next/image';
 import { AVATAR_PATH, IMAGE_PATH } from '../../../config/image-path';
 import { useRouter } from 'next/navigation';
-import SimpleModal from '../../_components/modal';
+import toast from 'react-hot-toast';
 
 const userDataInit: ApiResponse = {
   success: false,
@@ -31,20 +31,9 @@ export default function UserIdPage() {
   const { user_id } = useParams();
   const [userData, setUserData] = useState(userDataInit);
   const [selectedFile, setSelectedFile] = useState<SelectedFile>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setModalMessage('');
-  };
-
-  const showModalWithMessage = (message: string) => {
-    setModalMessage(message);
-    setIsModalOpen(true);
-  };
 
   //資料拿取
   const getUserData = async () => {
@@ -107,7 +96,7 @@ export default function UserIdPage() {
       });
       if (response.ok) {
         updateUser(user.id);
-        showModalWithMessage('成功編輯');
+        toast.success('成功編輯');
         const timer = setTimeout(() => {
           router.push('/member/user-info');
         }, 1000);
@@ -115,7 +104,7 @@ export default function UserIdPage() {
         return () => clearInterval(timer);
       }
     } catch {
-      console.log('網路錯誤');
+      toast.error('伺服器錯誤，請稍後再試');
     }
   };
 
@@ -132,31 +121,31 @@ export default function UserIdPage() {
         <div className="bg-[#FBE7C1] h-[calc(100vh-354px-88px)] flex justify-center items-center">
           <div className="bg-white  rounded-[15] flex flex-col items-center w-fit p-5 mx-auto h-fit">
             <div className="flex items-center">
-              <div className="mx-5 ">
-                <Image
-                  src={
-                    selectedFile
-                      ? URL.createObjectURL(selectedFile)
-                      : userData.data.avatar
-                        ? `${AVATAR_PATH}${userData.data.avatar}`
-                        : '/avatar_default.png'
-                  } //檔案>舊頭像>預設頭像
-                  alt=""
-                  height={100}
-                  width={100}
-                  className="rounded-full"
-                />
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  ref={fileInputRef}
-                  className="hidden "
-                />
-
+              <div className="flex flex-col items-center justify-center">
+                <div className="mx-5 w-25 h-25 relative">
+                  <Image
+                    src={
+                      selectedFile
+                        ? URL.createObjectURL(selectedFile)
+                        : userData.data.avatar
+                          ? `${AVATAR_PATH}${userData.data.avatar}`
+                          : '/avatar_default.png'
+                    } //檔案>舊頭像>預設頭像
+                    alt=""
+                    fill
+                    className="rounded-full object-cover"
+                  />
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                    className="hidden "
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={handleButtonClick}
-                  className="mt-2 bg-gray-200 hover:bg-gray-300 text-sm py-1 px-3 rounded mt-5"
+                  className="mt-2 bg-gray-200 hover:bg-gray-300 text-sm py-1 px-3 rounded w-fit hover:cursor-pointer"
                 >
                   選擇新頭像
                 </button>
@@ -168,15 +157,6 @@ export default function UserIdPage() {
                   placeholder={'尚未設定'}
                   value={userData.data.nickname || ''}
                   name="nickname"
-                  onChange={handleFieldChange}
-                  className="bg-[#FBE7C1] mt-1.5"
-                />
-                <h1 className="mt-1.5">全名(訂單顯示名稱)</h1>
-                <input
-                  type="text"
-                  placeholder={'尚未設定'}
-                  value={userData.data.fullName || ''}
-                  name="fullName"
                   onChange={handleFieldChange}
                   className="bg-[#FBE7C1] mt-1.5"
                 />
@@ -192,18 +172,13 @@ export default function UserIdPage() {
             </div>
             <button
               type="submit"
-              className="bg-[#F2A922] px-10 py-0.5 rounded-xl text-white mt-5"
+              className="bg-[#F2A922] px-10 py-0.5 rounded-xl text-white mt-5 hover:cursor-pointer"
             >
               儲存
             </button>
           </div>
         </div>
       </form>
-      <SimpleModal
-        isOpen={isModalOpen}
-        message={modalMessage}
-        onClose={closeModal}
-      />
     </>
   );
 }

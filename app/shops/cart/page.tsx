@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react'; // 引入 useMemo
 import { useAuth, useAuthRequired } from '../../../hooks/use-Auth';
 import { useCart } from '../../../hooks/use-Cart';
 import { API_SERVER } from '../../config/api-path';
 import CartCard from '../_components/cartCard';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface ProductVariants {
@@ -33,26 +32,45 @@ interface Product {
 
 export default function CartPage() {
   useAuthRequired();
-  const { user } = useAuth();
+  const { user, getAuthHeader } = useAuth();
   const { cart, addToCart, clearCart, removeFromCart } = useCart();
   const [items, setItems] = useState<Product[]>([]);
-  let totalprice = 0;
-  let allProductNames = '';
-
+  const [points, setPoints] = useState(0);
+  const [pointUsedInput, setPointUsedInput] = useState<number | ''>('');
+  const [finalPointUsed, setFinalPointUsed] = useState<number | ''>(''); // 移除 totalprice 和 allProductNames 的 let 宣告，改為用 useMemo 計算
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     clearCart();
-
     e.currentTarget.submit();
   };
 
+  const handlePointInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 限制輸入只能是數字
+    const value = e.target.value.replace(/[^0-9]/g, '');
+
+    if (value === '') {
+      setPointUsedInput(''); // 如果用戶清空，設定為空字串
+      return;
+    } // 限制不能超過用戶擁有的點數
+
+    const maxPoints = points;
+    let numericValue = parseInt(value) || 0; // 限制不能超過原始總價
+
+    const maxToDeduct = calculatedTotals.totalprice;
+    if (numericValue > maxPoints) {
+      numericValue = maxPoints;
+    }
+    if (numericValue > maxToDeduct) {
+      numericValue = maxToDeduct;
+    } // 設置用戶輸入的值
+
+    setPointUsedInput(numericValue);
+  }; // (原來的 useEffect for getData... 保持不變)
   useEffect(() => {
     const getData = async () => {
       // 每次執行時，先清空 items，以避免重複資料
-      setItems([]);
+      setItems([]); // 創建一個陣列來暫時儲存所有 Promise
 
-      // 創建一個陣列來暫時儲存所有 Promise
       const dataPromises = (cart.items || []).map(async (item) => {
         try {
           const id = item.id;
@@ -67,12 +85,10 @@ export default function CartPage() {
           console.error('Fetch error:', error);
           return null; // 處理失敗情況
         }
-      });
+      }); // 使用 Promise.all 等待所有請求完成
 
-      // 使用 Promise.all 等待所有請求完成
-      const allData = await Promise.all(dataPromises);
+      const allData = await Promise.all(dataPromises); // 過濾掉失敗的 null 值，並一次性設定 state
 
-      // 過濾掉失敗的 null 值，並一次性設定 state
       setItems(allData.filter((data) => data !== null));
     };
 
@@ -80,10 +96,58 @@ export default function CartPage() {
       getData();
     } else {
       setItems([]); // 如果購物車為空，清空產品列表
+    } // 修正 2: 將 cart.items 加入依賴項
+  }, [cart.items]); // (原來的 useEffect for getPoint... 保持不變)
+
+  useEffect(() => {
+    const getPoint = async () => {
+      try {
+        const data = await fetch(`${API_SERVER}/point`, {
+          headers: {
+            ...getAuthHeader(),
+          },
+        });
+        const userPoint = await data.json();
+        setPoints(userPoint.data.point);
+      } catch (error) {}
+    };
+    getPoint();
+  }, [user.id, getAuthHeader]); // ✨ 新增 useMemo 計算總價和產品列表字串
+
+  const calculatedTotals = useMemo(() => {
+    let currentTotalPrice = 0;
+    let currentAllProductNames = '';
+
+    if (cart.items && items.length > 0) {
+      cart.items.forEach((cartItem) => {
+        const productDetail = items.find((p) => p.id === cartItem.id);
+
+        if (productDetail) {
+          const variantDetail = productDetail.ProductVariants.find(
+            (v) => v.id === cartItem.variant_id
+          );
+
+          if (variantDetail) {
+            currentTotalPrice += cartItem.amount * variantDetail.price;
+            currentAllProductNames += `${productDetail.productName} (${variantDetail.variantName}) x ${cartItem.amount}; `;
+          }
+        }
+      });
     }
-    // 修正 2: 將 cart.items 加入依賴項
-  }, [cart.items]);
+
+    return {
+      totalprice: currentTotalPrice,
+      allProductNames: currentAllProductNames.trim(),
+    };
+  }, [cart.items, items]); // 從 calculatedTotals 中取得計算結果
+
+  const { totalprice, allProductNames } = calculatedTotals;
+
   const isCartEmpty = !cart.items || cart.items.length === 0;
+  const pointsToDeduct =
+    typeof pointUsedInput === 'number' ? pointUsedInput : 0; // 確保是數字
+  // 應付總金額 = 原始總計 - 點數折抵
+  const finalAmount = totalprice - pointsToDeduct;
 
   return (
     <>
@@ -105,28 +169,22 @@ export default function CartPage() {
           <ul>
             {cart.items?.map((cartItem) => {
               // 1. 查找匹配的產品詳細資料 (在 items state 中)
-              const productDetail = items.find((p) => p.id === cartItem.id);
+              const productDetail = items.find((p) => p.id === cartItem.id); // 2. 查找匹配的變體詳細資料 (在 productDetail.ProductVariants 陣列中)
 
-              // 2. 查找匹配的變體詳細資料 (在 productDetail.ProductVariants 陣列中)
               let variantDetail = null;
               if (productDetail) {
                 variantDetail = productDetail.ProductVariants.find(
                   (v) => v.id === cartItem.variant_id
                 );
-              }
+              } // 如果 productDetail 或 variantDetail 還沒載入或找不到，返回載入中
 
-              // 如果 productDetail 或 variantDetail 還沒載入或找不到，返回載入中
               if (!productDetail || !variantDetail) {
                 return (
                   <li key={cartItem.variant_id + '_loading'}>
                     載入產品資料中...
                   </li>
                 );
-              }
-
-              totalprice = totalprice + cartItem.amount * variantDetail.price;
-              allProductNames += `${productDetail.productName} (${variantDetail.variantName}) x ${cartItem.amount}; `;
-
+              } // 這裡不再計算 totalprice 和 allProductNames
               return (
                 <CartCard
                   key={variantDetail.id}
@@ -142,24 +200,51 @@ export default function CartPage() {
             })}
           </ul>
         )}
+
         <div className="flex justify-center">
           <div className="bg-[#F8D28C] w-4/5 p-8">
             <div className="flex flex-row justify-between">
-              <span className="text-xl font-bold">總計</span>
-              <span className="text-xl font-bold">{totalprice}</span>
+              <span className="text-xl font-bold">原始總計</span>
+
+              <span className="text-xl font-bold line-through">
+                {totalprice}
+              </span>
             </div>
+
+            <div className="flex flex-row justify-between mt-2">
+              <span className="text-xl font-bold">點數折抵</span>
+
+              <span className="text-xl font-bold text-red-600">
+                - {pointsToDeduct}{' '}
+              </span>
+            </div>
+            <hr className="my-4 border-t border-gray-500" />
+
+            <div className="flex flex-row justify-between">
+              <span className="text-2xl font-extrabold ">應付總金額</span>
+
+              <span className="text-2xl font-extrabold ">{finalAmount}</span>
+            </div>
+
             <div className="flex justify-between">
               <div>
-                <button className="mt-8 p-1 px-6 border rounded-2xl mr-3">
-                  折價券
-                </button>
-                <button className="mt-8 p-1 px-6 border rounded-2xl mr-3">
-                  折價券
-                </button>
-                <button className="mt-8 p-1 px-6 border rounded-2xl mr-3">
-                  折價券
-                </button>
+                <p className="mt-1">可用點數: {points}</p>
+
+                <p className="mt-1">
+                  使用
+                  <input
+                    type="number"
+                    name="point"
+                    className="ml-2 w-16 [&::-webkit-outer-spin-button]:appearance-none 
+ [&::-webkit-inner-spin-button]:appearance-none
+ [-moz-appearance:textfield] bg-white rounded-xs"
+                    value={pointUsedInput}
+                    onChange={handlePointInputChange}
+                  />
+                  點
+                </p>
               </div>
+
               <div>
                 <form
                   action={`${API_SERVER}/checkout`}
@@ -167,12 +252,20 @@ export default function CartPage() {
                   onSubmit={handleSubmit}
                 >
                   <input type="hidden" name="total_price" value={totalprice} />
+
                   <input
                     type="hidden"
                     name="product_list"
-                    value={allProductNames.trim()}
+                    value={allProductNames}
                   />
+
                   <input type="hidden" name="userid" value={user.id} />
+                  <input
+                    type="hidden"
+                    name="pointused"
+                    value={pointsToDeduct}
+                  />
+
                   {cart.items?.map((item, index) => {
                     return (
                       <div key={item.variant_id}>
@@ -181,6 +274,7 @@ export default function CartPage() {
                           name={`item_variant${index}`}
                           value={item.variant_id}
                         />
+
                         <input
                           type="hidden"
                           name={`item_amount${index}`}
@@ -189,10 +283,12 @@ export default function CartPage() {
                       </div>
                     );
                   })}
+
                   <button
                     type="submit"
+                    disabled={isCartEmpty} // 購物車為空時禁用按鈕
                     className="mt-8 p-1 px-6 border rounded-2xl :hover {
-  cursor: pointer}"
+  cursor: pointer}"
                   >
                     去結帳
                   </button>
@@ -201,6 +297,7 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+
         <div className="flex justify-center">
           <Link
             href={`http://localhost:3000/shops`}
