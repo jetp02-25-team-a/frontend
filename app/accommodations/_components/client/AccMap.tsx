@@ -5,6 +5,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { LatLngTuple } from 'leaflet';
 import RoutingMachine from './RoutingMachine';
+import Link from 'next/link';
 
 const defaultIcon = L.icon({
   iconUrl: '/leaflet/marker-icon.png',
@@ -68,9 +69,17 @@ export default function AccMap({
           icon={defaultIcon}
         >
           <Popup>
-            <strong>{item.name}</strong>
-            <br />
-            {item.city}
+            <div className="p-2">
+              <strong className="block text-gray-900">{item.name}</strong>
+              <span className="text-sm text-gray-600">{item.city}</span>
+              <br />
+              <Link
+                href={`/accommodations/${item.id}`}
+                className="text-blue-600 underline text-sm"
+              >
+                查看詳細頁
+              </Link>
+            </div>
           </Popup>
         </Marker>
       ))}

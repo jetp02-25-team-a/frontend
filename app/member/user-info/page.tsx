@@ -16,7 +16,7 @@ import { API_SERVER } from '../../config/api-path';
 import { IMAGE_PATH, AVATAR_PATH } from '../../config/image-path';
 import FriendRecommend from './_components/friend-recommend';
 import FavoriteList from '@/app/place/favorite/FavoriteList';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMagnifyingGlass,
@@ -24,6 +24,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import toast from 'react-hot-toast';
 import DeleteConfirmModal from './_components/deleteConfirmModal';
+import BookingList from '../../accommodations/_components/client/BookingList';
+import FavoriteAccommodationList from '../../accommodations/_components/client/FavoriteAccList';
+import UserDashboardTabs from '../../accommodations/_components/client/AccDash';
+import { useBooking } from '../../../contexts/BookingContext';
 
 //
 interface Member {
@@ -147,6 +151,22 @@ export default function UserInfoPage() {
     const data = await response.json();
     setUserData(data);
   };
+
+  const searchParams = useSearchParams();
+  const { mutateBookings } = useBooking();
+
+  useEffect(() => {
+    const refreshFlag = searchParams.get('refresh');
+
+    if (refreshFlag === 'bookings') {
+      if (mutateBookings) mutateBookings();
+
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.delete('refresh');
+
+      router.replace(`?${newSearchParams.toString()}`, { scroll: false });
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     getUserData();
@@ -299,6 +319,16 @@ export default function UserInfoPage() {
                   onClick={() => setOptions('好友')}
                 /> */}
                 <ListButton
+                  name="住宿相關"
+                  active={options === '住宿相關' ? true : false}
+                  onClick={() => {
+                    setOptions('住宿相關');
+                    if (mutateBookings) {
+                      mutateBookings();
+                    }
+                  }}
+                />
+                <ListButton
                   name="行程"
                   active={options === '行程' ? true : false}
                   onClick={() => {
@@ -325,6 +355,9 @@ export default function UserInfoPage() {
                     </>
                   )}
                   {/* {options === '好友' && <></>} */}
+                  <div className="p-4">
+                    {options === '住宿相關' && <UserDashboardTabs />}
+                  </div>
                   {options === '行程' && (
                     <>
                       {userItineraries && userItineraries.length > 0 ? (

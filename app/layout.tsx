@@ -17,6 +17,7 @@ import BackToTop from '@/components/ui/BackToTop';
 
 import { Noto_Sans_TC, Roboto } from 'next/font/google';
 import ToastProvider from '../components/ui/ToastProvider';
+import { BookingProvider } from '../contexts/BookingContext';
 
 // 1. 定義 Roboto 字型 (處理英文字和數字)
 const roboto = Roboto({
@@ -53,11 +54,13 @@ export default function RootLayout({
         <AuthProvider>
           <SocketProvider>
             <FavoriteAccommodationProvider>
-              <ToastProvider>
-                <Navbar />
-                {children}
-                <Footer />
-              </ToastProvider>
+              <BookingProvider>
+                <ToastProvider>
+                  <Navbar />
+                  {children}
+                  <Footer />
+                </ToastProvider>
+              </BookingProvider>
             </FavoriteAccommodationProvider>
           </SocketProvider>
         </AuthProvider>

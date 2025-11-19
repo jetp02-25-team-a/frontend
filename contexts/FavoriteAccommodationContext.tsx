@@ -8,8 +8,13 @@ import { useAuth } from '@/hooks/use-Auth';
 import { toast } from 'react-hot-toast';
 import LoginModal from '../app/accommodations/_components/client/LoginModal';
 
+type FavoriteAccommodationItem = {
+  accommodationId: number;
+  name: string;
+};
+
 type FavoriteAccommodationResponse = {
-  favoriteAccIds: number[];
+  favoriteAccList: FavoriteAccommodationItem[];
   count: number;
 };
 
@@ -38,8 +43,13 @@ export function FavoriteAccommodationProvider({
       })
   );
 
-  const isFavorite = (id: number) =>
-    favoriteData?.favoriteAccIds.includes(id) ?? false;
+  const isFavorite = (id: number) => {
+    return (
+      favoriteData?.favoriteAccList.some(
+        (item) => item.accommodationId === id
+      ) ?? false
+    );
+  };
 
   const [showLoginModal, setShowLoginModal] = useState(false);
 
