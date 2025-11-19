@@ -135,10 +135,6 @@ export default function ReviewList({
               <img
                 src={r.avatar ? buildImageUrl(r.avatar) : '/default-avatar.png'}
                 className="h-8 w-8 rounded-full object-cover"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src =
-                    '/default-avatar.png';
-                }}
               />
 
               <div className="font-semibold">{r.name}</div>

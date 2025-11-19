@@ -46,7 +46,7 @@ export default function ReviewComposer({
       setRating(0);
       onCreated?.();
     } catch (err: any) {
-      setError('送出失敗，請稍後再試');
+      setError('評論只能發佈一次');
     } finally {
       setLoading(false);
     }
