@@ -10,7 +10,6 @@ import { API_URL } from '@/config/api-path';
 import Toast from '../place/_components/Toast';
 
 export default function TripPage() {
-  // 認證保護由 layout.tsx 中的 ProtectRoute 處理
   const { user, isReady } = useAuth();
   const [trips, setTrips] = useState([]);
   const [selectedTripId, setSelectedTripId] = useState<number | null>(null);
@@ -44,7 +43,9 @@ export default function TripPage() {
       {/* 標題區域 */}
       <div className="bg-white border-b border-neutral-100">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-neutral-900 text-center">我的行程</h1>
+          <h1 className="text-3xl font-bold text-neutral-900 text-center">
+            我的行程
+          </h1>
         </div>
       </div>
 
@@ -64,10 +65,10 @@ export default function TripPage() {
         <TripFilterBar />
 
         {/* 行程列表 */}
-        <TripList 
-          list={trips} 
-          selected={selectedTripId} 
-          onSelect={setSelectedTripId} 
+        <TripList
+          list={trips}
+          selected={selectedTripId}
+          onSelect={setSelectedTripId}
         />
 
         {toast && (

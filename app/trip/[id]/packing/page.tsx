@@ -49,23 +49,49 @@ export default function TripPackingPage() {
   const groups = useMemo<PackingGroupModel[]>(() => {
     const map = new Map<string, PackingGroupModel>();
 
+    // 先初始化所有分類（即使沒有項目也要顯示）
+    const allTemplateIds = [1, 2, 3, 4, 5]; // 根據 SQL 檔案的分類 ID
+    for (const tid of allTemplateIds) {
+      const key = String(tid);
+      const title = PACKING_TEMPLATE_NAME[tid] || '未分類';
+      map.set(key, {
+        templateId: tid,
+        title,
+        items: [],
+      });
+    }
+
+    // 將項目分配到對應的分類
     for (const item of items) {
       const tid = item.templateId;
-      const key = String(tid ?? 'null');
-
-      if (!map.has(key)) {
-        const title =
-          tid && PACKING_TEMPLATE_NAME[tid]
-            ? PACKING_TEMPLATE_NAME[tid]
-            : '未分類';
-
-        map.set(key, {
-          templateId: tid ?? null,
-          title,
-          items: [],
-        });
+      if (tid) {
+        const key = String(tid);
+        if (map.has(key)) {
+          map.get(key)!.items.push(item);
+        } else {
+          // 如果 templateId 不在預設分類中，加入未分類
+          const nullKey = 'null';
+          if (!map.has(nullKey)) {
+            map.set(nullKey, {
+              templateId: null,
+              title: '未分類',
+              items: [],
+            });
+          }
+          map.get(nullKey)!.items.push(item);
+        }
+      } else {
+        // templateId 為 null 的項目放入未分類
+        const nullKey = 'null';
+        if (!map.has(nullKey)) {
+          map.set(nullKey, {
+            templateId: null,
+            title: '未分類',
+            items: [],
+          });
+        }
+        map.get(nullKey)!.items.push(item);
       }
-      map.get(key)!.items.push(item);
     }
 
     return Array.from(map.values()).sort((a, b) => {

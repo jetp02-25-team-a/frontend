@@ -12,9 +12,12 @@ interface City {
 }
 
 type TripTypeOption = 'solo' | 'couple' | 'friends' | 'family';
-type TripCategory = 'private' | 'group';
 
-const TRIP_TYPE_OPTIONS: { value: TripTypeOption; label: string; icon: string }[] = [
+const TRIP_TYPE_OPTIONS: {
+  value: TripTypeOption;
+  label: string;
+  icon: string;
+}[] = [
   { value: 'solo', label: '獨旅', icon: '🚶' },
   { value: 'couple', label: '情侶', icon: '💑' },
   { value: 'friends', label: '朋友', icon: '👥' },
@@ -23,7 +26,6 @@ const TRIP_TYPE_OPTIONS: { value: TripTypeOption; label: string; icon: string }[
 
 export default function TripCreatePage() {
   const router = useRouter();
-  const [category, setCategory] = useState<TripCategory>('private'); // 私人行程或揪團行程
   const [title, setTitle] = useState('');
   const [tripType, setTripType] = useState<TripTypeOption>('solo');
   const [destinationId, setDestinationId] = useState<number | null>(null);
@@ -79,12 +81,12 @@ export default function TripCreatePage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
         },
-        body: JSON.stringify({ 
-          title: title.trim(), 
+        body: JSON.stringify({
+          title: title.trim(),
           type: tripType, // 傳送行程類型
           destinationId: destinationId,
-          startDate, 
-          endDate 
+          startDate,
+          endDate,
         }),
       });
 
@@ -109,50 +111,21 @@ export default function TripCreatePage() {
     setDestinationId(selectedId);
   };
 
-  const selectedCity = cities.find(c => c.id === destinationId);
+  const selectedCity = cities.find((c) => c.id === destinationId);
 
   return (
     <main className="min-h-screen bg-white">
       {/* 頁面標題 */}
       <div className="bg-white border-b border-neutral-100">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-neutral-900 text-center">行程頁面</h1>
+          <h1 className="text-3xl font-bold text-neutral-900 text-center">
+            行程頁面
+          </h1>
         </div>
       </div>
 
       {/* 主要內容 */}
       <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* 行程類別切換 */}
-        <div className="flex justify-center">
-          <div className="inline-flex bg-white shadow-sm rounded-full px-1.5 py-1.5 border border-neutral-200">
-            <button
-              type="button"
-              onClick={() => setCategory('private')}
-              className={`px-8 py-2.5 rounded-full transition-all duration-200 text-sm font-medium min-w-[120px]
-                ${
-                  category === 'private'
-                    ? 'bg-[#F6C453] text-white shadow-sm'
-                    : 'text-neutral-600 hover:bg-neutral-50'
-                }`}
-            >
-              私人行程
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setCategory('group')}
-              className={`px-8 py-2.5 rounded-full transition-all duration-200 text-sm font-medium min-w-[120px]
-                ${
-                  category === 'group'
-                    ? 'bg-[#F6C453] text-white shadow-sm'
-                    : 'text-neutral-600 hover:bg-neutral-50'
-                }`}
-            >
-              揪團行程
-            </button>
-          </div>
-        </div>
-
         {/* 表單卡片 */}
         <div className="bg-white shadow-lg rounded-2xl border border-neutral-100 p-8 md:p-10">
           {/* 表單標題 */}
@@ -201,11 +174,13 @@ export default function TripCreatePage() {
                       }`}
                   >
                     <div className="text-3xl mb-2">{option.icon}</div>
-                    <div className={`text-base font-medium ${
-                      tripType === option.value 
-                        ? 'text-[#F6C453]' 
-                        : 'text-neutral-700'
-                    }`}>
+                    <div
+                      className={`text-base font-medium ${
+                        tripType === option.value
+                          ? 'text-[#F6C453]'
+                          : 'text-neutral-700'
+                      }`}
+                    >
                       {option.label}
                     </div>
                   </button>
@@ -239,8 +214,18 @@ export default function TripCreatePage() {
                   </select>
                   {/* 下拉箭頭 */}
                   <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -280,8 +265,18 @@ export default function TripCreatePage() {
                       required
                     />
                     <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                     </div>
                   </div>
@@ -301,8 +296,18 @@ export default function TripCreatePage() {
                       required
                     />
                     <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                     </div>
                   </div>
