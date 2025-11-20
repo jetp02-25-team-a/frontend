@@ -105,7 +105,7 @@ const ArticleRankingPage: React.FC = () => {
           color: '#2b6cb0',
         }}
       >
-        🏆 Popular Article Ranking Based on Score
+        🏆 推薦景點排行榜
       </h1>
 
       {rankingData.length === 0 ? (
@@ -133,18 +133,17 @@ const ArticleRankingPage: React.FC = () => {
           disabled={currentPage === 1}
           style={buttonStyle(currentPage === 1)}
         >
-          &larr; Last page
+          &larr; 上一頁
         </button>
         <span style={{ fontWeight: 'bold', color: '#2d3748' }}>
-          Page **{currentPage}** dari **{totalPages}** ({totalArticles} total
-          article)
+          Page {currentPage} / {totalPages}
         </span>
         <button
           onClick={handleNextPage}
           disabled={currentPage === totalPages || totalPages === 0}
           style={buttonStyle(currentPage === totalPages || totalPages === 0)}
         >
-          Next page &rarr;
+          下一頁 &rarr;
         </button>
       </div>
     </div>

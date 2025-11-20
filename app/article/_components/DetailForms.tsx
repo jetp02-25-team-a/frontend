@@ -58,7 +58,6 @@ interface DetailFormProps {
 export default function DetailForm({ article }: DetailFormProps) {
   return (
     <div className="bg-white shadow-lg rounded-2xl p-6">
-      <h2 className="text-2xl font-bold mb-2">{article.title}</h2>
       <p className="text-gray-500 mb-4">📍 {article.location}</p>
       <p className="text-gray-700 leading-relaxed whitespace-pre-line">
         {article.content}
@@ -66,21 +65,6 @@ export default function DetailForm({ article }: DetailFormProps) {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // 'use client';
 

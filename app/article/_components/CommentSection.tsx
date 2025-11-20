@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { API_SERVER } from '../../../config/api-path';
+import toast from 'react-hot-toast';
 
 interface Comment {
   username: string;
@@ -29,7 +30,7 @@ export default function CommentSection({
     e.preventDefault();
 
     if (!username || !content) {
-      alert('Nama dan komentar wajib diisi.');
+      toast.error('使用者和留言必填.');
       return;
     }
 
@@ -47,7 +48,7 @@ export default function CommentSection({
         }),
       });
 
-      if (!res.ok) throw new Error('Gagal menambahkan komentar');
+      if (!res.ok) throw new Error('新增留言吃敗');
 
       const newComment = await res.json();
 
@@ -56,9 +57,11 @@ export default function CommentSection({
       setUsername('');
       setAvatarUrl('');
       setContent('');
+
+      toast.success('留言已成功加上!');
     } catch (err) {
       console.error(err);
-      alert('Terjadi kesalahan saat mengirim komentar.');
+      toast.error('發送留言時發生錯誤.');
     } finally {
       setLoading(false);
     }
@@ -92,7 +95,7 @@ export default function CommentSection({
             </div>
           ))
         ) : (
-          <p className="text-gray-500 text-sm">Belum ada komentar.</p>
+          <p className="text-gray-500 text-sm">尚未有留言.</p>
         )}
       </div>
 
@@ -101,12 +104,12 @@ export default function CommentSection({
         onSubmit={handleSubmit}
         className="mt-6 bg-gray-50 p-6 rounded-xl shadow-sm border"
       >
-        <h4 className="text-md font-semibold mb-3">Tulis komentar</h4>
+        <h4 className="text-md font-semibold mb-3">編寫留言</h4>
 
         <div className="flex flex-col gap-3">
           <input
             type="text"
-            placeholder="Nama Anda"
+            placeholder="使用者"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="border border-gray-300 rounded-lg p-2"
@@ -121,7 +124,7 @@ export default function CommentSection({
           />
 
           <textarea
-            placeholder="Tulis komentar Anda di sini..."
+            placeholder="請在這裡編寫留言..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="border border-gray-300 rounded-lg p-2 h-24 resize-none"
@@ -132,7 +135,7 @@ export default function CommentSection({
             disabled={loading}
             className="bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50"
           >
-            {loading ? 'Mengirim...' : 'Kirim Komentar'}
+            {loading ? '傳送...' : '傳送留言'}
           </button>
         </div>
       </form>

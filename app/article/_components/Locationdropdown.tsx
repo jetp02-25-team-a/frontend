@@ -6,41 +6,43 @@ import React from 'react';
 
 // Pastikan tipe Location didefinisikan atau diimpor jika diperlukan
 // Kita asumsikan Location adalah string (nama kota)
-type Location = string; 
+type Location = string;
 
 interface Props {
   // ✅ Properti ini akan menerima array lokasi dari fetch API di komponen induk
-  locations: Location[]; 
-  selected?: Location;
-  onChange: (location: Location) => void;
+  locations: Location[];
+  selected?: Location;
+  onChange: (location: Location) => void;
 }
 
 function LocationDropdown({ selected, onChange, locations }: Props) {
-  return (
-    <div className="flex flex-col">
-      <label
-        htmlFor="location"
-        className="mb-1 text-sm font-medium text-gray-700"
-      >
-        Select Location 選擇地點
-      </label>
-      <select
-        id="location"
-        value={selected ?? ''}
-        onChange={(e) => onChange(e.target.value as Location)}
-        className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
-      >
-        <option value="">請選擇地點</option>
-        {locations.map(
-          (loc) => (
-            <option key={loc} value={loc}>
-              {loc}
-            </option>
-          )
-        )}
-      </select>
-    </div>
-  );
+  return (
+    <div className="flex flex-col">
+           {' '}
+      <label
+        htmlFor="location"
+        className="mb-1 text-sm font-medium text-gray-700"
+      >
+                Select Location 選擇地點      {' '}
+      </label>
+           {' '}
+      <select
+        id="location"
+        value={selected ?? ''}
+        onChange={(e) => onChange(e.target.value as Location)}
+        className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+      >
+                <option value="">請選擇地點</option>       {' '}
+        {locations.map((loc) => (
+          <option key={loc} value={loc}>
+                          {loc}           {' '}
+          </option>
+        ))}
+             {' '}
+      </select>
+         {' '}
+    </div>
+  );
 }
 
 export default LocationDropdown;
@@ -95,7 +97,7 @@ export default LocationDropdown;
 // }
 // // ...
 // // ... di dalam <select>
-// {locations.map((loc) => ( 
+// {locations.map((loc) => (
 //   <option key={loc} value={loc}>
 //     {loc}
 //   </option>

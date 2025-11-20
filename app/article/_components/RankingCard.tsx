@@ -142,63 +142,60 @@
 
 // export default RankingCard;
 
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { ArticleRankingItem } from "../_components/type";
+import React from 'react';
+import Link from 'next/link';
+import { ArticleRankingItem } from '../_components/type';
 
 interface RankingCardProps {
   article: ArticleRankingItem;
 }
 
-const API_SERVER = "http://localhost:3005";
+const API_SERVER = 'http://localhost:3005';
 
 const RankingCard: React.FC<RankingCardProps> = ({ article }) => {
   const isTopThree = article.rank <= 3;
 
   // Ambil foto utama
   const filename =
-    article.image ||
-    article.imgUrl ||
-    article.photos?.[0] ||
-    null;
+    article.image || article.imgUrl || article.photos?.[0] || null;
 
   // URL gambar dari backend
   const imageUrl = filename
     ? `${API_SERVER}/images/posts/${filename}`
-    : "/placeholder.jpg";
+    : '/placeholder.jpg';
 
   return (
     <div
       style={{
-        border: "1px solid #e0e0e0",
-        borderRadius: "12px",
-        padding: "20px",
-        marginBottom: "15px",
-        display: "flex",
-        alignItems: "center",
-        backgroundColor: isTopThree ? "#fefce8" : "#fff",
-        boxShadow: isTopThree ? "0 4px 6px rgba(0,0,0,0.1)" : "none",
-        transition: "transform 0.2s",
+        border: '1px solid #e0e0e0',
+        borderRadius: '12px',
+        padding: '20px',
+        marginBottom: '15px',
+        display: 'flex',
+        alignItems: 'center',
+        backgroundColor: isTopThree ? '#fefce8' : '#fff',
+        boxShadow: isTopThree ? '0 4px 6px rgba(0,0,0,0.1)' : 'none',
+        transition: 'transform 0.2s',
       }}
     >
       {/* Rank */}
       <div
         style={{
-          fontSize: "2em",
-          fontWeight: "extrabold",
-          marginRight: "20px",
-          width: "40px",
-          textAlign: "center",
+          fontSize: '2em',
+          fontWeight: 'extrabold',
+          marginRight: '20px',
+          width: '40px',
+          textAlign: 'center',
           color:
             article.rank === 1
-              ? "#FFD700"
+              ? '#FFD700'
               : article.rank === 2
-              ? "#C0C0C0"
-              : article.rank === 3
-              ? "#CD7F32"
-              : "#333",
+                ? '#C0C0C0'
+                : article.rank === 3
+                  ? '#CD7F32'
+                  : '#333',
         }}
       >
         #{article.rank}
@@ -209,11 +206,11 @@ const RankingCard: React.FC<RankingCardProps> = ({ article }) => {
         src={imageUrl}
         alt={article.title}
         style={{
-          width: "90px",
-          height: "90px",
-          objectFit: "cover",
-          borderRadius: "8px",
-          marginRight: "20px",
+          width: '90px',
+          height: '90px',
+          objectFit: 'cover',
+          borderRadius: '8px',
+          marginRight: '20px',
         }}
       />
 
@@ -221,34 +218,34 @@ const RankingCard: React.FC<RankingCardProps> = ({ article }) => {
       <div style={{ flexGrow: 1 }}>
         <h3
           style={{
-            margin: "0 0 5px 0",
-            fontSize: "1.4em",
-            color: "#1a202c",
+            margin: '0 0 5px 0',
+            fontSize: '1.4em',
+            color: '#1a202c',
           }}
         >
           {article.title}
         </h3>
 
-        <p style={{ margin: 0, fontSize: "0.9em", color: "#4a5568" }}>
-          📍 {article.location} ｜ Dibuat:{" "}
+        <p style={{ margin: 0, fontSize: '0.9em', color: '#4a5568' }}>
+          📍 {article.location} ｜ 建立時間:{' '}
           {new Date(article.createdAt).toLocaleDateString()}
         </p>
       </div>
 
       {/* Stats */}
-      <div style={{ textAlign: "right", minWidth: "180px" }}>
+      <div style={{ textAlign: 'right', minWidth: '180px' }}>
         <p
           style={{
-            margin: "0 0 5px 0",
-            fontWeight: "bold",
-            fontSize: "1.2em",
-            color: "#2b6cb0",
+            margin: '0 0 5px 0',
+            fontWeight: 'bold',
+            fontSize: '1.2em',
+            color: '#2b6cb0',
           }}
         >
-          ⭐ Score: {article.score.toFixed(2)}
+          {/* ⭐ Score: {article.score.toFixed(2)} */}
         </p>
 
-        <p style={{ margin: 0, fontSize: "0.8em", color: "#718096" }}>
+        <p style={{ margin: 0, fontSize: '0.8em', color: '#718096' }}>
           ❤️ {article.likesCount} Likes | 💬 {article.commentsCount} Comments
         </p>
 
@@ -264,7 +261,6 @@ const RankingCard: React.FC<RankingCardProps> = ({ article }) => {
 };
 
 export default RankingCard;
-
 
 // // src/components/RankingCard.tsx
 // import React from 'react';

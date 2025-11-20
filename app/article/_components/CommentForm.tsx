@@ -23,7 +23,7 @@ export default function CommentForm({ postId }: { postId: number }) {
     try {
       await sendComment(postId, content);
       setContent(''); // reset input
-      alert('Komentar terkirim!');
+      alert('傳送留言!');
     } catch (err: any) {
       alert(err.message);
     }
@@ -37,7 +37,7 @@ export default function CommentForm({ postId }: { postId: number }) {
         className="border w-full p-2"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="Tulis komentar..."
+        placeholder="編寫留言..."
       />
 
       <button
@@ -45,7 +45,7 @@ export default function CommentForm({ postId }: { postId: number }) {
         className="bg-blue-500 text-white px-4 py-2 rounded"
         disabled={loading}
       >
-        {loading ? 'Mengirim...' : 'Kirim'}
+        {loading ? '正在傳送...' : '傳送'}
       </button>
     </form>
   );
