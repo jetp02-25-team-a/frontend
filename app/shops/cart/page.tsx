@@ -6,6 +6,7 @@ import { useCart } from '../../../hooks/use-Cart';
 import { API_SERVER } from '../../config/api-path';
 import CartCard from '../_components/cartCard';
 import Link from 'next/link';
+import { SlInfo } from 'react-icons/sl';
 
 interface ProductVariants {
   id: number;
@@ -37,7 +38,9 @@ export default function CartPage() {
   const [items, setItems] = useState<Product[]>([]);
   const [points, setPoints] = useState(0);
   const [pointUsedInput, setPointUsedInput] = useState<number | ''>('');
-  const [finalPointUsed, setFinalPointUsed] = useState<number | ''>(''); // 移除 totalprice 和 allProductNames 的 let 宣告，改為用 useMemo 計算
+  const [finalPointUsed, setFinalPointUsed] = useState<number | ''>('');
+  const [pointLog, setPointLog] = useState();
+  const [isHovered, setIsHovered] = useState(false);
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearCart();
@@ -111,8 +114,9 @@ export default function CartPage() {
         setPoints(userPoint.data.point);
       } catch (error) {}
     };
+
     getPoint();
-  }, [user.id, getAuthHeader]); // ✨ 新增 useMemo 計算總價和產品列表字串
+  }, [user.id, getAuthHeader]);
 
   const calculatedTotals = useMemo(() => {
     let currentTotalPrice = 0;
@@ -151,7 +155,7 @@ export default function CartPage() {
 
   return (
     <>
-      <div className="bg-[#FBE7C1] p-8">
+      <div className="bg-white p-8">
         {isCartEmpty ? (
           // 購物車為空時顯示的提示訊息
           <div
@@ -228,16 +232,17 @@ export default function CartPage() {
 
             <div className="flex justify-between">
               <div>
-                <p className="mt-1">可用點數: {points}</p>
-
+                <div className="flex items-center gap-1.5">
+                  <p className="mt-1">可用點數: {points}</p>
+                </div>
                 <p className="mt-1">
                   使用
                   <input
                     type="number"
                     name="point"
-                    className="ml-2 w-16 [&::-webkit-outer-spin-button]:appearance-none 
+                    className="ml-2 w-16 mr-2 [&::-webkit-outer-spin-button]:appearance-none 
  [&::-webkit-inner-spin-button]:appearance-none
- [-moz-appearance:textfield] bg-white rounded-xs"
+ [-moz-appearance:textfield] bg-white rounded-xs border border-gray-600"
                     value={pointUsedInput}
                     onChange={handlePointInputChange}
                   />

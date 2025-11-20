@@ -53,12 +53,12 @@ export default function ProductCard({
           >
             <button
               onClick={() => itemToCart(productId, variantId)}
-              className="bg-white text-[#F8D28C] font-bold py-2 px-4 rounded-full shadow-xl hover:bg-gray-100 transition-colors duration-200 hover:cursor-pointer"
+              className="bg-white  font-bold py-2 px-4 rounded-full shadow-xl hover:bg-gray-100 transition-colors duration-200 hover:cursor-pointer"
             >
               加入購物車
             </button>
             <Link href={`/shops/product/${productId}`}>
-              <button className="bg-white text-[#F8D28C] font-bold py-2 px-6 rounded-full shadow-xl hover:bg-gray-100 transition-colors duration-200 hover:cursor-pointer ">
+              <button className="bg-white  font-bold py-2 px-6 rounded-full shadow-xl hover:bg-gray-100 transition-colors duration-200 hover:cursor-pointer ">
                 查看細節
               </button>
             </Link>

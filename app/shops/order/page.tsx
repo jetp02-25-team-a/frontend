@@ -141,7 +141,7 @@ export default function OrderPage() {
 
   return (
     <>
-      <div className="min-h-[calc(100vh-354px-88px)] bg-[#FBE7C1] p-4">
+      <div className="min-h-[calc(100vh-354px-88px)] bg-white p-4 flex flex-col justify-center items-center">
         <h2 className="text-2xl font-bold mb-4">訂單紀錄</h2>
         {isLoading ? (
           <p>載入中...</p>
@@ -152,7 +152,7 @@ export default function OrderPage() {
               return (
                 <div
                   key={order.id}
-                  className="bg-white p-4 my-4 rounded-lg shadow"
+                  className="bg-[#FBE7C1] p-4 my-4 rounded-lg shadow w-7/8"
                 >
                   <p className="font-semibold text-lg">
                     訂單編號: {order.tradeId}

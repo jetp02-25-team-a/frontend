@@ -36,7 +36,7 @@ export default function CartCard({
 
   return (
     <>
-      <div className="flex flex-row w-4/5 mx-auto mb-8">
+      <div className="flex flex-row w-4/5 mx-auto mb-8 bg-gray-200 p-8 rounded-xl">
         <div>
           <Image src={picURL} alt="產品圖片" height={200} width={150}></Image>
         </div>
@@ -51,16 +51,29 @@ export default function CartCard({
           <div>
             <p>NT${price}</p>
           </div>
-          <div className="flex flex-row">
-            <button onClick={() => removeFromCart(variantID, 1)}>-</button>
+          <div className="flex flex-row gap-1">
+            <button
+              onClick={() => removeFromCart(variantID, 1)}
+              className="font-bold hover:cursor-pointer"
+            >
+              -
+            </button>
             <p>{amount}</p>
-            <button onClick={() => addToCart(id, variantID)}>+</button>
+            <button
+              onClick={() => addToCart(id, variantID)}
+              className="font-bold hover:cursor-pointer"
+            >
+              +
+            </button>
           </div>
           <div>
             <p>NT${price * amount}</p>
           </div>
           <div>
-            <button onClick={() => removeFromCart(variantID)}>
+            <button
+              onClick={() => removeFromCart(variantID)}
+              className="font-bold hover:cursor-pointer"
+            >
               <FaTrash />
             </button>
           </div>
