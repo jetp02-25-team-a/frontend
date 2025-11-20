@@ -168,7 +168,7 @@ export default function IdPage() {
           </ol>
         </div>
       </nav>
-      <div className="bg-[#FBE7C1]">
+      <div className="bg-white">
         <div className="flex pt-8 w-7/8 mx-auto ">
           <div className="w-5/8 flex flex-col items-center">
             {/* 大圖顯示區塊 */}

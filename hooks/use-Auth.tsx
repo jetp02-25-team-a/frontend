@@ -22,6 +22,7 @@ interface AuthContextType {
   isReady: boolean;
   isAuthenticated: boolean;
   updateUser: (id: number) => void;
+  addPoint: (type: number, amount: number) => void;
 }
 
 //建立context
@@ -107,6 +108,23 @@ export function AuthProvider({
     };
   };
 
+  const addPoint = async (type: number, amount: number) => {
+    try {
+      const result = await fetch(`${API_SERVER}/point`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          type: type,
+          amount: amount,
+        }),
+      });
+      console.log('point ok');
+    } catch (error) {}
+  };
+
   useEffect(() => {
     const str = localStorage.getItem(storageKey);
     if (!str) {
@@ -151,6 +169,7 @@ export function AuthProvider({
         getAuthHeader,
         isReady,
         updateUser,
+        addPoint,
         isAuthenticated: !!user?.token,
       }}
     >

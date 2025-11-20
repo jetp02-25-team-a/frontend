@@ -8,6 +8,7 @@ import Slider from 'react-slick';
 import ShoppingCart from './_components/shoppingCart';
 import ProductCard from './_components/productCard';
 import Link from 'next/link';
+import Image from 'next/image';
 import { GrLinkNext } from 'react-icons/gr';
 
 const ProductInit: ApiResponse = {
@@ -125,7 +126,15 @@ export default function M6Page() {
   }, []);
   return (
     <>
-      <div className="bg-[#FBE7C1] w-full  pt-8 pb-8">
+      <div className="h-120 w-full relative">
+        <Image
+          src={`/shop-top.jpg`}
+          alt="橫幅"
+          className="object-cover w-full object-top"
+          fill={true}
+        ></Image>
+      </div>
+      <div className="bg-white w-full  pt-8 pb-8">
         <div className="w-7/8  mx-auto h-90 ">
           <h1 className="text-4xl font-bold text-center mb-8">推薦商品</h1>
           <Slider {...settings}>
