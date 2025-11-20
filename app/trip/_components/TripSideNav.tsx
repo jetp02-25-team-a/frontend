@@ -90,6 +90,64 @@ export default function TripSideNav({ active, onChange, tripId }: Props) {
       {/* 下載PDF */}
       <button
         type="button"
+        onClick={async () => {
+          if (!tripId) {
+            alert('無法取得行程ID');
+            return;
+          }
+          try {
+            // 取得行程資料
+            const res = await fetch(`${API_URL}/api/m2/plan/${tripId}/detail-all`);
+            const data = await res.json();
+            
+            if (!data.success || !data.data) {
+              throw new Error('無法取得行程資料');
+            }
+
+            // 使用 window.print() 或生成 PDF
+            // 這裡使用簡單的 window.print()，之後可以改用 jsPDF 或 puppeteer
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+              alert('無法開啟新視窗，請允許彈出視窗');
+              return;
+            }
+
+            const trip = data.data.trip;
+            const details = data.data.details || [];
+            
+            printWindow.document.write(`
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <title>${trip.title} - 行程規劃</title>
+                  <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    h1 { color: #333; }
+                    .detail-item { margin: 10px 0; padding: 10px; border-bottom: 1px solid #eee; }
+                  </style>
+                </head>
+                <body>
+                  <h1>${trip.title}</h1>
+                  <p>日期：${trip.startDate} ~ ${trip.endDate}</p>
+                  <p>目的地：${trip.destination || '未指定'}</p>
+                  <h2>行程明細</h2>
+                  ${details.map((d: any) => `
+                    <div class="detail-item">
+                      <strong>${d.title}</strong><br>
+                      ${d.address ? `地址：${d.address}<br>` : ''}
+                      時間：${new Date(d.startDate).toLocaleString('zh-TW')} ~ ${new Date(d.endDate).toLocaleString('zh-TW')}
+                    </div>
+                  `).join('')}
+                </body>
+              </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+          } catch (err: any) {
+            console.error('PDF 下載失敗:', err);
+            alert('下載PDF失敗：' + (err.message || '未知錯誤'));
+          }
+        }}
         className="flex items-center gap-3 p-4 rounded-xl bg-white border-2 border-transparent hover:bg-neutral-50 transition-all"
       >
         <svg className="w-5 h-5 text-neutral-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">

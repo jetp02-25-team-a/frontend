@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-Auth';
 import {
   PACKING_TEMPLATE_NAME,
   PackingItem,
@@ -24,6 +25,7 @@ import PackingGroup from './_components/PackingGroup';
 export default function TripPackingPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const { user } = useAuth();
   const tripId = Number(params.id);
 
   const [items, setItems] = useState<PackingItem[]>([]);
@@ -164,14 +166,22 @@ export default function TripPackingPage() {
     setItems((list) => [...list, optimisticItem]);
 
     try {
-      const result = await createPackingItem({ tripId, templateId, name });
+      const result = await createPackingItem({ 
+        tripId, 
+        templateId, 
+        name,
+        userId: user?.id 
+      });
 
       // 如果後端有回傳真實 id，就把暫時的換掉
       const real = (result && (result.data || result)) ?? null;
 
       if (real && typeof real.id === 'number') {
         setItems((list) =>
-          list.map((i) => (i.id === tempId ? { ...real } : i))
+          list.map((i) => (i.id === tempId ? { 
+            ...real, 
+            isChecked: Boolean(real.isChecked ?? real.is_checked ?? false)
+          } : i))
         );
       }
     } catch (err) {

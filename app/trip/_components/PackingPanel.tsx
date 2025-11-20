@@ -89,22 +89,65 @@ export default function PackingPanel({ tripId }: { tripId: number }) {
     try {
       setLoading(true);
       const r = await fetch(`${API_URL}/api/m2/packing/${tripId}`);
+      
+      if (!r.ok) {
+        throw new Error('載入行李清單失敗');
+      }
+      
       const j = await r.json();
-      setItems(Array.isArray(j) ? j : []);
+      const itemsData = Array.isArray(j) ? j : [];
+      
+      // 確保 isChecked 是 boolean，處理後端可能回傳的 is_checked 或 isChecked
+      const normalizedItems = itemsData.map((item: any) => ({
+        id: item.id,
+        TripPlanId: item.TripPlanId || item.tripPlanId || tripId,
+        templateId: item.templateId ?? item.template_id ?? null,
+        name: item.name || '',
+        isChecked: Boolean(item.isChecked ?? item.is_checked ?? false),
+      }));
+      
+      setItems(normalizedItems);
     } catch (err) {
-      console.error(err);
+      console.error('載入行李清單失敗:', err);
+      setItems([]);
     } finally {
       setLoading(false);
     }
   }
 
   async function toggleCheck(id: number, isChecked: boolean) {
-    await fetch(`${API_URL}/api/m2/packing/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isChecked }),
-    });
-    await loadPacking();
+    // 確保 isChecked 是 boolean
+    const boolValue = Boolean(isChecked);
+    
+    // 樂觀更新
+    setItems(prev => prev.map(item => 
+      item.id === id ? { ...item, isChecked: boolValue } : item
+    ));
+    
+    try {
+      const userInfo = localStorage.getItem('BackpackUserInfo');
+      const token = userInfo ? JSON.parse(userInfo).token : '';
+      
+      const res = await fetch(`${API_URL}/api/m2/packing/${id}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isChecked: boolValue }),
+      });
+      
+      if (!res.ok) {
+        throw new Error('更新失敗');
+      }
+      
+      // 重新載入以確保資料同步
+      await loadPacking();
+    } catch (err) {
+      console.error('更新 checkbox 失敗:', err);
+      // 回滾
+      await loadPacking();
+    }
   }
 
   async function deleteItem(id: number) {
@@ -113,11 +156,26 @@ export default function PackingPanel({ tripId }: { tripId: number }) {
   }
 
   async function addItem(templateId: number | null, name: string) {
+    // 從 localStorage 取得 userId
+    const userInfo = localStorage.getItem('BackpackUserInfo');
+    const userId = userInfo ? JSON.parse(userInfo).user?.id || JSON.parse(userInfo).id : null;
+    
+    if (!userId) {
+      alert('請先登入');
+      return;
+    }
+
+    const token = userInfo ? JSON.parse(userInfo).token : '';
+
     await fetch(`${API_URL}/api/m2/packing`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         TripPlanId: tripId,
+        userId: userId,
         templateId,
         name,
         isChecked: false,

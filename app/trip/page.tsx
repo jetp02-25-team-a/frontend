@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-Auth';
-import TripUserCard from './_components/TripUserCard';
 import TripTabs from './_components/TripTabs';
 import TripFilterBar from './_components/TripFilterBar';
 import TripList from './_components/TripList';
@@ -43,19 +42,12 @@ export default function TripPage() {
       {/* 標題區域 */}
       <div className="bg-white border-b border-neutral-100">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-neutral-900 text-center">
-            我的行程
-          </h1>
+          <h1 className="text-3xl font-bold text-neutral-900 text-center">我的行程</h1>
         </div>
       </div>
 
       {/* 主要內容區域 */}
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* 用戶卡片 */}
-        <div className="flex justify-center">
-          <TripUserCard />
-        </div>
-
         {/* 標籤切換 */}
         <div className="flex justify-center">
           <TripTabs />
@@ -65,10 +57,10 @@ export default function TripPage() {
         <TripFilterBar />
 
         {/* 行程列表 */}
-        <TripList
-          list={trips}
-          selected={selectedTripId}
-          onSelect={setSelectedTripId}
+        <TripList 
+          list={trips} 
+          selected={selectedTripId} 
+          onSelect={setSelectedTripId} 
         />
 
         {toast && (
