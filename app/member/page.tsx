@@ -7,6 +7,7 @@ import { ApiResponse } from './_interfaces/userData';
 import { IMAGE_PATH } from '../config/image-path';
 import UserCard from './_components/user-card';
 
+
 const userDataInit: ApiResponse = {
   success: false,
   data: {
