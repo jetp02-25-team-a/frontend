@@ -56,6 +56,7 @@ export default function Home() {
             專屬行程。
           </motion.h2>
           <p>我們將美食、風景與行程串連，讓旅行回到最純粹的自由。</p>
+
           <InputField />
         </div>
         {/* 圖片區 */}

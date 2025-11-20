@@ -59,7 +59,7 @@ export default function InputField() {
         </div>
         <Link
           href={{
-            pathname: './create-group-itinerary',
+            pathname: '/grabgroup/team-up',
             query: {
               destination,
               startDate: startDate ? startDate.toISOString() : '',
