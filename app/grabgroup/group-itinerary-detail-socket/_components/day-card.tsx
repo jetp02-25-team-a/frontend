@@ -23,7 +23,7 @@ export default function DayCard({
 }: dayCardProps) {
   return (
     <div
-      className={`${active ? 'bg-gray-200' : 'bg-white'} flex shrink-0 justify-center items-center gap-4  border border-gray-300 px-5 py-2.5`}
+      className={`${active ? 'bg-yellow-100' : 'bg-white'} flex shrink-0 justify-center items-center gap-4  border border-gray-300 px-5 py-2.5`}
       onClick={onClick}
     >
       <div className="flex flex-col">

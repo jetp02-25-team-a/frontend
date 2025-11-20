@@ -162,38 +162,40 @@ export default function TeamUpEditArticlePage() {
         />
       </div>
 
-      <RegularButton
-        content="送出"
-        mode="solid"
-        onClick={() => {
-          console.log('按下送出按鈕, itineraryId:', itineraryId);
+      <div className="flex justify-center">
+        <RegularButton
+          content="送出"
+          mode="solid"
+          onClick={() => {
+            console.log('按下送出按鈕, itineraryId:', itineraryId);
 
-          // 清除之前的訊息
-          setMessage('');
-          setMessageType('');
+            // 清除之前的訊息
+            setMessage('');
+            setMessageType('');
 
-          // 驗證必填欄位
-          if (!title.trim()) {
-            setMessage('請輸入文章標題');
-            setMessageType('error');
-            return;
-          }
+            // 驗證必填欄位
+            if (!title.trim()) {
+              setMessage('請輸入文章標題');
+              setMessageType('error');
+              return;
+            }
 
-          if (!value.trim() || value.trim() === '## 你好，開始編輯你的內文！') {
-            setMessage('請輸入文章內容');
-            setMessageType('error');
-            return;
-          }
+            if (!value.trim() || value.trim() === '## 你好，開始編輯你的內文！') {
+              setMessage('請輸入文章內容');
+              setMessageType('error');
+              return;
+            }
 
-          if (!itineraryId) {
-            setMessage('找不到行程 ID，請確認 URL 參數是否正確');
-            setMessageType('error');
-            return;
-          }
+            if (!itineraryId) {
+              setMessage('找不到行程 ID，請確認 URL 參數是否正確');
+              setMessageType('error');
+              return;
+            }
 
-          handleSendArticle(+itineraryId, value, title);
-        }}
-      />
+            handleSendArticle(+itineraryId, value, title);
+          }}
+        />
+      </div>
 
       {/* 除錯資訊 */}
       {/* <div className="mt-4 p-4 bg-gray-100 rounded text-sm">

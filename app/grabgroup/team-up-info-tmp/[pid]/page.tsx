@@ -11,7 +11,7 @@ import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import { useAuth } from '@/hooks/use-Auth';
 import { API_SERVER } from '@/config/api-path';
-import { IMAGE_PATH } from '@/config/image-path';
+import { IMAGE_PATH, AVATAR_PATH } from '@/config/image-path';
 
 interface Nodes {
   durationMinutes: number;
@@ -39,6 +39,7 @@ interface Comments {
 interface ItineraryLisInterface {
   fullName: string;
   nickname: string;
+  avatar: string;
   Itineraries: [
     {
       id: number;
@@ -340,12 +341,33 @@ export default function PlacePage() {
       {/* </PhotoProvider> */}
       {/* 個人資訊 貼文內容 */}
       <section className="w-full px-[200px]">
-        <div className=" flex justify-between mt-10">
+        <div className=" flex justify-between mt-10 w-full mb-5">
           {/* 團主個人訊息 */}
-          <div className="flex items-center gap-[20px]">
-            <Image width={77} height={77} src={'/avatar.png'} alt="" />
+
+          <div className="flex items-center gap-5 w-full -ml-30 justify-start">
+            <div className="w-[77px] h-[77px] shrink-0 relative">
+              <Image
+                fill
+                src={
+                  itineraryList?.avatar
+                    ? `${AVATAR_PATH}${itineraryList?.avatar}`
+                    : '/avatar_default.png'
+                }
+                alt=""
+                className="rounded-full object-cover"
+              />
+            </div>
+            {/* <Image width={77} height={77} src={'/avatar.png'} alt="" /> */}
             <h3 className="text-xl">{itineraryList?.nickname}</h3>
-            <InfoButton button_name="個人檔案" />
+            {/* <Link
+              href={
+                user.id === itineraryList?.id
+                  ? `/member/user-info`
+                  : `/member/${itineraryList?.id}`
+              }
+            >
+              <InfoButton button_name="個人檔案" />
+            </Link> */}
           </div>
           {/* 參與人數 */}
           <div className=" flex items-end gap-[30px]">

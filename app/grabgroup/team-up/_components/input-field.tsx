@@ -13,7 +13,15 @@ import 'react-datepicker/dist/react-datepicker.css';
 export default function InputField() {
   const [destination, setDestination] = useState(''); //地點
   const [showDropdown, setShowDropdown] = useState(false);
-  const areaOptions = ['台北市', '新北市', '桃園市', '台中市', '高雄市'];
+  const areaOptions = [
+    '台北市',
+    '新北市',
+    '桃園市',
+    '新竹市',
+    '台中市',
+    '台南市',
+    '高雄市',
+  ];
   const [startDate, setStartDate] = useState<Date | null>(null); //時間
   const [people, setPeople] = useState<number>(0); // 人數
   return (
@@ -76,7 +84,7 @@ export default function InputField() {
             showTimeSelect
             timeFormat="HH:mm"
             timeIntervals={15}
-            dateFormat="yyyy/MM/dd HH:mm"
+            dateFormat="yyyy/MM/dd" // 修改此行以只顯示日期
             minDate={new Date()}
             // className="border border-gray-400 rounded-lg px-2 py-1"
             placeholderText="選擇開始日期與時間"
@@ -87,15 +95,15 @@ export default function InputField() {
           <div className="customize_gray h-5 w-0.5 min-w-[2px] bg-gray-300"></div>
           <div className="flex  w-full items-center">
             <div className="flex items-center">
-              <span className="inline-flex items-center gap-1 text-gray-500 mb-1 w-14 shrink-0 text-center">
-                <FontAwesomeIcon
-                  icon={faUserFriends}
-                  className="text-amber-400"
-                />
+              <FontAwesomeIcon
+                icon={faUserFriends}
+                className="text-amber-400 mr-2"
+              />
+              <p className="mt-1 items-center gap-1 text-gray-500 mb-1 w-14 shrink-0 text-center">
                 人數：
-              </span>
+              </p>
             </div>
-            <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1 shadow-inner border border-gray-300 flex-1 max-w-[150px]">
+            <div className="flex items-center justify-between gap-2 bg-gray-100 rounded-full px-3 py-1 shadow-inner border border-gray-300 flex-1 w-auto">
               <button
                 type="button"
                 className="w-6 h-6 flex items-center justify-center rounded-full bg-white border border-gray-300 text-gray-500 hover:bg-amber-100 transition text-base"
@@ -113,7 +121,7 @@ export default function InputField() {
                   const val = +e.target.value;
                   setPeople(val < 0 ? 0 : val);
                 }}
-                style={{ MozAppearance: 'textfield' }}
+                style={{ MozAppearance: 'textfield', WebkitAppearance: 'none' }}
               />
               <button
                 type="button"

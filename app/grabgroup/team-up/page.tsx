@@ -8,6 +8,7 @@ import { ItineraryAreaCard } from '../_types/itineraryTypes';
 import { useRouter } from 'next/navigation';
 import { AVATAR_PATH, IMAGE_PATH } from '../../config/image-path';
 import { API_SERVER } from '../../config/api-path';
+import { motion } from 'framer-motion';
 
 // 時間過濾選項
 type TimeFilter = 'all' | 'upcoming' | 'month';
@@ -156,23 +157,30 @@ export default function TeamUpPage() {
       <div className="flex flex-wrap gap-x-[25px] gap-y-[60px] justify-center">
         {filteredCards?.map((card: any, i: number) => {
           return (
-            <TourCard
+            <motion.div
               key={i}
-              title={card.title}
-              description={card.Article?.title}
-              avatar={`${AVATAR_PATH}/${card.User.avatar}`}
-              user_name={card.User.nickname}
-              image={
-                card.Images?.[0]
-                  ? `${IMAGE_PATH}/itineraries_photo/${card.Images?.[0].imageName}`
-                  : '/istockphoto-1209191587-612x612.jpg'
-              }
-              onClick={() =>
-                router.push(
-                  `/grabgroup/team-up-info/${card.id}?userId=${card.User.id}`
-                )
-              }
-            />
+              initial={{ opacity: 0, y: -30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: i * 0.2 }}
+            >
+              <TourCard
+                // key={i}
+                title={card.title}
+                description={card.Article?.title}
+                avatar={`${AVATAR_PATH}/${card.User.avatar}`}
+                user_name={card.User.nickname}
+                image={
+                  card.Images?.[0]
+                    ? `${IMAGE_PATH}/itineraries_photo/${card.Images?.[0].imageName}`
+                    : '/istockphoto-1209191587-612x612.jpg'
+                }
+                onClick={() =>
+                  router.push(
+                    `/grabgroup/team-up-info/${card.id}?userId=${card.User.id}`
+                  )
+                }
+              />
+            </motion.div>
           );
         })}
       </div>

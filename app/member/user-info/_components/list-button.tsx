@@ -15,7 +15,7 @@ export default function ListButton({
 }: ListButton) {
   return (
     <div
-      className={`w-full py-2 ${active === true ? 'bg-white' : ''}`}
+      className={`w-full py-2 rounded-t-xl ${active === true ? 'bg-white' : ''}`}
       onClick={onClick}
     >
       <p className="text-center">{name}</p>
