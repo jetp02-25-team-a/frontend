@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TripInfoPanel from './TripInfoPanel';
 import PackingPanel from './PackingPanel';
 import ExpensePanel from './ExpensePanel';
 import TripSideNav from './TripSideNav';
 import MapCli from './MapCli';
 import type { TripPlanDetail } from '../lib/trip_adapter';
+import { getTripPlanDetail } from '../lib/trip_adapter';
 import { useAuth } from '@/hooks/use-Auth';
 import { API_URL } from '@/config/api-path';
 import { AVATAR_PATH } from '@/config/image-path';
@@ -14,8 +15,9 @@ import Image from 'next/image';
 
 type DetailTab = 'info' | 'packing' | 'expense';
 
-export default function TripDetailClient({ data }: { data: TripPlanDetail }) {
+export default function TripDetailClient({ data: initialData }: { data: TripPlanDetail }) {
   const [tab, setTab] = useState<DetailTab>('info');
+  const [data, setData] = useState<TripPlanDetail>(initialData);
   const { user } = useAuth();
   
   const userName = user?.nickname || user?.name || '旅人';
@@ -75,7 +77,7 @@ export default function TripDetailClient({ data }: { data: TripPlanDetail }) {
 
           {/* 導航選單 */}
           <div className="flex-1 overflow-y-auto">
-            <TripSideNav active={tab} onChange={setTab} />
+            <TripSideNav active={tab} onChange={setTab} tripId={data.trip.id} />
           </div>
         </aside>
 
@@ -101,7 +103,13 @@ export default function TripDetailClient({ data }: { data: TripPlanDetail }) {
                 tripId={data.trip.id}
                 startDate={data.trip.startDate}
                 endDate={data.trip.endDate}
-                onUpdate={() => {}}
+                onUpdate={async () => {
+                  // 重新載入行程資料
+                  const updatedData = await getTripPlanDetail(data.trip.id);
+                  if (updatedData) {
+                    setData(updatedData);
+                  }
+                }}
               />
             )}
             {tab === 'packing' && <PackingPanel tripId={data.trip.id} />}

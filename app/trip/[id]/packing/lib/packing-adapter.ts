@@ -43,10 +43,17 @@ export async function fetchPackingList(tripId: number): Promise<PackingItem[]> {
   const json = parseJsonSafe(text);
 
   // API 可能是純陣列，也可能是 { data: [...] }
-  if (Array.isArray(json)) return json as PackingItem[];
-  if (Array.isArray(json.data)) return json.data as PackingItem[];
+  const items = Array.isArray(json)
+    ? json
+    : Array.isArray(json.data)
+      ? json.data
+      : [];
 
-  return [];
+  // 確保 isChecked 是 boolean 類型（後端可能回傳 0/1 或 true/false）
+  return items.map((item: any) => ({
+    ...item,
+    isChecked: Boolean(item.isChecked ?? item.is_checked ?? false),
+  })) as PackingItem[];
 }
 
 // 新增行李項目
@@ -54,9 +61,29 @@ export async function createPackingItem(params: {
   tripId: number;
   name: string;
   templateId: number | null;
+  userId?: number;
 }) {
+  // 從 localStorage 取得 userId（如果沒有傳入）
+  let userId = params.userId;
+  if (!userId) {
+    const userInfo = localStorage.getItem('BackpackUserInfo');
+    if (userInfo) {
+      try {
+        const parsed = JSON.parse(userInfo);
+        userId = parsed.user?.id || parsed.id;
+      } catch (e) {
+        console.error('Failed to parse user info:', e);
+      }
+    }
+  }
+
+  if (!userId) {
+    throw new Error('無法取得使用者 ID，請先登入');
+  }
+
   const body = {
     TripPlanId: params.tripId,
+    userId: userId,
     templateId: params.templateId,
     name: params.name,
     isChecked: false,
@@ -64,7 +91,10 @@ export async function createPackingItem(params: {
 
   const res = await fetch(`${API_URL}/api/m2/packing`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('BackpackUserInfo') ? JSON.parse(localStorage.getItem('BackpackUserInfo') || '{}').token : ''}`,
+    },
     body: JSON.stringify(body),
   });
 
@@ -73,15 +103,29 @@ export async function createPackingItem(params: {
     throw new Error(text || '新增行李項目失敗');
   }
 
-  return parseJsonSafe(text);
+  const result = parseJsonSafe(text);
+  // 確保回傳的 isChecked 是 boolean
+  if (result && typeof result === 'object') {
+    return {
+      ...result,
+      isChecked: Boolean(result.isChecked ?? result.is_checked ?? false),
+    };
+  }
+  return result;
 }
 
 // 更新（勾選 / 改名稱）
 export async function updatePackingItem(item: PackingItem) {
+  // 確保 isChecked 是 boolean 類型
+  const body = {
+    ...item,
+    isChecked: Boolean(item.isChecked),
+  };
+
   const res = await fetch(`${API_URL}/api/m2/packing/${item.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item),
+    body: JSON.stringify(body),
   });
 
   const text = await res.text();
@@ -89,7 +133,15 @@ export async function updatePackingItem(item: PackingItem) {
     throw new Error(text || '更新行李項目失敗');
   }
 
-  return parseJsonSafe(text);
+  const result = parseJsonSafe(text);
+  // 確保回傳的 isChecked 是 boolean
+  if (result && typeof result === 'object') {
+    return {
+      ...result,
+      isChecked: Boolean(result.isChecked ?? result.is_checked ?? false),
+    };
+  }
+  return result;
 }
 
 // 刪除

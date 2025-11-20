@@ -126,8 +126,8 @@ export default function DetailCard({
       ref={cardRef}
       className={`relative group transition-all duration-300 ease-out ${
         isDragging 
-          ? 'opacity-50 scale-95 rotate-2 z-50 shadow-2xl' 
-          : 'opacity-100 scale-100 rotate-0'
+          ? 'opacity-50 scale-95 z-50 shadow-2xl' 
+          : 'opacity-100 scale-100'
       } ${
         isDragOver 
           ? 'ring-2 ring-amber-400 shadow-xl rounded-lg translate-y-[-4px]' 
@@ -144,94 +144,67 @@ export default function DetailCard({
         willChange: isDragging ? 'transform' : 'auto',
       }}
     >
-      {/* 時間軸連接點 */}
-      <div className="absolute left-[-11px] top-6 w-3 h-3 rounded-full bg-amber-500 border-2 border-white shadow-sm z-10" />
-
-      {/* 卡片內容 */}
-      <div className="flex gap-4 bg-white rounded-xl p-4 border border-neutral-200 hover:shadow-md transition-shadow">
-        {/* 左側：時間 */}
-        <div className="flex-shrink-0 w-20 text-right">
-          <div className="text-sm font-semibold text-neutral-900">{startTime}</div>
-          <div className="text-xs text-neutral-500 mt-1">{endTime}</div>
+      {/* M5 風格的垂直時間軸 */}
+      <div className="flex items-center gap-3 w-full">
+        {/* 左側：時間軸 */}
+        <div className="flex flex-col items-center flex-shrink-0 w-[100px] px-3 gap-1">
+          <p className="text-sm text-neutral-400">{startTime}</p>
+          <div className="w-8 h-8 rounded-full bg-amber-500 border-2 border-white shadow-sm flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <p className="text-sm text-neutral-400">{endTime}</p>
         </div>
 
-        {/* 中間：內容 */}
-        <div className="flex-1 min-w-0">
-          {/* 圖片 */}
-          <div className="w-full h-32 rounded-lg overflow-hidden mb-3 bg-neutral-100">
-            <img
-              src={imageUrl}
-              alt={detail.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = '/trip_sample.jpg';
-              }}
-            />
-          </div>
+        {/* 中間：卡片內容 */}
+        <div className="flex-1 bg-white rounded-lg p-3 border border-neutral-200 hover:shadow-md transition-shadow">
 
-          {/* 標題和地址 */}
-          <div className="mb-2">
-            <h3 className="font-semibold text-neutral-900 mb-1">{detail.title}</h3>
-            {detail.address && (
-              <div className="flex items-start gap-1 text-sm text-neutral-600">
-                <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          <div className="flex gap-2.5">
+            {/* 圖片 */}
+            <div className="w-[77px] h-[77px] shrink-0 relative rounded overflow-hidden bg-neutral-100">
+              <img
+                src={imageUrl}
+                alt={detail.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = '/trip_sample.jpg';
+                }}
+              />
+            </div>
+
+            {/* 內容 */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-neutral-900 mb-1 line-clamp-1">{detail.title}</h3>
+              {detail.address && (
+                <p className="text-sm text-neutral-600 line-clamp-2">
+                  {detail.address.length > 20 ? detail.address.substring(0, 20) + '...' : detail.address}
+                </p>
+              )}
+            </div>
+
+            {/* 右側：操作按鈕 */}
+            <div className="flex-shrink-0 flex flex-col justify-between items-end">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (confirm('確定要刪除此行程項目嗎？')) {
+                    onDelete?.();
+                  }
+                }}
+                className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                title="刪除"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                <span className="line-clamp-2">{detail.address}</span>
-              </div>
-            )}
+              </button>
+            </div>
           </div>
-
-          {/* 標籤和停留時間 */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-medium">
-              {detail.type === 'spot'
-                ? '景點'
-                : detail.type === 'hotel'
-                  ? '住宿'
-                  : detail.type === 'food'
-                    ? '美食'
-                    : '其他'}
-            </span>
-            {duration && (
-              <span className="text-xs text-neutral-500">{duration}</span>
-            )}
-          </div>
-        </div>
-
-        {/* 右側：操作按鈕 */}
-        <div className="flex-shrink-0 flex flex-col items-end gap-2">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit?.();
-            }}
-            className="p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
-            title="編輯"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (confirm('確定要刪除此行程項目嗎？')) {
-                onDelete?.();
-              }
-            }}
-            className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-            title="刪除"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
         </div>
       </div>
+
     </li>
   );
 }

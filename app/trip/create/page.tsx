@@ -13,11 +13,7 @@ interface City {
 
 type TripTypeOption = 'solo' | 'couple' | 'friends' | 'family';
 
-const TRIP_TYPE_OPTIONS: {
-  value: TripTypeOption;
-  label: string;
-  icon: string;
-}[] = [
+const TRIP_TYPE_OPTIONS: { value: TripTypeOption; label: string; icon: string }[] = [
   { value: 'solo', label: '獨旅', icon: '🚶' },
   { value: 'couple', label: '情侶', icon: '💑' },
   { value: 'friends', label: '朋友', icon: '👥' },
@@ -32,7 +28,7 @@ export default function TripCreatePage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
   const [cities, setCities] = useState<City[]>([]);
   const [loadingCities, setLoadingCities] = useState(true);
 
@@ -75,18 +71,22 @@ export default function TripCreatePage() {
 
     setLoading(true);
     try {
+      // 從 localStorage 取得 token
+      const userInfo = localStorage.getItem('BackpackUserInfo');
+      const token = userInfo ? JSON.parse(userInfo).token : '';
+      
       const r = await fetch(`${API_URL}/api/m2/trip`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          title: title.trim(),
+        body: JSON.stringify({ 
+          title: title.trim(), 
           type: tripType, // 傳送行程類型
           destinationId: destinationId,
-          startDate,
-          endDate,
+          startDate, 
+          endDate 
         }),
       });
 
@@ -111,16 +111,14 @@ export default function TripCreatePage() {
     setDestinationId(selectedId);
   };
 
-  const selectedCity = cities.find((c) => c.id === destinationId);
+  const selectedCity = cities.find(c => c.id === destinationId);
 
   return (
     <main className="min-h-screen bg-white">
       {/* 頁面標題 */}
       <div className="bg-white border-b border-neutral-100">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-neutral-900 text-center">
-            行程頁面
-          </h1>
+          <h1 className="text-3xl font-bold text-neutral-900 text-center">行程頁面</h1>
         </div>
       </div>
 
@@ -174,13 +172,11 @@ export default function TripCreatePage() {
                       }`}
                   >
                     <div className="text-3xl mb-2">{option.icon}</div>
-                    <div
-                      className={`text-base font-medium ${
-                        tripType === option.value
-                          ? 'text-[#F6C453]'
-                          : 'text-neutral-700'
-                      }`}
-                    >
+                    <div className={`text-base font-medium ${
+                      tripType === option.value 
+                        ? 'text-[#F6C453]' 
+                        : 'text-neutral-700'
+                    }`}>
                       {option.label}
                     </div>
                   </button>
@@ -214,18 +210,8 @@ export default function TripCreatePage() {
                   </select>
                   {/* 下拉箭頭 */}
                   <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
                 </div>
@@ -265,18 +251,8 @@ export default function TripCreatePage() {
                       required
                     />
                     <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                   </div>
@@ -296,18 +272,8 @@ export default function TripCreatePage() {
                       required
                     />
                     <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                   </div>
