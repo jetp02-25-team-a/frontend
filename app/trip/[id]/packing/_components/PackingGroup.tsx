@@ -40,20 +40,20 @@ export default function PackingGroup({
   }
 
   return (
-    <section className="rounded-2xl bg-white shadow-sm border border-neutral-100">
+    <section className="rounded-2xl bg-white shadow-sm border border-neutral-200 overflow-hidden">
       <header
-        className="flex items-center justify-between px-5 py-3 cursor-pointer select-none"
+        className="flex items-center justify-between px-5 py-4 cursor-pointer select-none bg-neutral-100 rounded-t-2xl hover:bg-neutral-50 transition-colors"
         onClick={() => setOpen((v) => !v)}
       >
-        <div className="font-medium text-sm text-neutral-800">
-          {title}（{checked}/{total}）
+        <div className="font-medium text-base text-neutral-800">
+          {title} ({checked}/{total})
         </div>
-        <span className="text-neutral-400 text-xs">{open ? '▲' : '▼'}</span>
+        <span className="text-neutral-400 text-sm">{open ? '▲' : '▼'}</span>
       </header>
 
       {open && (
-        <div className="px-5 pb-4">
-          <div className="divide-y divide-neutral-100">
+        <div className="px-5 pb-4 bg-white rounded-b-2xl">
+          <div className="space-y-0">
             {items.map((item) => (
               <PackingItemRow
                 key={item.id}
@@ -96,7 +96,7 @@ export default function PackingGroup({
           ) : (
             <button
               type="button"
-              className="mt-3 text-xs text-amber-600 hover:text-amber-700"
+              className="mt-3 text-sm text-neutral-500 hover:text-neutral-700 transition-colors"
               onClick={() => setAdding(true)}
             >
               ＋ 新增項目

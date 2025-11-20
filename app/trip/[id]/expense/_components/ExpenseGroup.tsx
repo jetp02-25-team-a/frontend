@@ -31,26 +31,28 @@ export default function ExpenseGroup({ title, items, onAdd, onDelete }: Props) {
   }
 
   return (
-    <section className="border-b border-neutral-200 py-4">
+    <section className="rounded-2xl bg-white shadow-sm border border-neutral-200 overflow-hidden">
       <header
-        className="flex items-center justify-between cursor-pointer select-none"
+        className="flex items-center justify-between px-5 py-4 cursor-pointer select-none bg-neutral-100 rounded-t-2xl hover:bg-neutral-50 transition-colors"
         onClick={() => setOpen((v) => !v)}
       >
-        <div className="text-sm font-medium text-neutral-800">{title}</div>
+        <div className="font-medium text-base text-neutral-800">{title}</div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-neutral-700">小計 NT$ {subtotal}</span>
-          <span className="text-xs text-neutral-400">{open ? '▲' : '▼'}</span>
+          <span className="text-neutral-400 text-sm">{open ? '▲' : '▼'}</span>
         </div>
       </header>
 
       {open && (
-        <div className="mt-3 space-y-2">
-          {items.map((item) => (
-            <ExpenseItemRow key={item.id} item={item} onDelete={onDelete} />
-          ))}
+        <div className="px-5 pb-4 bg-white rounded-b-2xl">
+          <div className="space-y-0">
+            {items.map((item) => (
+              <ExpenseItemRow key={item.id} item={item} onDelete={onDelete} />
+            ))}
+          </div>
 
           {adding ? (
-            <div className="mt-2 grid grid-cols-[1fr_auto_auto] gap-2 items-center">
+            <div className="mt-3 grid grid-cols-[1fr_auto_auto] gap-2 items-center">
               <input
                 className="rounded-lg border border-neutral-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-200"
                 placeholder="項目名稱"
@@ -89,7 +91,7 @@ export default function ExpenseGroup({ title, items, onAdd, onDelete }: Props) {
           ) : (
             <button
               type="button"
-              className="mt-2 text-xs text-amber-600 hover:text-amber-700"
+              className="mt-3 text-sm text-neutral-500 hover:text-neutral-700 transition-colors"
               onClick={() => setAdding(true)}
             >
               ＋ 新增

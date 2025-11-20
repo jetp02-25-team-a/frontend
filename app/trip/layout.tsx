@@ -9,4 +9,3 @@ export default function TripLayout({
 }) {
   return <ProtectRoute>{children}</ProtectRoute>;
 }
-

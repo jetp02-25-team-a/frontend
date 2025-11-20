@@ -9,6 +9,7 @@ import MapCli from './MapCli';
 import type { TripPlanDetail } from '../lib/trip_adapter';
 import { useAuth } from '@/hooks/use-Auth';
 import { API_URL } from '@/config/api-path';
+import { AVATAR_PATH } from '@/config/image-path';
 import Image from 'next/image';
 
 type DetailTab = 'info' | 'packing' | 'expense';
@@ -18,9 +19,24 @@ export default function TripDetailClient({ data }: { data: TripPlanDetail }) {
   const { user } = useAuth();
   
   const userName = user?.nickname || user?.name || '旅人';
-  const avatarUrl = user?.avatar 
-    ? `${API_URL}/${user.avatar}` 
-    : '/avatar_default.png';
+  // 處理頭像路徑，避免雙斜線
+  const getAvatarUrl = (avatar: string | undefined): string => {
+    if (!avatar) return '/avatar_default.png';
+    // 如果已經是完整 URL，直接返回
+    if (avatar.startsWith('http')) return avatar;
+    
+    // 移除開頭和結尾的斜線，統一處理
+    let cleanPath = avatar.replace(/^\/+/, '').replace(/\/+$/, '');
+    
+    // 如果路徑已經包含 images/avatars，直接構建完整 URL
+    if (cleanPath.startsWith('images/avatars/')) {
+      return `${API_URL}/${cleanPath}`;
+    }
+    
+    // 否則使用 AVATAR_PATH（已經包含結尾斜線）
+    return `${AVATAR_PATH}${cleanPath}`;
+  };
+  const avatarUrl = getAvatarUrl(user?.avatar);
 
   return (
     <div className="min-h-screen bg-white">

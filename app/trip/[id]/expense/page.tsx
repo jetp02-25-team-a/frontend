@@ -51,22 +51,25 @@ export default function TripExpensePage() {
   const groups = useMemo<ExpenseGroupModel[]>(() => {
     const map = new Map<number, ExpenseGroupModel>();
 
-    for (const item of items) {
-      if (!map.has(item.typeId)) {
-        map.set(item.typeId, {
-          typeId: item.typeId,
-          title: EXPENSE_TYPE_NAME[item.typeId] || `類別 ${item.typeId}`,
-          items: [],
-        });
-      }
-      map.get(item.typeId)!.items.push(item);
+    // 先初始化所有分類（即使沒有項目也要顯示）
+    const allTypeIds = [5, 2, 1, 3, 4]; // 美食、住宿、交通、門票、購物
+    for (const typeId of allTypeIds) {
+      map.set(typeId, {
+        typeId,
+        title: EXPENSE_TYPE_NAME[typeId] || `類別 ${typeId}`,
+        items: [],
+      });
     }
 
-    // 固定順序顯示
-    const order = [5, 3, 1, 2, 4];
-    return Array.from(map.values()).sort(
-      (a, b) => order.indexOf(a.typeId) - order.indexOf(b.typeId)
-    );
+    // 將項目分配到對應的分類
+    for (const item of items) {
+      if (map.has(item.typeId)) {
+        map.get(item.typeId)!.items.push(item);
+      }
+    }
+
+    // 按照固定順序返回
+    return allTypeIds.map((typeId) => map.get(typeId)!);
   }, [items]);
 
   async function handleAdd(typeId: number, title: string, amount: number) {
@@ -155,10 +158,10 @@ export default function TripExpensePage() {
 
         {/* 右側內容 */}
         <section className="col-span-12 md:col-span-9">
-          <header className="flex items-center justify-between mb-4">
+          <header className="flex items-center justify-between mb-6">
             <h1 className="text-xl font-semibold text-neutral-800">記帳</h1>
             <div className="text-sm text-neutral-800">
-              合計：<span className="font-semibold">NT$ {total}</span>
+              合計：<span className="font-semibold text-amber-500">NT$ {total}</span>
             </div>
           </header>
 
@@ -171,24 +174,18 @@ export default function TripExpensePage() {
               {error}
             </div>
           ) : (
-            <div className="rounded-3xl bg-white shadow-sm border border-neutral-100 px-6 py-4">
-              {groups.length === 0 ? (
-                <p className="text-sm text-neutral-500">
-                  目前尚未有任何記帳，先新增一筆吧！
-                </p>
-              ) : (
-                groups.map((g) => (
-                  <ExpenseGroup
-                    key={g.typeId}
-                    title={g.title}
-                    items={g.items}
-                    onAdd={(title, amount) =>
-                      handleAdd(g.typeId, title, amount)
-                    }
-                    onDelete={handleDelete}
-                  />
-                ))
-              )}
+            <div className="space-y-4">
+              {groups.map((g) => (
+                <ExpenseGroup
+                  key={g.typeId}
+                  title={g.title}
+                  items={g.items}
+                  onAdd={(title, amount) =>
+                    handleAdd(g.typeId, title, amount)
+                  }
+                  onDelete={handleDelete}
+                />
+              ))}
             </div>
           )}
         </section>
