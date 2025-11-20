@@ -196,14 +196,14 @@ export default function DetailPage() {
                 href={`/article/edit?id=${article.id}`}
                 className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
               >
-                ✏️ Edit
+                ✏️ 編輯
               </Link>
 
               <button
                 onClick={showConfirmToast}
                 className="bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold"
               >
-                🗑️ Delete
+                🗑️ 刪除
               </button>
             </>
           )}

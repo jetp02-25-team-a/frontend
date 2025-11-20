@@ -25,7 +25,7 @@ export default function SidebarActions() {
     },
     {
       href: '/article',
-      label: 'back to article page',
+      label: '旅遊筆記首頁',
       color: 'hover:text-orange-600',
     },
   ];
