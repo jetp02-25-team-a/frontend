@@ -405,7 +405,7 @@ export default function MessageBoard({ articleId }: Props) {
         `${API_SERVER}/article/${articleId}/comments/${commentId}`,
         {
           method: 'DELETE',
-          headers: getAuthHeader(),
+          headers: getAuthHeader() as HeadersInit,
         }
       );
 
@@ -429,7 +429,7 @@ export default function MessageBoard({ articleId }: Props) {
 
   return (
     <div className="mt-8">
-      <h2 className="text-2xl font-bold mb-4">💬 Message Board留言版</h2>
+      <h2 className="text-2xl font-bold mb-4">💬 留言版</h2>
 
       {isLoggedIn ? (
         <div className="mb-6">
