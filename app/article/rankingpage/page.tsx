@@ -105,7 +105,7 @@ const ArticleRankingPage: React.FC = () => {
           color: '#2b6cb0',
         }}
       >
-        🏆 Popular Article Ranking Based on Score
+        🏆 推薦景點排行榜
       </h1>
 
       {rankingData.length === 0 ? (

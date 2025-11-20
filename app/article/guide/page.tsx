@@ -105,7 +105,7 @@ export default function ArticleForm() {
       />
 
       <label className="block text-sm font-medium text-gray-700 pt-4">
-        Upload Foto (限制上傳2張)
+        Upload Foto (限制上傳1張)
       </label>
 
       <button
@@ -117,25 +117,6 @@ export default function ArticleForm() {
     </form>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //// 'use client';
 // import React, { useState } from 'react';
