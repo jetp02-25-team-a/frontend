@@ -150,11 +150,15 @@ export default function Home() {
       </div>
       {/* 揪團 */}
       <div className="space-y-[105px] p-16">
-        <div className="space-y-[30px]">
+        <div className="space-y-[30px] ml-35">
           <div className="flex gap-[50px]">
-            <h1 className={`${roboto.className} text-[36px] font-bold`}>
+            {/* <h1 className={`${roboto.className} text-[36px] font-bold`}>
+              想揪團？直接邀請好友一起參加
+            </h1> */}
+            <h1 className={`font-[Noto Sans TC] text-[36px] font-black`}>
               想揪團？直接邀請好友一起參加
             </h1>
+
             <Link href="/grabgroup/team-up">
               <JoinButton content="加入我們" />
             </Link>
@@ -361,8 +365,23 @@ export default function Home() {
               </Link>
             </div>
 
-            <AttractionCard />
-            <AttractionCard />
+            <AttractionCard
+              avatar={'pngtree-cartoon-simple-pen-avatar.png'}
+              name={'林雅婷'}
+              city={'台中市'}
+              content={
+                '台中一日輕旅行，早上從台北出發前往台中，高鐵約 1 小時即可抵達。到站後先前往宮原眼科享用冰淇淋與點心，拍照打卡。接著步行到綠川水岸廊道散步，享受悠閒氛圍。'
+              }
+            />
+
+            <AttractionCard
+              avatar={'avtar_boy.jpg'}
+              name={'陳建豪'}
+              city={'宜蘭'}
+              content={
+                '宜蘭放鬆小旅，開車前往宜蘭礁溪，一到當地就先到溫泉公園泡腳暖身。接著前往知名早午餐店「溫泉小廚」用餐。下午安排了預約好的 SPA 芳療，建豪全程笑說終於能把工作壓力放下。之後開車到羅東運動公園散步，享受清爽的天氣與綠地。'
+              }
+            />
           </div>
         </div>
       </div>
@@ -565,7 +584,10 @@ export default function Home() {
 
         {/* 優惠 */}
         <div className="bg-[#F28066] flex justify-between items-center w-[1290px] h-[162px] self-center rounded-2xl p-10">
-          <h2 className="text-white">「提前預訂優惠高達 50%！」</h2>
+          <h2 className="text-white text-2xl font-black">
+            「提前預訂優惠高達{' '}
+            <span className="text-4xl text-amber-200">50%！</span>」
+          </h2>
           <button className="bg-white p-4 rounded-2xl">Book Now</button>
         </div>
       </div>

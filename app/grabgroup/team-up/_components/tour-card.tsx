@@ -24,11 +24,17 @@ export default function TourCard({
         className="w-[303px] rounded-2xl customize_shadow bg-white overflow-hidden group"
         onClick={onClick}
       >
-        <div className="w-full h-[259px] object-cover overflow-hidden">
-          <img
+        <div className="w-full h-[259px] overflow-hidden relative">
+          <Image
+            fill
+            src={image}
+            alt=""
+            className="w-full h-full bg-center bg-cover transition-all  duration-700 ease-in-out group-hover:scale-110  object-cover"
+          />
+          {/* <img
             src={image}
             className="w-full h-full bg-center bg-cover transition-all  duration-700 ease-in-out group-hover:scale-110"
-          ></img>
+          ></img> */}
         </div>
         <div className="w-full flex flex-col p-3 gap-2.5 mt-[-25px]">
           <div className="flex justify-start items-end gap-2.5">

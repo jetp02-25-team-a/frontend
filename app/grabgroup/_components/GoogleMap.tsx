@@ -19,7 +19,7 @@ const Map = ({ latitude, longitude, width, height }: MapProps) => {
     containerStyle = { width: '100%', height: '100%' };
   }
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLEMAP_API_KEY ?? '',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLEMAP_API_KEY ?? '',
   });
 
   if (!isLoaded) return <div>Loading...</div>;

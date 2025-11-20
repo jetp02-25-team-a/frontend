@@ -665,18 +665,18 @@ export default function GroupItineraryDetailPage() {
       {/* 暫時註解掉自動保存功能，使用手動存檔 */}
       {/* <ItineraryEditor itineraryData={itineraryData} /> */}
       {/* map_area */}
-      <div className="grid grid-cols-[40%_60%] h-screen">
+      <div className="grid grid-cols-[40%_60%] h-screen gap-6">
         {/* area_zone */}
-        <div className="bg-gray-200 p-[15px] space-y-3.5 overflow-auto relative">
+        <div className="bg-gray-100 p-[15px] border-2 border-amber-300 rounded-3xl  space-y-3.5 overflow-scroll scrollbar-hide">
           {/* 標題和存檔按鈕區域 */}
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-3xl">行程:{itineraryTitle}</h3>
+            <h3 className="text-3xl mt-5">行程:{itineraryTitle}</h3>
 
             {/* 存檔按鈕 */}
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium ${
+              className={`flex mt-4 items-center gap-2 px-4 py-2 rounded-lg text-white font-medium ${
                 isSaving
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-amber-400 hover:bg-amber-600'
@@ -738,7 +738,7 @@ export default function GroupItineraryDetailPage() {
           <div className="flex gap-[37px] justify-end items-center">
             <p className="text-gray-600">活動天數上限為7天</p>
             <button
-              className="cursor-pointer text-white yellow-orange px-[30px] py-2.5"
+              className="cursor-pointer text-white bg-amber-400 px-[30px] py-2 rounded-lg"
               onClick={async () => {
                 if ((itineraryData?.length ?? 0) >= 7) return;
 
@@ -969,7 +969,7 @@ export default function GroupItineraryDetailPage() {
         </div>
         {/* ------------------------------------------- */}
         {/* map_zone */}
-        <div className="bg-amber-700 relative flex">
+        <div className="bg-gray-200 relative flex">
           {/* 附近景點側邊面板 */}
           {showNearbyMode && (
             <div className="w-80 bg-white h-full overflow-hidden flex flex-col">

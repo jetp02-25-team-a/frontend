@@ -18,7 +18,7 @@ export default function AreaButton({
           src={image}
           alt=""
           className={`w-[89px] h-[89px] rounded-full ${
-            active ? 'border-2' : ''
+            active ? 'border-3' : ''
           }  border-amber-300`}
           onClick={onClick}
         />
