@@ -28,8 +28,8 @@ export default function DestinationCard({
         <Image
           src={url}
           alt={title}
-          width={100}
-          height={140}
+          width={1000}
+          height={1400}
           className="object-cover w-full h-64"
         />
       ) : (
@@ -55,7 +55,6 @@ export default function DestinationCard({
     </div>
   );
 }
-
 
 // // 'use client';
 // // import Image from 'next/image';

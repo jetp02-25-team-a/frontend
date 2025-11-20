@@ -16,7 +16,7 @@ interface ComponentsUserCardProps {
   name: string;
   description: string;
   id: number;
-  state: 'self' | 'other' | 'isFriend';
+  state?: 'self' | 'other' | 'isFriend';
   addFriend?: (id: number) => void;
 }
 

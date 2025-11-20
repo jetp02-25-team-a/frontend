@@ -58,11 +58,19 @@ export default function Navbar() {
 
         <div className="flex gap-8 items-center">
           <div className="flex gap-[10px] items-center">
-            <Link
+            {/* <Link
               href="/trip"
               className={`px-[15px] ${pathname === '/trip' ? 'text-white' : ''}`}
             >
               行程規劃
+            </Link> */}
+            <Link
+              href="/grabgroup/team-up"
+              className={`px-[15px] ${
+                pathname.startsWith('/grabgroup') ? 'text-white' : ''
+              }`}
+            >
+              開始行程
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
             <Link href="/place" className={linkCls('/place')}>
@@ -85,15 +93,15 @@ export default function Navbar() {
               旅行筆記
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
-            <Link
+            {/* <Link
               href="/grabgroup/team-up"
               className={`px-[15px] ${
                 pathname.startsWith('/grabgroup') ? 'text-white' : ''
               }`}
             >
-              尋找旅伴
-            </Link>
-            <div className="bg-white w-[2px] h-7"></div>
+              開始行程
+            </Link> */}
+            {/* <div className="bg-white w-[2px] h-7"></div> */}
             <Link
               href="/shops"
               className={`px-[15px] ${pathname === '/shops' ? 'text-white' : ''}`}
