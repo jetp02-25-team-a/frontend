@@ -1,59 +1,73 @@
+// app/trip/_components/TripCard.tsx
 'use client';
 
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import type { TripSummary } from './types';
 
-interface TripCardProps {
-  id: number;
-  title: string;
-  area: string;
-  date: string;
-  image: string;
+interface Props {
+  trip: TripSummary;
+  onClick?: () => void;
 }
 
-/**
- * TripCard
- * - 符合 Figma UI（303×259、customize_shadow）
- * - hover 顯示「查看行程」
- * - 點擊導向 /trip/[id]
- */
-export default function TripCard({
-  id,
-  title,
-  area,
-  date,
-  image,
-}: TripCardProps) {
-  const router = useRouter();
+export default function TripCard({ trip, onClick }: Props) {
+  const coverImage = trip.destinationImageUrl || trip.coverUrl || '/trip_sample.jpg';
+
+  // 格式化日期：2025/11/25
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}/${month}/${day}`;
+  };
 
   return (
-    <div
-      onClick={() => router.push(`/trip/${id}`)}
-      className="relative w-[303px] h-[259px] rounded-2xl customize_shadow bg-white overflow-hidden cursor-pointer group transition-transform hover:scale-[1.02] hover:shadow-lg"
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full bg-white shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer text-left border border-neutral-100 group"
     >
-      {/* 圖片區 */}
-      <div className="relative w-full h-[60%] overflow-hidden">
-        <Image
-          src={image || `https://picsum.photos/seed/${id}/600/400`}
-          alt={title}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
+      {/* 封面圖片 - 16:9 比例 */}
+      <div className="w-full aspect-[16/9] relative overflow-hidden bg-neutral-100">
+        <img
+          src={coverImage}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          alt={trip.title}
+          onError={(e) => {
+            e.currentTarget.src = '/trip_sample.jpg';
+          }}
         />
-        <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-semibold text-lg">
-          查看行程
-        </div>
       </div>
 
-      {/* 文字內容 */}
-      <div className="flex flex-col justify-between p-4 h-[40%] bg-white">
-        <div>
-          <h3 className="font-semibold text-base text-gray-800 line-clamp-1">
-            {title}
-          </h3>
-          <p className="text-sm text-gray-500 mt-1">{area}</p>
+      {/* 內容區域 */}
+      <div className="p-6 space-y-3">
+        {/* 標題 */}
+        <h3 className="text-lg font-semibold text-neutral-900 line-clamp-2 group-hover:text-[#F6C453] transition-colors">
+          {trip.title}
+        </h3>
+
+        {/* 位置 */}
+        <div className="flex items-center gap-2">
+          {trip.destinationImageUrl && (
+            <img
+              src={trip.destinationImageUrl}
+              alt={trip.destinationName || '目的地'}
+              className="w-6 h-6 object-cover rounded-full border border-neutral-200 flex-shrink-0"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          )}
+          <span className="text-sm text-neutral-600 font-medium">
+            {trip.destinationName ?? '未設定目的地'}
+          </span>
         </div>
-        <p className="text-xs text-gray-400 mt-2">{date}</p>
+
+        {/* 日期 */}
+        <div className="text-sm text-neutral-500 font-medium">
+          {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
+        </div>
       </div>
-    </div>
+    </button>
   );
 }
