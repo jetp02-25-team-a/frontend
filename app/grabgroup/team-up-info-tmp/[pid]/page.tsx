@@ -121,7 +121,7 @@ export default function PlacePage() {
   return (
     <div
       style={{ pointerEvents: 'none' }}
-      className="border-2 border-gray-200 "
+      className="border-2 border-gray-200 w-full"
     >
       {/* image區 */}
 
@@ -206,7 +206,7 @@ export default function PlacePage() {
               <div className="flex gap-4">
                 <PhotoView src={toImgUrl(images[0].imageName)}>
                   {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
-                  <div className="h-full w-[770px] shrink-0">
+                  <div className="h-[515px] w-[770px] shrink-0 overflow-hidden">
                     <img
                       id="first-photo-trigger"
                       src={toImgUrl(images[0].imageName)}

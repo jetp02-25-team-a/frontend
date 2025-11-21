@@ -223,7 +223,7 @@ export default function GroupItineraryDetalPage({
             // 使用行程標題作為房間名稱，或使用後端回傳的 roomName
             const roomName =
               result.data.roomName ||
-              `行程: ${itineraryResult.data?.[0]?.title || '未命名行程'}`;
+              `行程: ${itineraryResult.data?.[0]?.title || ''}`;
 
             // 找到房間 ID 後，抓取該房間的所有對話
             await fetchRoomMessages(result.data.id, roomName);

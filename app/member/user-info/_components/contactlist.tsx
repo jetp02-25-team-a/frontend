@@ -95,7 +95,11 @@ export default function ContactList({
               receiverId={message.LatestMessage?.receiverId}
               senderId={message.LatestMessage?.senderId}
               isRead={message.LatestMessage?.isRead}
-              title={message.roomData.roomName}
+              title={
+                message.roomData.roomName.length > 10
+                  ? message.roomData.roomName.slice(0, 13) + '...'
+                  : message.roomData.roomName
+              }
               messageType={message.LatestMessage?.messageType}
               content={
                 message.LatestMessage
