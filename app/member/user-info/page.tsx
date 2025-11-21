@@ -27,6 +27,7 @@ import DeleteConfirmModal from './_components/deleteConfirmModal';
 import BookingList from '../../accommodations/_components/client/BookingList';
 import FavoriteAccommodationList from '../../accommodations/_components/client/FavoriteAccList';
 import UserDashboardTabs from '../../accommodations/_components/client/AccDash';
+import Makearticle from '@/app/article/_components/makearticle';
 import { useBooking } from '../../../contexts/BookingContext';
 
 //
@@ -348,7 +349,7 @@ export default function UserInfoPage() {
               <div className=" px-5 pb-6 rounded-b-3xl bg-white ">
                 {/* 顯示區域 */}
                 <div>
-                  {options === '發文' && <>發表文章</>}
+                  {options === '發文' && <Makearticle />}
                   {options === '收藏景點' && (
                     <>
                       <FavoriteList />

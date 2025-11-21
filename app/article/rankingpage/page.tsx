@@ -1,16 +1,17 @@
 // app/article/rankingpage/page.tsx
-'use client'; // PENTING: Untuk mengaktifkan useState dan useEffect
-// import { useEffect, useState } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 import HeroImage from '../_components/HeroImage';
 import HeroSection from '../_components/HeroSection';
 import IntroText from '../_components/IntroText';
 import SidebarAction from '../_components/SidebarActions';
-import React, { useState, useEffect } from 'react';
 import RankingCard from '../_components/RankingCard';
-import { ArticleRankingItem, RankingAPIResponse } from '../_components/type'; // Sesuaikan jalur import
-import axios from 'axios';
 
-// 🚀 KOREKSI URL AKURAT BERDASARKAN HASIL POSTMAN 🚀
+import { ArticleRankingItem, RankingAPIResponse } from '../_components/type';
+
 const API_BASE_URL = 'http://localhost:3005/api/article';
 const ARTICLES_PER_PAGE = 10;
 
@@ -25,26 +26,23 @@ const ArticleRankingPage: React.FC = () => {
     const fetchRanking = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        // URL FINAL YANG PASTI BERHASIL MENGHINDARI 404:
-        // Cth: http://localhost:3005/api/article/ranking?limit=10&page=1
         const url = `${API_BASE_URL}/ranking?limit=${ARTICLES_PER_PAGE}&page=${currentPage}`;
-
         const response = await axios.get<RankingAPIResponse>(url);
-        const data = response.data;
 
-        if (data.success) {
-          setRankingData(data.data);
-          setTotalArticles(data.total);
+        if (response.data.success) {
+          setRankingData(response.data.data);
+          setTotalArticles(response.data.total);
         } else {
-          setError(data.message || 'Failed to retrieve ranking data.');
+          setError(response.data.message || 'Failed to retrieve ranking data.');
         }
-      } catch (err) {
-        console.error('Error fetching ranking:', err);
-        const errorMessage = axios.isAxiosError(err)
-          ? `Gagal koneksi atau status ${err.response?.status}: Cek Backend!`
-          : 'Terjadi kesalahan tidak terduga.';
-        setError(errorMessage);
+      } catch (err: any) {
+        setError(
+          axios.isAxiosError(err)
+            ? `Gagal koneksi atau status ${err.response?.status}: Cek Backend!`
+            : 'Terjadi kesalahan tidak terduga.'
+        );
       } finally {
         setLoading(false);
       }
@@ -55,114 +53,115 @@ const ArticleRankingPage: React.FC = () => {
 
   const totalPages = Math.ceil(totalArticles / ARTICLES_PER_PAGE);
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
-  };
-
-  if (loading)
-    return (
-      <div style={{ textAlign: 'center', padding: '50px', fontSize: '1.2em' }}>
-        ⏳ Loading Article Rankings...
-      </div>
-    );
-  if (error)
-    return (
-      <div
-        style={{
-          color: 'white',
-          backgroundColor: '#e53e3e',
-          padding: '20px',
-          textAlign: 'center',
-          borderRadius: '8px',
-        }}
-      >
-        ❌ Error: {error}
-      </div>
-    );
-
   return (
-    <div
-      style={{
-        maxWidth: '900px',
-        margin: '30px auto',
-        padding: '0 15px',
-        fontFamily: 'Arial, sans-serif',
-      }}
-    >
-      <h1
-        style={{
-          textAlign: 'center',
-          borderBottom: '3px solid #3182ce',
-          paddingBottom: '15px',
-          color: '#2b6cb0',
-        }}
-      >
-        🏆 推薦景點排行榜
-      </h1>
+    <main>
+      <div className="flex-1">
 
-      {rankingData.length === 0 ? (
-        <p style={{ textAlign: 'center', marginTop: '40px', color: '#4a5568' }}>
-          There are no articles to rank at this time..
-        </p>
-      ) : (
-        rankingData.map((article: ArticleRankingItem) => (
-          <RankingCard key={article.id} article={article} />
-        ))
-      )}
+        {/* HERO SECTION — Sekarang tampil */}
+        <HeroImage />
 
-      {/* Pagination */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginTop: '30px',
-          padding: '10px 0',
-        }}
-      >
-        <button
-          onClick={handlePrevPage}
-          disabled={currentPage === 1}
-          style={buttonStyle(currentPage === 1)}
-        >
-          &larr; 上一頁
-        </button>
-        <span style={{ fontWeight: 'bold', color: '#2d3748' }}>
-          Page {currentPage} / {totalPages}
-        </span>
-        <button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages || totalPages === 0}
-          style={buttonStyle(currentPage === totalPages || totalPages === 0)}
-        >
-          下一頁 &rarr;
-        </button>
+        <div className="text-center mt-6 text-xl font-bold">
+          你的旅程，不只是回憶——也是靈感的起點！
+        </div>
+
+        <div className="flex">
+          {/* SIDEBAR TAMPIL */}
+          <SidebarAction />
+
+          {/* Ranking list + Loading/Error */}
+          <div style={{ flex: 1, padding: "20px" }}>
+            {loading && (
+              <div style={{ textAlign: 'center', padding: '50px' }}>
+                ⏳ Loading Article Rankings...
+              </div>
+            )}
+
+            {error && (
+              <div style={{
+                color: 'white',
+                backgroundColor: '#e53e3e',
+                padding: '20px',
+                borderRadius: '8px',
+                textAlign: 'center'
+              }}>
+                ❌ Error: {error}
+              </div>
+            )}
+
+            {!loading && !error && (
+              <>
+                <h1
+                  style={{
+                    textAlign: 'center',
+                    borderBottom: '3px solid #3182ce',
+                    paddingBottom: '15px',
+                    color: '#2b6cb0',
+                  }}
+                >
+                  🏆 推薦景點排行榜
+                </h1>
+
+                {rankingData.length === 0 ? (
+                  <p style={{ textAlign: 'center', marginTop: '40px', color: '#4a5568' }}>
+                    There are no articles to rank at this time.
+                  </p>
+                ) : (
+                  rankingData.map((article) => (
+                    <RankingCard key={article.id} article={article} />
+                  ))
+                )}
+
+                {/* Pagination */}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginTop: '30px',
+                  }}
+                >
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    style={buttonStyle(currentPage === 1)}
+                  >
+                    ← 上一頁
+                  </button>
+
+                  <span style={{ fontWeight: 'bold' }}>
+                    Page {currentPage} / {totalPages}
+                  </span>
+
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    style={buttonStyle(currentPage === totalPages)}
+                  >
+                    下一頁 →
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 };
 
-// Helper style untuk tombol
-const buttonStyle = (isDisabled: boolean): React.CSSProperties => ({
+// Button style
+const buttonStyle = (disabled: boolean): React.CSSProperties => ({
   padding: '10px 15px',
-  cursor: isDisabled ? 'not-allowed' : 'pointer',
-  backgroundColor: isDisabled ? '#ccc' : '#3182ce',
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  backgroundColor: disabled ? '#ccc' : '#3182ce',
   color: 'white',
   border: 'none',
   borderRadius: '6px',
   fontWeight: 'bold',
-  opacity: isDisabled ? 0.6 : 1,
+  opacity: disabled ? 0.6 : 1,
 });
 
 export default ArticleRankingPage;
+
 
 /// 'use client';
 
