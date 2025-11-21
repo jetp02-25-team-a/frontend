@@ -26,10 +26,10 @@ export default function DestinationCard({
     <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all overflow-hidden">
       {isValidUrl(image) ? (
         <Image
-          src={url}
+          src={image}
           alt={title}
-          width={1000}
-          height={1400}
+          width={50}
+          height={100}
           className="object-cover w-full h-64"
         />
       ) : (
