@@ -180,13 +180,13 @@ export default function GroupItineraryDetalPage({
   // 根據 itineraryId 抓取對應的聊天室資訊 抓取房間id 和房間名稱
   const fetchItineraryChatRoom = async () => {
     if (!itineraryId) return;
-    
+
     // 檢查是否在瀏覽器環境
     if (typeof window === 'undefined') {
       console.log('伺服器端環境，無法訪問 localStorage');
       return;
     }
-    
+
     // 正確獲取 token
     const userInfo = localStorage.getItem('BackpackUserInfo');
     const token = userInfo ? JSON.parse(userInfo).token : null;
@@ -236,7 +236,7 @@ export default function GroupItineraryDetalPage({
             // 使用行程標題作為房間名稱，或使用後端回傳的 roomName
             const roomName =
               result.data.roomName ||
-              `行程: ${itineraryResult.data?.[0]?.title || '未命名行程'}`;
+              `行程: ${itineraryResult.data?.[0]?.title || ''}`;
 
             // 找到房間 ID 後，抓取該房間的所有對話
             await fetchRoomMessages(result.data.id, roomName);

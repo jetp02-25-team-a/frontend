@@ -219,12 +219,14 @@ export default function PlacePage() {
             <>
               <PhotoView src={toImgUrl(images[0].imageName)}>
                 {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
-                <img
-                  id="first-photo-trigger"
-                  src={toImgUrl(images[0].imageName)}
-                  alt=""
-                  className="shrink-0 w-[900px] h-full object-cover"
-                />
+                <div className="h-[600px] w-[770px] shrink-0 overflow-hidden">
+                  <img
+                    id="first-photo-trigger"
+                    src={toImgUrl(images[0].imageName)}
+                    alt=""
+                    className="shrink-0 w-[900px] h-full object-cover"
+                  />
+                </div>
               </PhotoView>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-4">
@@ -232,7 +234,7 @@ export default function PlacePage() {
                     <div className="relative w-[300px] h-[295px]">
                       <Image
                         fill
-                        sizes="300px"
+                        sizes="100%"
                         src={toImgUrl(images[1].imageName)}
                         alt=""
                         className="object-cover"
@@ -243,7 +245,7 @@ export default function PlacePage() {
                     <div className="relative w-[300px] h-[290px]">
                       <Image
                         fill
-                        sizes="300px"
+                        sizes="100%"
                         src={toImgUrl(images[2].imageName)}
                         alt=""
                         className="object-cover"
@@ -266,7 +268,7 @@ export default function PlacePage() {
               <div className="flex gap-4">
                 <PhotoView src={toImgUrl(images[0].imageName)}>
                   {/* 使用原生 img 並綁定 id，以便用 document.getElementById(...).click() 觸發 PhotoView */}
-                  <div className="h-full w-[770px] shrink-0">
+                  <div className="h-[515px] w-[770px] shrink-0 overflow-hidden">
                     <img
                       id="first-photo-trigger"
                       src={toImgUrl(images[0].imageName)}
@@ -280,7 +282,7 @@ export default function PlacePage() {
                     <div className="relative w-full h-[250px]">
                       <Image
                         fill
-                        sizes="510px"
+                        sizes="100%"
                         src={toImgUrl(images[1].imageName)}
                         alt=""
                         className="object-cover"
@@ -293,7 +295,7 @@ export default function PlacePage() {
                       <div className="relative w-[250px] h-[250px]">
                         <Image
                           fill
-                          sizes="250px"
+                          sizes="100%"
                           src={toImgUrl(images[2].imageName)}
                           alt=""
                           className="object-cover"
@@ -304,7 +306,7 @@ export default function PlacePage() {
                       <div className="relative w-[250px] h-[250px]">
                         <Image
                           fill
-                          sizes="250px"
+                          sizes="100%"
                           src={toImgUrl(images[3].imageName)}
                           alt=""
                           className="object-cover"

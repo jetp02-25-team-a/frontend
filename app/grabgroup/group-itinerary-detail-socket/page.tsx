@@ -30,6 +30,7 @@ import { ItineraryEditor } from '../_components/ItineraryEditor';
 import { useSearchParams } from 'next/navigation';
 import { API_SERVER } from '../../config/api-path';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
+import toast from 'react-hot-toast';
 
 export interface mapPoint {
   latitude: number; //預設台北101
@@ -310,7 +311,7 @@ export default function GroupItineraryDetailPage() {
       const datas = data.data;
       setItineraryData((prev) => [...datas]); //設定context
       // console.log('data==>', data);
-      setItineraryTitle(datas?.[0]?.Itinerary?.title || '未命名行程');
+      setItineraryTitle(datas?.[0]?.Itinerary?.title || '');
       // console.log('itineraryTitle==>', itineraryTitle);
     }
   }, [data]);
@@ -674,7 +675,10 @@ export default function GroupItineraryDetailPage() {
 
             {/* 存檔按鈕 */}
             <button
-              onClick={handleSave}
+              onClick={() => {
+                handleSave;
+                toast.success('存檔成功');
+              }}
               disabled={isSaving}
               className={`flex mt-4 items-center gap-2 px-4 py-2 rounded-lg text-white font-medium ${
                 isSaving

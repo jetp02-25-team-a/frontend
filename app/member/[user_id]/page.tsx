@@ -48,7 +48,7 @@ export default function UserIdPage() {
   const { user, isAuthenticated, isReady } = useAuth();
   const [isFriend, setIsFriend] = useState<boolean>(false);
 
-  const [options, setOptions] = useState<string>('發文');
+  const [options, setOptions] = useState<string>('收藏景點');
   const url = `${API_SERVER}/friendships/userinfo?userId=${user_id}`;
   const { data, loading, error, refetch } = useFetch(url);
 
@@ -133,17 +133,17 @@ export default function UserIdPage() {
           <div className="flex">
             <ListButton
               name="發文"
-              active={false}
+              active={options === '發文' ? true : false}
               onClick={() => setOptions('發文')}
             />
             <ListButton
               name="收藏景點"
-              active={false}
+              active={options === '收藏景點' ? true : false}
               onClick={() => setOptions('收藏景點')}
             />
             <ListButton
               name="好友"
-              active={false}
+              active={options === '好友' ? true : false}
               onClick={() => setOptions('好友')}
             />
           </div>

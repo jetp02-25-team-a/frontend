@@ -25,7 +25,8 @@ export default function TeamUpInfoPage({
         <h1 className="text-4xl">預覽畫面</h1>
         <p>此為畫面預覽，如無需修改請按下發佈按鈕</p>
         <div className="bg-gray-200 h-0.5 w-full"> </div>
-        {children}
+        <div className="w-full flex items-center px-70">{children}</div>
+
         <div className="flex gap-x-[21px] justify-center w-full">
           <Button content="回上一頁" onClick={() => router.back()} />
           <Button

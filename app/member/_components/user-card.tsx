@@ -114,12 +114,12 @@ export default function ComponentsUserCard({
             )}
           </div>
         </div>
-        <div className="flex w-full">
+        {/* <div className="flex w-full">
           <p className="w-full text-center">發文 {userDetail.posts}</p>
           <p className="w-full text-center">旅行 {userDetail.itineraries}</p>
           <p className="w-full text-center">朋友 {userDetail.friends}</p>
           <p className="w-full text-center">追蹤 {userDetail.followers}</p>
-        </div>
+        </div> */}
       </div>
     </>
   );
