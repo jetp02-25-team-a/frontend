@@ -286,9 +286,10 @@ export default function GroupItineraryDetailPage() {
       const result = await response.json();
       if (response.ok) {
         console.log('✅ 節點已保存到資料庫');
-      } else {
-        console.error('❌ 保存失敗:', response.statusText, result);
       }
+      // else {
+      //   console.error('❌ 保存失敗:', response.statusText, result);
+      // }
     } catch (error) {
       console.error('❌ 保存時發生錯誤:', error);
     }

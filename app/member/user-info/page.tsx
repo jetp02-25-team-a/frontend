@@ -367,7 +367,7 @@ export default function UserInfoPage() {
                             key={index}
                             className="border-b-2 border-gray-300 py-4 flex items-center justify-between gap-8"
                           >
-                            <div className="flex flex-col items-center min-w-[120px]">
+                            <div className="flex flex-col items-start min-w-[120px]">
                               <p className="text-gray-600 text-center">
                                 {itinerary.Itinerary?.area || '未指定區域'}
                               </p>
@@ -375,39 +375,43 @@ export default function UserInfoPage() {
                                 {itinerary.Itinerary?.title || '無標題'}
                               </h3>
                             </div>
-                            <p className="text-center min-w-[80px]">
+                            {/* <p className="text-center min-w-[80px]">
                               {itinerary.Itinerary?.figure} 人/團體
-                            </p>
-
-                            <p className="text-xl font-semibold text-center min-w-[120px] text-gray-400">
-                              {(() => {
-                                const dateValue =
-                                  itinerary.Itinerary?.Days?.[0]?.dayDate;
-                                if (!dateValue) return '無日期';
-                                const date = new Date(dateValue);
-                                if (isNaN(date.getTime())) return '無效日期';
-                                return date.toLocaleDateString('zh-TW');
-                              })()}
-                            </p>
-                            <button
-                              className="border-2 yellow-orange text-white p-2 rounded-xl min-w-[100px]"
-                              onClick={() =>
-                                router.push(
-                                  `/grabgroup/group-itinerary-detail-socket?itineraryId=${itinerary.Itinerary?.id}`
-                                )
-                              }
-                            >
-                              詳細頁面
-                            </button>
-                            {/* 刪除行程按鈕 */}
-                            <div>
-                              <FontAwesomeIcon
-                                icon={faTrashCan}
-                                onClick={() =>
-                                  setDeleteId(itinerary.Itinerary?.id)
-                                }
-                              />
+                            </p> */}
+                            <div className="flex gap-3 items-center">
+                              <p className="text-xl font-semibold text-center min-w-[120px] text-gray-400">
+                                {(() => {
+                                  const dateValue =
+                                    itinerary.Itinerary?.Days?.[0]?.dayDate;
+                                  if (!dateValue) return '無日期';
+                                  const date = new Date(dateValue);
+                                  if (isNaN(date.getTime())) return '無效日期';
+                                  return date.toLocaleDateString('zh-TW');
+                                })()}
+                              </p>
+                              <div className="flex gap-2 items-center">
+                                <button
+                                  className="border-2 yellow-orange text-white p-2 rounded-xl min-w-[100px]"
+                                  onClick={() =>
+                                    router.push(
+                                      `/grabgroup/group-itinerary-detail-socket?itineraryId=${itinerary.Itinerary?.id}`
+                                    )
+                                  }
+                                >
+                                  詳細頁面
+                                </button>
+                                {/* 刪除行程按鈕 */}
+                                <div>
+                                  <FontAwesomeIcon
+                                    icon={faTrashCan}
+                                    onClick={() =>
+                                      setDeleteId(itinerary.Itinerary?.id)
+                                    }
+                                  />
+                                </div>
+                              </div>
                             </div>
+
                             {/* modal */}
                             <DeleteConfirmModal
                               itineraryId={itinerary.Itinerary?.id}
