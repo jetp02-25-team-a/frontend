@@ -2,7 +2,11 @@ import { notFound } from 'next/navigation';
 import TripDetailClient from '../_components/TripDetailClient';
 import { getTripPlanDetail } from '../lib/trip_adapter';
 
-export default async function TripDetailPage({ params }) {
+export default async function TripDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const tripId = Number(params.id);
   if (!Number.isFinite(tripId)) return notFound();
 
