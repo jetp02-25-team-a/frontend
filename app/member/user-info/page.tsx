@@ -29,6 +29,10 @@ import FavoriteAccommodationList from '../../accommodations/_components/client/F
 import UserDashboardTabs from '../../accommodations/_components/client/AccDash';
 import Makearticle from '@/app/article/_components/makearticle';
 import { useBooking } from '../../../contexts/BookingContext';
+import DestinationCard from '../../article/_components/DestinationCard';
+import PostCard from '../../article/_components/PostCard';
+import ProductCard from '../../shops/_components/productCard';
+
 
 //
 interface Member {
