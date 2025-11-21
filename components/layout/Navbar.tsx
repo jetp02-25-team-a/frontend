@@ -62,8 +62,9 @@ export default function Navbar() {
               href="/trip"
               className={`px-[15px] ${pathname === '/trip' ? 'text-white' : ''}`}
             >
-              行程規劃
-            </Link> */}
+              行李記帳
+            </Link>
+            <div className="bg-white w-[2px] h-7"></div> */}
             <Link
               href="/grabgroup/team-up"
               className={`px-[15px] ${
@@ -93,15 +94,15 @@ export default function Navbar() {
               旅行筆記
             </Link>
             <div className="bg-white w-[2px] h-7"></div>
-            {/* <Link
-              href="/grabgroup/team-up"
+            <Link
+              href="/trip"
               className={`px-[15px] ${
-                pathname.startsWith('/grabgroup') ? 'text-white' : ''
+                pathname.startsWith('/trip') ? 'text-white' : ''
               }`}
             >
-              開始行程
-            </Link> */}
-            {/* <div className="bg-white w-[2px] h-7"></div> */}
+              行李記帳
+            </Link>
+            <div className="bg-white w-[2px] h-7"></div>
             <Link
               href="/shops"
               className={`px-[15px] ${pathname === '/shops' ? 'text-white' : ''}`}
