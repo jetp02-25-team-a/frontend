@@ -676,7 +676,7 @@ export default function GroupItineraryDetailPage() {
             {/* 存檔按鈕 */}
             <button
               onClick={() => {
-                handleSave;
+                handleSave();
                 toast.success('存檔成功');
               }}
               disabled={isSaving}
