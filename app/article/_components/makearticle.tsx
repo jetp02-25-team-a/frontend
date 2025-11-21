@@ -132,8 +132,8 @@ export default function MyArticles() {
   if (articles.length === 0) return <p>No articles found.</p>;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">My Articles</h1>
+    <div className= "space-y-6 mb-2.5">
+      {/* <h1 className="text-2xl font-bold">My Articles</h1> */}
       {articles.map((article) => (
         <div key={article.id} className="border p-4 rounded shadow">
           <h2 className="text-xl font-semibold">{article.title}</h2>
