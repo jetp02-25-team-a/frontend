@@ -24,12 +24,12 @@ export default function DestinationCard({
   const url = isValidUrl(image) ? `${ARTICLE_PHOTOS_PATH}${image}` : '';
   return (
     <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all overflow-hidden">
-      {isValidUrl(image) ? (
+      {isValidUrl(url) ? (
         <Image
-          src={image}
+          src={url}
           alt={title}
-          width={50}
-          height={100}
+          width={5000}
+          height={10000}
           className="object-cover w-full h-64"
         />
       ) : (
