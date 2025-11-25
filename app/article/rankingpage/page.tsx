@@ -9,6 +9,8 @@ import HeroSection from '../_components/HeroSection';
 import IntroText from '../_components/IntroText';
 import SidebarAction from '../_components/SidebarActions';
 import RankingCard from '../_components/RankingCard';
+// import ProductCard from '../../shops/_components/productCard';
+//import PostCard from '../_components/PostCard';
 
 import { ArticleRankingItem, RankingAPIResponse } from '../_components/type';
 
