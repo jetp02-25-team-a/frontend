@@ -10,26 +10,26 @@ interface DestinationCardProps {
   description?: string;
 }
 
-const isValidUrl = (url?: string) => {
-  if (!url) return false;
-  return true;
-};
-
 export default function DestinationCard({
   id,
   image,
   title,
   description,
 }: DestinationCardProps) {
-  const url = isValidUrl(image) ? `${ARTICLE_PHOTOS_PATH}${image}` : '';
+  // 判斷 image 是否有效（不是 undefined、不是空字串）
+  const hasImage = !!image && image.trim() !== '';
+
+  // 如果有圖，就組成完整 URL
+  const url = hasImage ? `${ARTICLE_PHOTOS_PATH}${image}` : '';
+
   return (
     <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all overflow-hidden">
-      {isValidUrl(image) ? (
+      {hasImage ? (
         <Image
           src={url}
           alt={title}
-          width={1000}
-          height={1400}
+          width={500}
+          height={300}
           className="object-cover w-full h-64"
         />
       ) : (
@@ -55,6 +55,7 @@ export default function DestinationCard({
     </div>
   );
 }
+
 
 // // 'use client';
 // // import Image from 'next/image';
